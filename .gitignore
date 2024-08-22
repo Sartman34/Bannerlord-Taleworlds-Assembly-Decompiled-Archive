@@ -1,0 +1,5 @@
+# Ignore all AssemblyInfo.cs files
+**/AssemblyInfo.cs
+
+# Ignore all .csproj files
+**/*.csproj
