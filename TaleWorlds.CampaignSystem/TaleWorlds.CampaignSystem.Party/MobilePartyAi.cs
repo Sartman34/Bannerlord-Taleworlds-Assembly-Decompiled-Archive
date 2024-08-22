@@ -1,0 +1,2013 @@
+using System;
+using System.Collections.Generic;
+using Helpers;
+using TaleWorlds.CampaignSystem.Map;
+using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Core;
+using TaleWorlds.Library;
+using TaleWorlds.SaveSystem;
+
+namespace TaleWorlds.CampaignSystem.Party;
+
+public class MobilePartyAi
+{
+	private const float AiCheckInterval = 0.25f;
+
+	private const int FleeToNearbyPartyDistanceRadius = 10;
+
+	private const int FleeToNearbySettlementDistanceRadius = 20;
+
+	public const float GoAroundPartyWaitNearbyRadiusMultiplier = 1.2f;
+
+	private const float HideoutPatrolRadius = 25f;
+
+	private const float FortificationPatrolRadius = 30f;
+
+	private const float VillagePatrolRadius = 15f;
+
+	private const float MaximumJoiningRadiusMultiplier = 2f;
+
+	private static readonly List<(float, Vec2)> DangerousPartiesAndTheirVecs = new List<(float, Vec2)>();
+
+	[SaveableField(2)]
+	private bool _isDisabled;
+
+	[SaveableField(5)]
+	private readonly MobileParty _mobileParty;
+
+	[SaveableField(6)]
+	public int HourCounter;
+
+	[SaveableField(12)]
+	internal Vec2 BehaviorTarget;
+
+	[SaveableField(13)]
+	private float _attackInitiative = 1f;
+
+	[SaveableField(14)]
+	private float _avoidInitiative = 1f;
+
+	[SaveableField(15)]
+	private CampaignTime _initiativeRestoreTime;
+
+	[SaveableField(16)]
+	private bool _aiBehaviorResetNeeded;
+
+	[SaveableField(18)]
+	private CampaignTime _nextAiCheckTime;
+
+	[SaveableField(19)]
+	internal bool DefaultBehaviorNeedsUpdate;
+
+	[SaveableField(20)]
+	private int _numberOfRecentFleeingFromAParty;
+
+	[SaveableField(21)]
+	private AiBehavior _defaultBehavior;
+
+	[SaveableField(22)]
+	private bool _aiPathMode;
+
+	[SaveableField(23)]
+	private bool _aiPathNeeded;
+
+	[SaveableField(25)]
+	private Vec2 _formationPosition;
+
+	[SaveableField(28)]
+	private Vec2 _moveTargetPoint;
+
+	[SaveableField(29)]
+	private Vec2 _aiPathLastPosition;
+
+	[SaveableField(30)]
+	private IMapEntity _aiBehaviorMapEntity;
+
+	[CachedData]
+	private PathFaceRecord _targetAiFaceIndex = PathFaceRecord.NullFaceRecord;
+
+	[CachedData]
+	private PathFaceRecord _moveTargetAiFaceIndex = PathFaceRecord.NullFaceRecord;
+
+	[CachedData]
+	private PathFaceRecord _aiPathLastFace;
+
+	[CachedData]
+	private List<MobileParty> _lastTargetedParties;
+
+	private bool _aiPathNotFound;
+
+	public bool IsDisabled
+	{
+		get
+		{
+			return _isDisabled;
+		}
+		private set
+		{
+			_isDisabled = value;
+		}
+	}
+
+	[SaveableProperty(3)]
+	private CampaignTime _enableAgainAtHour { get; set; }
+
+	[SaveableProperty(10)]
+	public bool RethinkAtNextHourlyTick { get; set; }
+
+	[SaveableProperty(11)]
+	public bool DoNotMakeNewDecisions { get; private set; }
+
+	[SaveableProperty(17)]
+	public bool IsAlerted { get; private set; }
+
+	[SaveableProperty(24)]
+	public MoveModeType PartyMoveMode { get; private set; }
+
+	[SaveableProperty(26)]
+	public MobileParty MoveTargetParty { get; private set; }
+
+	[SaveableProperty(27)]
+	public Vec2 NextTargetPosition { get; private set; }
+
+	[SaveableProperty(31)]
+	public CampaignTime DoNotAttackMainPartyUntil { get; internal set; }
+
+	[CachedData]
+	public int PathBegin { get; private set; }
+
+	[CachedData]
+	public NavigationPath Path { get; private set; }
+
+	[CachedData]
+	public bool ForceAiNoPathMode { get; set; }
+
+	public AiBehavior DefaultBehavior
+	{
+		get
+		{
+			return _defaultBehavior;
+		}
+		private set
+		{
+			if (_defaultBehavior != value)
+			{
+				_numberOfRecentFleeingFromAParty = 0;
+				_defaultBehavior = value;
+				DefaultBehaviorNeedsUpdate = true;
+				if (_mobileParty != MobileParty.MainParty && _mobileParty.BesiegedSettlement != null && value != AiBehavior.BesiegeSettlement && value != AiBehavior.EscortParty && value != AiBehavior.AssaultSettlement)
+				{
+					_mobileParty.BesiegerCamp = null;
+				}
+			}
+		}
+	}
+
+	public bool NeedTargetReset => _numberOfRecentFleeingFromAParty >= 6;
+
+	public int NumberOfRecentFleeingFromAParty => _numberOfRecentFleeingFromAParty;
+
+	private float AvoidInitiative
+	{
+		get
+		{
+			if (!_initiativeRestoreTime.IsPast)
+			{
+				return _avoidInitiative;
+			}
+			return 1f;
+		}
+	}
+
+	private float AttackInitiative
+	{
+		get
+		{
+			if (!_initiativeRestoreTime.IsPast)
+			{
+				return _attackInitiative;
+			}
+			return 1f;
+		}
+	}
+
+	public PartyBase AiBehaviorPartyBase { get; private set; }
+
+	public IMapEntity AiBehaviorMapEntity
+	{
+		get
+		{
+			return _aiBehaviorMapEntity;
+		}
+		set
+		{
+			if (_aiBehaviorMapEntity == value)
+			{
+				return;
+			}
+			_aiBehaviorMapEntity = value;
+			AiBehaviorPartyBase = null;
+			if (_aiBehaviorMapEntity != null)
+			{
+				if (_aiBehaviorMapEntity is MobileParty mobileParty)
+				{
+					AiBehaviorPartyBase = mobileParty.Party;
+				}
+				else if (_aiBehaviorMapEntity is Settlement settlement)
+				{
+					AiBehaviorPartyBase = settlement.Party;
+				}
+			}
+			else
+			{
+				AiBehaviorPartyBase = null;
+			}
+		}
+	}
+
+	internal static void AutoGeneratedStaticCollectObjectsMobilePartyAi(object o, List<object> collectedObjects)
+	{
+		((MobilePartyAi)o).AutoGeneratedInstanceCollectObjects(collectedObjects);
+	}
+
+	protected virtual void AutoGeneratedInstanceCollectObjects(List<object> collectedObjects)
+	{
+		collectedObjects.Add(_mobileParty);
+		CampaignTime.AutoGeneratedStaticCollectObjectsCampaignTime(_initiativeRestoreTime, collectedObjects);
+		CampaignTime.AutoGeneratedStaticCollectObjectsCampaignTime(_nextAiCheckTime, collectedObjects);
+		collectedObjects.Add(_aiBehaviorMapEntity);
+		CampaignTime.AutoGeneratedStaticCollectObjectsCampaignTime(_enableAgainAtHour, collectedObjects);
+		collectedObjects.Add(MoveTargetParty);
+		CampaignTime.AutoGeneratedStaticCollectObjectsCampaignTime(DoNotAttackMainPartyUntil, collectedObjects);
+	}
+
+	internal static object AutoGeneratedGetMemberValue_enableAgainAtHour(object o)
+	{
+		return ((MobilePartyAi)o)._enableAgainAtHour;
+	}
+
+	internal static object AutoGeneratedGetMemberValueRethinkAtNextHourlyTick(object o)
+	{
+		return ((MobilePartyAi)o).RethinkAtNextHourlyTick;
+	}
+
+	internal static object AutoGeneratedGetMemberValueDoNotMakeNewDecisions(object o)
+	{
+		return ((MobilePartyAi)o).DoNotMakeNewDecisions;
+	}
+
+	internal static object AutoGeneratedGetMemberValueIsAlerted(object o)
+	{
+		return ((MobilePartyAi)o).IsAlerted;
+	}
+
+	internal static object AutoGeneratedGetMemberValuePartyMoveMode(object o)
+	{
+		return ((MobilePartyAi)o).PartyMoveMode;
+	}
+
+	internal static object AutoGeneratedGetMemberValueMoveTargetParty(object o)
+	{
+		return ((MobilePartyAi)o).MoveTargetParty;
+	}
+
+	internal static object AutoGeneratedGetMemberValueNextTargetPosition(object o)
+	{
+		return ((MobilePartyAi)o).NextTargetPosition;
+	}
+
+	internal static object AutoGeneratedGetMemberValueDoNotAttackMainPartyUntil(object o)
+	{
+		return ((MobilePartyAi)o).DoNotAttackMainPartyUntil;
+	}
+
+	internal static object AutoGeneratedGetMemberValueHourCounter(object o)
+	{
+		return ((MobilePartyAi)o).HourCounter;
+	}
+
+	internal static object AutoGeneratedGetMemberValueBehaviorTarget(object o)
+	{
+		return ((MobilePartyAi)o).BehaviorTarget;
+	}
+
+	internal static object AutoGeneratedGetMemberValueDefaultBehaviorNeedsUpdate(object o)
+	{
+		return ((MobilePartyAi)o).DefaultBehaviorNeedsUpdate;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_isDisabled(object o)
+	{
+		return ((MobilePartyAi)o)._isDisabled;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_mobileParty(object o)
+	{
+		return ((MobilePartyAi)o)._mobileParty;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_attackInitiative(object o)
+	{
+		return ((MobilePartyAi)o)._attackInitiative;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_avoidInitiative(object o)
+	{
+		return ((MobilePartyAi)o)._avoidInitiative;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_initiativeRestoreTime(object o)
+	{
+		return ((MobilePartyAi)o)._initiativeRestoreTime;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_aiBehaviorResetNeeded(object o)
+	{
+		return ((MobilePartyAi)o)._aiBehaviorResetNeeded;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_nextAiCheckTime(object o)
+	{
+		return ((MobilePartyAi)o)._nextAiCheckTime;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_numberOfRecentFleeingFromAParty(object o)
+	{
+		return ((MobilePartyAi)o)._numberOfRecentFleeingFromAParty;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_defaultBehavior(object o)
+	{
+		return ((MobilePartyAi)o)._defaultBehavior;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_aiPathMode(object o)
+	{
+		return ((MobilePartyAi)o)._aiPathMode;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_aiPathNeeded(object o)
+	{
+		return ((MobilePartyAi)o)._aiPathNeeded;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_formationPosition(object o)
+	{
+		return ((MobilePartyAi)o)._formationPosition;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_moveTargetPoint(object o)
+	{
+		return ((MobilePartyAi)o)._moveTargetPoint;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_aiPathLastPosition(object o)
+	{
+		return ((MobilePartyAi)o)._aiPathLastPosition;
+	}
+
+	internal static object AutoGeneratedGetMemberValue_aiBehaviorMapEntity(object o)
+	{
+		return ((MobilePartyAi)o)._aiBehaviorMapEntity;
+	}
+
+	internal MobilePartyAi(MobileParty mobileParty)
+	{
+		_mobileParty = mobileParty;
+		RethinkAtNextHourlyTick = false;
+		HourCounter = MBRandom.RandomInt(100);
+		_lastTargetedParties = new List<MobileParty>();
+		InitCached();
+		_formationPosition.x = 10000f;
+		_formationPosition.y = 10000f;
+		while (_formationPosition.LengthSquared > 0.36f || _formationPosition.LengthSquared < 0.22f)
+		{
+			_formationPosition = new Vec2(MBRandom.RandomFloat * 1.2f - 0.6f, MBRandom.RandomFloat * 1.2f - 0.6f);
+		}
+	}
+
+	internal void StartUp()
+	{
+		NextTargetPosition = _mobileParty.Position2D;
+		_aiPathLastFace = PathFaceRecord.NullFaceRecord;
+		_moveTargetPoint = _mobileParty.Position2D;
+		ForceAiNoPathMode = false;
+	}
+
+	internal void OnGameInitialized()
+	{
+		UpdatePathModeWithPosition(_moveTargetPoint);
+		ComputePath(_moveTargetPoint);
+	}
+
+	internal void InitCached()
+	{
+		Path = new NavigationPath();
+		_aiPathLastFace = PathFaceRecord.NullFaceRecord;
+		ForceAiNoPathMode = false;
+	}
+
+	internal void PreAfterLoad()
+	{
+		if (AiBehaviorMapEntity != null)
+		{
+			if (AiBehaviorMapEntity is Settlement settlement)
+			{
+				AiBehaviorPartyBase = settlement.Party;
+			}
+			else if (AiBehaviorMapEntity is MobileParty mobileParty)
+			{
+				AiBehaviorPartyBase = mobileParty.Party;
+			}
+		}
+	}
+
+	internal void OnBeforeLoad()
+	{
+		_lastTargetedParties = new List<MobileParty>();
+	}
+
+	internal void HourlyTick()
+	{
+		if (_numberOfRecentFleeingFromAParty > 5 && MBRandom.RandomFloat < 0.2f)
+		{
+			_numberOfRecentFleeingFromAParty -= 5;
+		}
+		RemoveOneOfLastTargettedPartiesWithProbability(0.2f);
+	}
+
+	internal void Tick(float dt)
+	{
+		if (DefaultBehaviorNeedsUpdate)
+		{
+			_nextAiCheckTime = CampaignTime.Now;
+			DefaultBehaviorNeedsUpdate = false;
+		}
+		if (!_nextAiCheckTime.IsFuture)
+		{
+			TickInternal();
+			long valueInSeconds = (long)(0.25f * (0.6f + 0.1f * MBRandom.RandomFloat) * ((_mobileParty.ShortTermTargetParty == MobileParty.MainParty && _mobileParty.ShortTermBehavior == AiBehavior.EngageParty) ? 0.5f : 1f) * 60f * 60f);
+			_nextAiCheckTime = CampaignTime.Now + CampaignTime.Seconds(valueInSeconds);
+		}
+	}
+
+	private void TickInternal()
+	{
+		if (_mobileParty.MapEvent != null)
+		{
+			return;
+		}
+		if (_mobileParty == MobileParty.MainParty && MobileParty.MainParty.DefaultBehavior == AiBehavior.EngageParty && !MobileParty.MainParty.TargetParty.IsVisible)
+		{
+			MobileParty.MainParty.Ai.SetMoveModeHold();
+		}
+		if (IsDisabled && EnableAgainAtHourIsPast())
+		{
+			EnableAi();
+		}
+		else if (_mobileParty.Army == null || !_mobileParty.Army.LeaderParty.AttachedParties.Contains(_mobileParty))
+		{
+			GetBehaviors(out var bestAiBehavior, out var behaviorParty, out var bestTargetPoint);
+			if (!IsDisabled || behaviorParty != null)
+			{
+				SetAiBehavior(bestAiBehavior, behaviorParty, bestTargetPoint);
+			}
+		}
+	}
+
+	private void RemoveOneOfLastTargettedPartiesWithProbability(float probabilityToRemove)
+	{
+		int num = -1;
+		for (int i = 0; i < _lastTargetedParties.Count; i++)
+		{
+			if (MBRandom.RandomFloat < probabilityToRemove)
+			{
+				num = i;
+				break;
+			}
+		}
+		if (num >= 0)
+		{
+			_lastTargetedParties.RemoveAt(num);
+		}
+	}
+
+	public void CheckPartyNeedsUpdate()
+	{
+		if (DefaultBehaviorNeedsUpdate)
+		{
+			Tick(0f);
+			EncounterManager.HandleEncounterForMobileParty(_mobileParty, 0f);
+		}
+	}
+
+	public void SetMoveModeHold()
+	{
+		DefaultBehavior = AiBehavior.Hold;
+		SetShortTermBehavior(AiBehavior.Hold, null);
+		_mobileParty.TargetSettlement = null;
+		_mobileParty.TargetParty = null;
+	}
+
+	public void SetMoveEngageParty(MobileParty party)
+	{
+		DefaultBehavior = AiBehavior.EngageParty;
+		_mobileParty.TargetParty = party;
+		_mobileParty.TargetSettlement = null;
+	}
+
+	public void SetMoveGoAroundParty(MobileParty party)
+	{
+		DefaultBehavior = AiBehavior.GoAroundParty;
+		_mobileParty.TargetParty = party;
+		_mobileParty.TargetSettlement = null;
+	}
+
+	public void SetMoveGoToSettlement(Settlement settlement)
+	{
+		DefaultBehavior = AiBehavior.GoToSettlement;
+		_mobileParty.TargetSettlement = settlement;
+		_mobileParty.TargetParty = null;
+		_mobileParty.TargetPosition = settlement.GatePosition;
+	}
+
+	public void SetMoveGoToPoint(Vec2 point)
+	{
+		DefaultBehavior = AiBehavior.GoToPoint;
+		_mobileParty.TargetPosition = point;
+		_mobileParty.TargetSettlement = null;
+		_mobileParty.TargetParty = null;
+	}
+
+	public void SetMoveEscortParty(MobileParty mobileParty)
+	{
+		DefaultBehavior = AiBehavior.EscortParty;
+		_mobileParty.TargetParty = mobileParty;
+		_mobileParty.TargetSettlement = null;
+	}
+
+	public void SetMovePatrolAroundPoint(Vec2 point)
+	{
+		_mobileParty.TargetParty = null;
+		_mobileParty.TargetSettlement = null;
+		DefaultBehavior = AiBehavior.PatrolAroundPoint;
+		_mobileParty.TargetPosition = point;
+		_aiBehaviorResetNeeded = true;
+	}
+
+	public void SetMovePatrolAroundSettlement(Settlement settlement)
+	{
+		SetMovePatrolAroundPoint(settlement.GatePosition);
+		_mobileParty.TargetSettlement = settlement;
+		_mobileParty.TargetParty = null;
+	}
+
+	public void SetMoveRaidSettlement(Settlement settlement)
+	{
+		DefaultBehavior = AiBehavior.RaidSettlement;
+		_mobileParty.TargetSettlement = settlement;
+		_mobileParty.TargetParty = null;
+	}
+
+	public void SetMoveBesiegeSettlement(Settlement settlement)
+	{
+		if (_mobileParty.BesiegedSettlement != null && _mobileParty.BesiegedSettlement != settlement)
+		{
+			_mobileParty.BesiegerCamp = null;
+		}
+		DefaultBehavior = AiBehavior.BesiegeSettlement;
+		_mobileParty.TargetSettlement = settlement;
+		_mobileParty.TargetParty = null;
+	}
+
+	public void SetMoveDefendSettlement(Settlement settlement)
+	{
+		DefaultBehavior = AiBehavior.DefendSettlement;
+		_mobileParty.TargetSettlement = settlement;
+		_mobileParty.TargetParty = null;
+	}
+
+	internal void GetBehaviors(out AiBehavior bestAiBehavior, out PartyBase behaviorParty, out Vec2 bestTargetPoint)
+	{
+		bestAiBehavior = _mobileParty.DefaultBehavior;
+		MobileParty mobileParty = _mobileParty.TargetParty;
+		bestTargetPoint = _mobileParty.TargetPosition;
+		Vec2 averageEnemyVec = new Vec2(0f, 0f);
+		MobileParty bestInitiativeAllyPartyToEscort = null;
+		if (Campaign.Current.GameStarted && _mobileParty != MobileParty.MainParty && _mobileParty.BesiegedSettlement == null && (_mobileParty.Army == null || !_mobileParty.Army.LeaderParty.AttachedParties.Contains(_mobileParty)))
+		{
+			GetBestInitiativeBehavior(out var bestInitiativeBehavior, out var bestInitiativeTargetParty, out var bestInitiativeBehaviorScore, out averageEnemyVec);
+			if (!DoNotMakeNewDecisions || (bestInitiativeTargetParty != null && _mobileParty.TargetSettlement != null && ((bestInitiativeTargetParty.MapEvent != null && bestInitiativeTargetParty.MapEvent.MapEventSettlement == _mobileParty.TargetSettlement) || bestInitiativeTargetParty.BesiegedSettlement == _mobileParty.TargetSettlement)))
+			{
+				if (_mobileParty.ShortTermBehavior == AiBehavior.EngageParty && _mobileParty.ShortTermTargetParty != null && (bestInitiativeBehaviorScore < 1f || bestInitiativeBehavior != AiBehavior.EngageParty || bestInitiativeTargetParty != _mobileParty.ShortTermTargetParty))
+				{
+					_lastTargetedParties.Add(_mobileParty.ShortTermTargetParty);
+				}
+				if (bestInitiativeBehaviorScore > 1f)
+				{
+					bestAiBehavior = bestInitiativeBehavior;
+					mobileParty = bestInitiativeTargetParty;
+				}
+				else if (_mobileParty.ShortTermBehavior == AiBehavior.FleeToPoint || _mobileParty.ShortTermBehavior == AiBehavior.FleeToGate)
+				{
+					float num = _mobileParty.AiBehaviorTarget.DistanceSquared(_mobileParty.Position2D);
+					float lastCalculatedSpeed = _mobileParty._lastCalculatedSpeed;
+					if (num >= lastCalculatedSpeed * lastCalculatedSpeed * 0.25f * 0.25f)
+					{
+						bestAiBehavior = AiBehavior.FleeToPoint;
+						mobileParty = _mobileParty.ShortTermTargetParty;
+					}
+				}
+				if (bestInitiativeBehavior == AiBehavior.DefendSettlement && bestInitiativeTargetParty.DefaultBehavior == AiBehavior.DefendSettlement)
+				{
+					if (bestInitiativeTargetParty.MapEvent != null)
+					{
+						bestAiBehavior = AiBehavior.EngageParty;
+						mobileParty = bestInitiativeTargetParty.ShortTermTargetParty;
+					}
+					else
+					{
+						bestInitiativeAllyPartyToEscort = bestInitiativeTargetParty;
+					}
+				}
+			}
+		}
+		IsAlerted = false;
+		AiBehavior shortTermBehavior = bestAiBehavior;
+		Vec2 shortTermTargetPoint = bestTargetPoint;
+		Settlement shortTermTargetSettlement = _mobileParty.TargetSettlement;
+		MobileParty shortTermTargetParty = mobileParty;
+		switch (bestAiBehavior)
+		{
+		case AiBehavior.GoAroundParty:
+			GetGoAroundPartyBehavior(_mobileParty.TargetParty, bestInitiativeAllyPartyToEscort, out shortTermBehavior, out shortTermTargetPoint, out shortTermTargetParty);
+			break;
+		case AiBehavior.EngageParty:
+			SetShortTermBehavior(AiBehavior.EngageParty, shortTermTargetParty);
+			break;
+		case AiBehavior.PatrolAroundPoint:
+			GetPatrolBehavior(out shortTermBehavior, out shortTermTargetPoint, out shortTermTargetParty, _mobileParty.TargetPosition);
+			break;
+		case AiBehavior.FleeToPoint:
+			if (_mobileParty.DefaultBehavior == AiBehavior.PatrolAroundPoint)
+			{
+				_aiBehaviorResetNeeded = true;
+			}
+			IsAlerted = true;
+			GetFleeBehavior(out shortTermBehavior, out shortTermTargetPoint, ref shortTermTargetSettlement, mobileParty, averageEnemyVec);
+			break;
+		case AiBehavior.EscortParty:
+			GetFollowBehavior(ref shortTermBehavior, ref shortTermTargetSettlement, mobileParty);
+			break;
+		case AiBehavior.BesiegeSettlement:
+			if (!_mobileParty.IsMainParty)
+			{
+				GetBesiegeBehavior(out shortTermBehavior, out shortTermTargetPoint, out shortTermTargetSettlement);
+			}
+			break;
+		case AiBehavior.GoToSettlement:
+			if (_mobileParty.CurrentSettlement == _mobileParty.TargetSettlement)
+			{
+				GetInSettlementBehavior(ref shortTermBehavior, ref shortTermTargetParty);
+			}
+			break;
+		case AiBehavior.DefendSettlement:
+		{
+			Settlement targetSettlement = _mobileParty.TargetSettlement;
+			if (targetSettlement == null)
+			{
+				targetSettlement = mobileParty.TargetSettlement;
+			}
+			if (targetSettlement.LastAttackerParty != null && targetSettlement.LastAttackerParty.IsActive)
+			{
+				GetGoAroundPartyBehavior(targetSettlement.LastAttackerParty, bestInitiativeAllyPartyToEscort, out shortTermBehavior, out shortTermTargetPoint, out shortTermTargetParty);
+			}
+			break;
+		}
+		}
+		bestAiBehavior = shortTermBehavior;
+		bestTargetPoint = shortTermTargetPoint;
+		if (shortTermTargetParty != null)
+		{
+			mobileParty = shortTermTargetParty;
+		}
+		if (bestAiBehavior == AiBehavior.GoToSettlement || bestAiBehavior == AiBehavior.RaidSettlement || bestAiBehavior == AiBehavior.AssaultSettlement || bestAiBehavior == AiBehavior.BesiegeSettlement || (bestAiBehavior == AiBehavior.DefendSettlement && mobileParty == null))
+		{
+			behaviorParty = ((shortTermTargetSettlement != null) ? shortTermTargetSettlement.Party : _mobileParty.TargetSettlement.Party);
+		}
+		else
+		{
+			behaviorParty = mobileParty?.Party;
+		}
+	}
+
+	private void GetInSettlementBehavior(ref AiBehavior shortTermBehavior, ref MobileParty shortTermTargetParty)
+	{
+		if (_mobileParty.MapEvent != null)
+		{
+			MobileParty mobileParty = _mobileParty.MapEvent.AttackerSide.LeaderParty.MobileParty;
+			if (FactionManager.IsAtWarAgainstFaction(mobileParty.MapFaction, _mobileParty.MapFaction))
+			{
+				shortTermBehavior = AiBehavior.EngageParty;
+				shortTermTargetParty = mobileParty;
+			}
+		}
+	}
+
+	private void GetFollowBehavior(ref AiBehavior shortTermBehavior, ref Settlement shortTermTargetSettlement, MobileParty followedParty)
+	{
+		shortTermBehavior = AiBehavior.EscortParty;
+		if (followedParty == null || !followedParty.IsActive)
+		{
+			shortTermBehavior = AiBehavior.Hold;
+		}
+		else if (followedParty.CurrentSettlement != null)
+		{
+			shortTermBehavior = AiBehavior.GoToSettlement;
+			shortTermTargetSettlement = followedParty.CurrentSettlement;
+		}
+	}
+
+	private void GetBesiegeBehavior(out AiBehavior shortTermBehavior, out Vec2 shortTermTargetPoint, out Settlement shortTermTargetSettlement)
+	{
+		if (_mobileParty.TargetSettlement != null)
+		{
+			if (_mobileParty.TargetSettlement.SiegeEvent != null && _mobileParty.TargetSettlement.SiegeEvent.BesiegerCamp.LeaderParty == _mobileParty && _mobileParty.TargetSettlement.SiegeEvent.BesiegerCamp.IsReadyToBesiege)
+			{
+				shortTermTargetSettlement = _mobileParty.TargetSettlement;
+				shortTermBehavior = AiBehavior.AssaultSettlement;
+			}
+			else if (_mobileParty.BesiegedSettlement == _mobileParty.TargetSettlement)
+			{
+				shortTermTargetSettlement = null;
+				shortTermBehavior = AiBehavior.Hold;
+			}
+			else
+			{
+				shortTermTargetSettlement = _mobileParty.TargetSettlement;
+				shortTermBehavior = AiBehavior.GoToSettlement;
+			}
+		}
+		else
+		{
+			shortTermTargetSettlement = null;
+			shortTermBehavior = AiBehavior.GoToPoint;
+		}
+		shortTermTargetPoint = _mobileParty.TargetSettlement.GatePosition;
+	}
+
+	private void GetFleeBehavior(out AiBehavior fleeBehaviorInternal, out Vec2 fleeTargetPoint, ref Settlement fleeTargetSettlement, MobileParty partyToFleeFrom, Vec2 avarageEnemyVec)
+	{
+		fleeBehaviorInternal = _mobileParty.ShortTermBehavior;
+		fleeTargetPoint = _mobileParty.AiBehaviorTarget;
+		if (_mobileParty.CurrentSettlement != null)
+		{
+			fleeBehaviorInternal = AiBehavior.GoToSettlement;
+			fleeTargetSettlement = _mobileParty.CurrentSettlement;
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.GoToSettlement && ((partyToFleeFrom.MapEvent != null && partyToFleeFrom.MapEvent.MapEventSettlement == _mobileParty.TargetSettlement) || partyToFleeFrom.BesiegedSettlement == _mobileParty.TargetSettlement))
+		{
+			fleeBehaviorInternal = AiBehavior.FleeToPoint;
+			fleeTargetPoint = _mobileParty.Position2D;
+		}
+		else if (_mobileParty.ShortTermBehavior != AiBehavior.FleeToPoint || _mobileParty.ShortTermTargetParty != partyToFleeFrom || _mobileParty.AiBehaviorTarget.Distance(_mobileParty.Position2D) < _mobileParty._lastCalculatedSpeed * 0.25f)
+		{
+			fleeBehaviorInternal = AiBehavior.FleeToPoint;
+			fleeTargetPoint = _mobileParty.Position2D;
+			Vec2 vec = partyToFleeFrom.Position2D - _mobileParty.Position2D;
+			float num = TaleWorlds.Library.MathF.Min(3f, vec.Length);
+			float num2 = 2f * MBRandom.RandomFloat - 1f;
+			float num3 = 2f * MBRandom.RandomFloat - 1f;
+			vec.Normalize();
+			_mobileParty.AverageFleeTargetDirection = new Vec2((_mobileParty.AverageFleeTargetDirection.x * (float)(_numberOfRecentFleeingFromAParty - 1) + vec.x) / (float)_numberOfRecentFleeingFromAParty, (_mobileParty.AverageFleeTargetDirection.y * (float)(_numberOfRecentFleeingFromAParty - 1) + vec.y) / (float)_numberOfRecentFleeingFromAParty);
+			_mobileParty.AverageFleeTargetDirection.Normalize();
+			vec += 3f * avarageEnemyVec;
+			vec.Normalize();
+			Vec2 direction = -vec + 0.1f * _mobileParty.Bearing + new Vec2(num2 * (num / 10f), num3 * (num / 10f));
+			direction.Normalize();
+			float num4 = (partyToFleeFrom.GetTotalStrengthWithFollowers(includeNonAttachedArmyMembers: false) + 0.1f) / (_mobileParty.GetTotalStrengthWithFollowers(includeNonAttachedArmyMembers: false) + 0.1f) * 3f;
+			num4 += (float)NumberOfRecentFleeingFromAParty * 2f;
+			num4 = TaleWorlds.Library.MathF.Min(num4, _mobileParty.IsLordParty ? 10f : 5f);
+			fleeBehaviorInternal = AiBehavior.FleeToPoint;
+			direction.Normalize();
+			GetAccessibleTargetPointInDirection(out fleeTargetPoint, direction, num4, _mobileParty.Position2D, 100);
+		}
+		Vec2 fleeDirection = fleeTargetPoint - _mobileParty.Position2D;
+		fleeDirection.Normalize();
+		if (_mobileParty.IsLordParty && _mobileParty.MapFaction.IsKingdomFaction)
+		{
+			var (aiBehavior, settlement) = GetBehaviorForNearbySettlementToFlee(partyToFleeFrom.Position2D, fleeDirection);
+			if (aiBehavior != AiBehavior.None)
+			{
+				fleeBehaviorInternal = aiBehavior;
+				switch (aiBehavior)
+				{
+				case AiBehavior.GoToSettlement:
+					fleeTargetSettlement = settlement;
+					break;
+				case AiBehavior.FleeToGate:
+					fleeTargetPoint = settlement.GatePosition;
+					break;
+				}
+			}
+		}
+		MobileParty nearbyPartyToFlee = GetNearbyPartyToFlee(partyToFleeFrom, fleeDirection);
+		if (nearbyPartyToFlee != null)
+		{
+			fleeBehaviorInternal = AiBehavior.FleeToParty;
+			fleeTargetPoint = nearbyPartyToFlee.Position2D;
+		}
+		if (IsFleeBehavior(fleeBehaviorInternal))
+		{
+			_numberOfRecentFleeingFromAParty++;
+		}
+	}
+
+	private void GetGoAroundPartyBehavior(MobileParty targetParty, MobileParty bestInitiativeAllyPartyToEscort, out AiBehavior goAroundPartyBehavior, out Vec2 goAroundPartyTargetPoint, out MobileParty goAroundPartyTargetParty)
+	{
+		Vec2 vec = (goAroundPartyTargetPoint = targetParty.Position2D);
+		goAroundPartyTargetParty = targetParty;
+		Vec2 vec2 = _mobileParty.Position2D - vec;
+		float length = vec2.Length;
+		vec2.Normalize();
+		bool flag = false;
+		Vec2 vec3 = goAroundPartyTargetPoint;
+		int num = 5;
+		while (num >= 0 && !flag)
+		{
+			int num2 = _mobileParty.RandomInt(-4, 5);
+			for (int i = 1; i <= 2; i++)
+			{
+				if (flag)
+				{
+					break;
+				}
+				for (int j = num2; j < num2 + 9; j++)
+				{
+					Vec2 vec4 = vec2;
+					vec4.RotateCCW((float)j / 9f * ((float)Math.PI / 2f) * (float)i * 0.5f * (TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(0f, length - 3.6000001f), 9f) / 9f));
+					Vec2 vec5 = vec + vec4 * 3f * 1.2f * ((float)num / 5f);
+					PathFaceRecord faceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(_mobileParty.Position2D);
+					PathFaceRecord faceIndex2 = Campaign.Current.MapSceneWrapper.GetFaceIndex(vec5);
+					if (Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(faceIndex, faceIndex2, ignoreDisabled: false) && PartyBase.IsPositionOkForTraveling(vec5))
+					{
+						flag = true;
+						vec3 = vec5;
+						break;
+					}
+				}
+			}
+			num--;
+		}
+		if (flag)
+		{
+			if (MBRandom.RandomFloat < 0.2f * _mobileParty.AiBehaviorTarget.DistanceSquared(vec3) || targetParty._lastCalculatedSpeed > _mobileParty._lastCalculatedSpeed)
+			{
+				goAroundPartyTargetPoint = vec3;
+			}
+			else
+			{
+				goAroundPartyTargetPoint = _mobileParty.AiBehaviorTarget;
+			}
+			goAroundPartyBehavior = AiBehavior.GoToPoint;
+		}
+		else
+		{
+			goAroundPartyBehavior = AiBehavior.EngageParty;
+			goAroundPartyTargetParty = targetParty;
+		}
+		if (bestInitiativeAllyPartyToEscort != null && targetParty.SiegeEvent != null && targetParty.BesiegerCamp.LeaderParty == targetParty)
+		{
+			goAroundPartyBehavior = AiBehavior.EscortParty;
+			goAroundPartyTargetParty = bestInitiativeAllyPartyToEscort;
+		}
+	}
+
+	private void GetPatrolBehavior(out AiBehavior patrolBehavior, out Vec2 patrolTargetPoint, out MobileParty patrolTargetParty, Vec2 patrollingCenterPoint)
+	{
+		float num = _mobileParty.AiBehaviorTarget.DistanceSquared(_mobileParty.Position2D);
+		patrolBehavior = AiBehavior.GoToPoint;
+		patrolTargetPoint = _mobileParty.AiBehaviorTarget;
+		patrolTargetParty = null;
+		if (_mobileParty.ShortTermBehavior == AiBehavior.GoToSettlement || _mobileParty.ShortTermBehavior == AiBehavior.EngageParty || _mobileParty.ShortTermBehavior == AiBehavior.FleeToPoint)
+		{
+			_aiBehaviorResetNeeded = true;
+		}
+		if (!(num < 1f) && !_aiBehaviorResetNeeded)
+		{
+			return;
+		}
+		if (MBRandom.RandomFloat < 0.125f || _aiBehaviorResetNeeded)
+		{
+			Vec2 vec = patrollingCenterPoint - _mobileParty.Position2D;
+			float num2 = vec.Normalize();
+			float maxPatrolRadiusForSettlement = GetMaxPatrolRadiusForSettlement();
+			float num3 = TaleWorlds.Library.MathF.Max(num2 * 0.25f, maxPatrolRadiusForSettlement);
+			if (num2 > num3 * (3.2f / (_mobileParty.IsCurrentlyUsedByAQuest ? 1.5f : 1f)))
+			{
+				patrolBehavior = AiBehavior.GoToPoint;
+				patrolTargetPoint = ((_mobileParty.TargetSettlement != null) ? _mobileParty.TargetSettlement.GatePosition : patrollingCenterPoint);
+			}
+			else
+			{
+				float num4 = ((_mobileParty.TargetSettlement != null && _mobileParty.TargetSettlement.NumberOfEnemiesSpottedAround > 1f) ? (TaleWorlds.Library.MathF.Sqrt(_mobileParty.TargetSettlement.NumberOfEnemiesSpottedAround) - 1f) : 0f);
+				float num5 = TaleWorlds.Library.MathF.Max(0f, TaleWorlds.Library.MathF.Min(0.9f, num2 / (num3 / (((_mobileParty.TargetSettlement != null && _mobileParty.TargetSettlement.MapFaction == _mobileParty.MapFaction) ? num4 : 0f) + 1f)) - 0.4f));
+				Vec2 direction = (1f - num5) * _mobileParty.Bearing + num5 * vec;
+				direction.RotateCCW((-0.3f + MBRandom.RandomFloat) * 0.15f);
+				direction.Normalize();
+				float num6 = 0.5f + 0.5f * MBRandom.RandomFloat;
+				float rotationChangeLimitAddition = ((num2 > maxPatrolRadiusForSettlement * 4f) ? 0.2f : ((num2 > maxPatrolRadiusForSettlement * 2f) ? 0.4f : ((num2 > maxPatrolRadiusForSettlement) ? 0.6f : 1f)));
+				GetAccessibleTargetPointInDirection(out patrolTargetPoint, direction, num3 * num6, patrollingCenterPoint, 20, rotationChangeLimitAddition);
+			}
+			_aiBehaviorResetNeeded = false;
+		}
+		else
+		{
+			patrolTargetPoint = _mobileParty.Position2D;
+		}
+	}
+
+	private void GetBestInitiativeBehavior(out AiBehavior bestInitiativeBehavior, out MobileParty bestInitiativeTargetParty, out float bestInitiativeBehaviorScore, out Vec2 averageEnemyVec)
+	{
+		DangerousPartiesAndTheirVecs.Clear();
+		bestInitiativeBehaviorScore = 0f;
+		bestInitiativeTargetParty = null;
+		bestInitiativeBehavior = AiBehavior.None;
+		averageEnemyVec = Vec2.Zero;
+		if (_mobileParty.CurrentSettlement != null && (_mobileParty.IsGarrison || _mobileParty.IsMilitia || _mobileParty.IsBandit))
+		{
+			return;
+		}
+		LocatableSearchData<MobileParty> data = MobileParty.StartFindingLocatablesAroundPosition(_mobileParty.Position2D, 9f);
+		MobileParty mobileParty = MobileParty.FindNextLocatable(ref data);
+		while (mobileParty != null)
+		{
+			if (mobileParty.MapEvent != null && MobileParty.MainParty.MapEvent == mobileParty.MapEvent && (MobileParty.MainParty.Army == null || MobileParty.MainParty.Army.LeaderParty == MobileParty.MainParty) && mobileParty != MobileParty.MainParty)
+			{
+				mobileParty = MobileParty.FindNextLocatable(ref data);
+				continue;
+			}
+			if (mobileParty == _mobileParty || !mobileParty.IsActive || !IsEnemy(mobileParty.Party) || mobileParty.ShouldBeIgnored || (mobileParty.CurrentSettlement != null && !mobileParty.IsGarrison && !mobileParty.IsLordParty) || _mobileParty.CurrentSettlement?.SiegeEvent != null || (mobileParty.IsGarrison && !_mobileParty.IsBandit) || (mobileParty.BesiegerCamp != null && mobileParty.BesiegerCamp.LeaderParty != mobileParty) || (mobileParty.Army != null && mobileParty.Army.LeaderParty != mobileParty && mobileParty.AttachedTo != null) || (mobileParty.MapEvent != null && mobileParty != MobileParty.MainParty && mobileParty.Party.MapEvent.MapEventSettlement == null && mobileParty.Party != mobileParty.Party.MapEvent.GetLeaderParty(BattleSideEnum.Attacker) && mobileParty.Party != mobileParty.Party.MapEvent.GetLeaderParty(BattleSideEnum.Defender)) || (mobileParty.MapEvent != null && IsEnemy(mobileParty.MapEvent.AttackerSide.LeaderParty) == IsEnemy(mobileParty.MapEvent.DefenderSide.LeaderParty)) || (mobileParty.CurrentSettlement != null && mobileParty.CurrentSettlement.IsHideout && _mobileParty.IsBandit))
+			{
+				mobileParty = MobileParty.FindNextLocatable(ref data);
+				continue;
+			}
+			Vec2 vec = ((mobileParty.BesiegedSettlement != null) ? mobileParty.VisualPosition2DWithoutError : mobileParty.Position2D);
+			float num = _mobileParty.Position2D.Distance(vec);
+			if (num >= 6f)
+			{
+				mobileParty = MobileParty.FindNextLocatable(ref data);
+				continue;
+			}
+			float num2 = 1f + TaleWorlds.Library.MathF.Max(0f, (num - 1f) / 4f);
+			num2 = ((num2 > 2f) ? 2f : num2);
+			float num3 = 0.01f + ((_mobileParty.Army != null && _mobileParty == _mobileParty.Army.LeaderParty) ? _mobileParty.Army.TotalStrength : _mobileParty.Party.TotalStrength);
+			float aggressiveness = _mobileParty.Aggressiveness;
+			float num4 = 0f;
+			float num5 = 0.01f;
+			if (mobileParty.BesiegerCamp != null)
+			{
+				foreach (PartyBase item in mobileParty.SiegeEvent.BesiegerCamp.GetInvolvedPartiesForEventType())
+				{
+					num5 += item.TotalStrength;
+				}
+			}
+			else if (mobileParty.CurrentSettlement == null || !mobileParty.CurrentSettlement.IsUnderSiege)
+			{
+				num5 += mobileParty.Army?.TotalStrength ?? mobileParty.Party.TotalStrength;
+			}
+			MobileParty mobileParty2 = null;
+			LocatableSearchData<MobileParty> data2 = MobileParty.StartFindingLocatablesAroundPosition(_mobileParty.Position2D, 9f);
+			MobileParty mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+			while (mobileParty3 != null)
+			{
+				if ((_mobileParty.MapFaction == mobileParty3.MapFaction && mobileParty3.BesiegedSettlement != null) || (mobileParty3.MapEvent != null && mobileParty3.MapEvent != mobileParty.MapEvent))
+				{
+					mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+					continue;
+				}
+				if (mobileParty3.AttachedTo != null)
+				{
+					mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+					continue;
+				}
+				if (mobileParty3 != _mobileParty && mobileParty3 != mobileParty)
+				{
+					Vec2 v = ((mobileParty3.BesiegedSettlement != null) ? mobileParty3.VisualPosition2DWithoutError : mobileParty3.Position2D);
+					float num6 = ((mobileParty3 != mobileParty) ? v.Distance(vec) : _mobileParty.Position2D.Distance(v));
+					if (num6 > 6f)
+					{
+						mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+						continue;
+					}
+					if (mobileParty3.BesiegerCamp != null && mobileParty3.BesiegerCamp.LeaderParty != mobileParty3)
+					{
+						mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+						continue;
+					}
+					PartyBase aiBehaviorPartyBase = mobileParty3.Ai.AiBehaviorPartyBase;
+					if (mobileParty3.Army != null)
+					{
+						aiBehaviorPartyBase = mobileParty3.Army.LeaderParty.Ai.AiBehaviorPartyBase;
+					}
+					bool flag = aiBehaviorPartyBase != null && (aiBehaviorPartyBase == mobileParty.Party || (aiBehaviorPartyBase.MapEvent != null && aiBehaviorPartyBase.MapEvent == mobileParty.Party.MapEvent));
+					bool flag2 = (_mobileParty.Army != null && _mobileParty.Army == mobileParty3.Army && _mobileParty.Army.DoesLeaderPartyAndAttachedPartiesContain(_mobileParty)) || (mobileParty.Army != null && mobileParty.Army == mobileParty3.Army) || (mobileParty.BesiegedSettlement != null && mobileParty.BesiegedSettlement == mobileParty3.BesiegedSettlement) || (num > 3f && flag) || (num6 > 3f && flag && mobileParty != MobileParty.MainParty && (MobileParty.MainParty.Army == null || mobileParty != MobileParty.MainParty.Army.LeaderParty));
+					if (_mobileParty.MapFaction == mobileParty3.MapFaction && mobileParty.BesiegedSettlement != null && mobileParty3.CurrentSettlement == null && mobileParty3.DefaultBehavior == AiBehavior.DefendSettlement && mobileParty.BesiegedSettlement == mobileParty3.TargetSettlement && mobileParty3.Party.TotalStrength > _mobileParty.Party.TotalStrength * 1.25f)
+					{
+						mobileParty2 = ((mobileParty3.Army != null) ? mobileParty3.Army.LeaderParty : mobileParty3);
+					}
+					if (flag2 || num6 < 3f * num2)
+					{
+						float b = (flag2 ? 1f : ((num6 < 3f) ? 1f : (1f - (num6 - 3f) / (3f * (num2 - 1f)))));
+						b = TaleWorlds.Library.MathF.Min(1f, b);
+						bool flag3 = mobileParty.MapEvent != null && mobileParty.MapEvent == mobileParty3.MapEvent;
+						float num7 = ((mobileParty3.Army != null && mobileParty3.Army.LeaderParty == mobileParty3) ? mobileParty3.Army.TotalStrength : mobileParty3.Party.TotalStrength);
+						if ((mobileParty3.Aggressiveness > 0.01f || mobileParty3.IsGarrison || flag3) && mobileParty3.MapFaction == mobileParty.MapFaction)
+						{
+							if (mobileParty3.BesiegerCamp != null)
+							{
+								foreach (PartyBase item2 in mobileParty3.SiegeEvent.BesiegerCamp.GetInvolvedPartiesForEventType())
+								{
+									if (item2.MobileParty.AttachedTo == null)
+									{
+										num5 += item2.MobileParty.Army?.TotalStrength ?? item2.TotalStrength;
+									}
+								}
+							}
+							else
+							{
+								num5 += num7 * b;
+							}
+						}
+						if (_mobileParty.MapFaction == mobileParty3.MapFaction)
+						{
+							bool flag4 = mobileParty3.Aggressiveness > 0.01f || (mobileParty3.CurrentSettlement != null && mobileParty3.CurrentSettlement == mobileParty.CurrentSettlement);
+							bool flag5 = mobileParty != MobileParty.MainParty || mobileParty3.Ai.CanAttack(MobileParty.MainParty);
+							bool flag6 = mobileParty3.CurrentSettlement == null || !mobileParty3.CurrentSettlement.IsHideout;
+							if ((flag3 || (flag4 && flag5 && flag6)) && (mobileParty3.CurrentSettlement?.SiegeEvent == null || mobileParty != mobileParty3.CurrentSettlement.SiegeEvent.BesiegerCamp.LeaderParty))
+							{
+								if (mobileParty3.BesiegerCamp != null)
+								{
+									foreach (PartyBase item3 in mobileParty3.SiegeEvent.BesiegerCamp.GetInvolvedPartiesForEventType())
+									{
+										if (item3.MobileParty.AttachedTo == null)
+										{
+											num3 += item3.MobileParty.Army?.TotalStrength ?? item3.TotalStrength;
+											if (item3.MobileParty.Aggressiveness > aggressiveness)
+											{
+												aggressiveness = item3.MobileParty.Aggressiveness;
+											}
+										}
+									}
+								}
+								else
+								{
+									num3 += num7 * b;
+									if (mobileParty3.Aggressiveness > aggressiveness)
+									{
+										aggressiveness = mobileParty3.Aggressiveness;
+									}
+									if (mobileParty3.CurrentSettlement != null)
+									{
+										num4 += num7 * b;
+									}
+								}
+							}
+						}
+					}
+				}
+				mobileParty3 = MobileParty.FindNextLocatable(ref data2);
+			}
+			if (_mobileParty.CurrentSettlement != null)
+			{
+				num3 -= num4;
+			}
+			if (mobileParty.LastVisitedSettlement != null && mobileParty.LastVisitedSettlement.IsVillage && mobileParty.Position2D.DistanceSquared(mobileParty.LastVisitedSettlement.Position2D) < 1f && mobileParty.LastVisitedSettlement.MapFaction.IsAtWarWith(_mobileParty.MapFaction))
+			{
+				num5 += 20f;
+			}
+			float num8 = num3 / num5;
+			num8 *= (((_mobileParty.IsCaravan || _mobileParty.IsVillager) && mobileParty == MobileParty.MainParty) ? 0.6f : 1f);
+			if (mobileParty.IsCaravan)
+			{
+				if (_mobileParty.IsBandit)
+				{
+					float playerProgress = Campaign.Current.Models.PlayerProgressionModel.GetPlayerProgress();
+					num8 *= 2.4f - 0.9f * playerProgress;
+				}
+				else if (_mobileParty.LeaderHero != null && _mobileParty.LeaderHero.IsMinorFactionHero)
+				{
+					num8 *= 1.5f;
+				}
+			}
+			if (mobileParty.MapEvent != null && mobileParty.MapEvent.IsSiegeAssault && mobileParty == mobileParty.MapEvent.AttackerSide.LeaderParty.MobileParty)
+			{
+				float settlementAdvantage = Campaign.Current.Models.CombatSimulationModel.GetSettlementAdvantage(mobileParty.MapEvent.MapEventSettlement);
+				if (num4 * TaleWorlds.Library.MathF.Sqrt(settlementAdvantage) > num5)
+				{
+					mobileParty = MobileParty.FindNextLocatable(ref data);
+					continue;
+				}
+			}
+			CalculateInitiativeScoresForEnemy(mobileParty, out var avoidScore, out var attackScore, num8, aggressiveness);
+			if (mobileParty.CurrentSettlement != null && mobileParty.MapEvent == null)
+			{
+				attackScore = 0f;
+			}
+			if (avoidScore > 1f)
+			{
+				DangerousPartiesAndTheirVecs.Add((avoidScore, (vec - _mobileParty.Position2D).Normalized()));
+			}
+			if (mobileParty2 == null)
+			{
+				if (avoidScore > bestInitiativeBehaviorScore || (avoidScore * 0.75f > bestInitiativeBehaviorScore && bestInitiativeBehavior == AiBehavior.EngageParty))
+				{
+					bestInitiativeBehavior = AiBehavior.FleeToPoint;
+					bestInitiativeTargetParty = mobileParty;
+					bestInitiativeBehaviorScore = avoidScore;
+				}
+				if (attackScore > bestInitiativeBehaviorScore && (bestInitiativeBehaviorScore < attackScore * 0.75f || bestInitiativeBehavior == AiBehavior.EngageParty))
+				{
+					bestInitiativeBehavior = AiBehavior.EngageParty;
+					bestInitiativeTargetParty = mobileParty;
+					bestInitiativeBehaviorScore = attackScore;
+				}
+			}
+			else if (_mobileParty.Aggressiveness > 0.01f)
+			{
+				bestInitiativeBehavior = AiBehavior.DefendSettlement;
+				bestInitiativeTargetParty = mobileParty2;
+				bestInitiativeBehaviorScore = attackScore;
+			}
+			mobileParty = MobileParty.FindNextLocatable(ref data);
+		}
+		if (bestInitiativeBehavior != AiBehavior.FleeToPoint && bestInitiativeBehavior != AiBehavior.FleeToGate)
+		{
+			return;
+		}
+		float num9 = 0f;
+		for (int i = 0; i < 8; i++)
+		{
+			Vec2 vec2 = new Vec2(TaleWorlds.Library.MathF.Sin((float)i / 8f * (float)Math.PI * 2f), TaleWorlds.Library.MathF.Cos((float)i / 8f * (float)Math.PI * 2f));
+			float num10 = 0f;
+			for (int j = 0; j < DangerousPartiesAndTheirVecs.Count; j++)
+			{
+				float num11 = DangerousPartiesAndTheirVecs[j].Item2.DistanceSquared(vec2);
+				if (num11 > 1f)
+				{
+					num11 = 1f + (num11 - 1f) * 0.5f;
+				}
+				num10 += num11 * DangerousPartiesAndTheirVecs[j].Item1;
+			}
+			if (num10 > num9)
+			{
+				averageEnemyVec = -vec2;
+				num9 = num10;
+			}
+		}
+	}
+
+	private void SetAiBehavior(AiBehavior newAiBehavior, PartyBase targetPartyFigure, Vec2 bestTargetPoint)
+	{
+		object obj;
+		if (targetPartyFigure == null)
+		{
+			obj = null;
+		}
+		else if (!targetPartyFigure.IsSettlement)
+		{
+			IMapEntity mobileParty = targetPartyFigure.MobileParty;
+			obj = mobileParty;
+		}
+		else
+		{
+			IMapEntity mobileParty = targetPartyFigure.Settlement;
+			obj = mobileParty;
+		}
+		IMapEntity mapEntity = (IMapEntity)obj;
+		SetShortTermBehavior(newAiBehavior, mapEntity);
+		BehaviorTarget = bestTargetPoint;
+		UpdateBehavior();
+	}
+
+	internal void SetShortTermBehavior(AiBehavior newBehavior, IMapEntity mapEntity)
+	{
+		AiBehavior shortTermBehavior = _mobileParty.ShortTermBehavior;
+		if (shortTermBehavior != newBehavior)
+		{
+			if (IsFleeBehavior(shortTermBehavior) && !IsFleeBehavior(newBehavior))
+			{
+				_numberOfRecentFleeingFromAParty = 0;
+			}
+			_mobileParty.ShortTermBehavior = newBehavior;
+		}
+		AiBehaviorMapEntity = mapEntity;
+	}
+
+	private void UpdateBehavior()
+	{
+		if (_mobileParty.ShortTermBehavior == AiBehavior.GoToPoint || _mobileParty.ShortTermBehavior == AiBehavior.FleeToPoint || _mobileParty.ShortTermBehavior == AiBehavior.FleeToGate || _mobileParty.ShortTermBehavior == AiBehavior.FleeToParty)
+		{
+			SetNavigationModePoint(_mobileParty.AiBehaviorTarget);
+			return;
+		}
+		if ((_mobileParty.ShortTermBehavior == AiBehavior.GoToSettlement || _mobileParty.ShortTermBehavior == AiBehavior.RaidSettlement || _mobileParty.ShortTermBehavior == AiBehavior.AssaultSettlement || _mobileParty.ShortTermBehavior == AiBehavior.BesiegeSettlement) && AiBehaviorPartyBase != null && AiBehaviorPartyBase.IsValid)
+		{
+			SetNavigationModePoint(AiBehaviorPartyBase.Settlement.GatePosition);
+			return;
+		}
+		switch (_mobileParty.ShortTermBehavior)
+		{
+		case AiBehavior.EngageParty:
+			SetNavigationModeParty(AiBehaviorPartyBase.MobileParty);
+			break;
+		case AiBehavior.EscortParty:
+			SetNavigationModeEscort(AiBehaviorPartyBase.MobileParty);
+			break;
+		case AiBehavior.Hold:
+			SetNavigationModeHold();
+			break;
+		default:
+			Debug.FailedAssert("false", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobilePartyAi.cs", "UpdateBehavior", 1387);
+			break;
+		case AiBehavior.FleeToPoint:
+		case AiBehavior.FleeToGate:
+		case AiBehavior.FleeToParty:
+		case AiBehavior.DefendSettlement:
+			break;
+		}
+	}
+
+	public void RecalculateShortTermAi()
+	{
+		if (_mobileParty.DefaultBehavior == AiBehavior.RaidSettlement)
+		{
+			SetShortTermBehavior(AiBehavior.RaidSettlement, _mobileParty.TargetSettlement);
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.BesiegeSettlement)
+		{
+			SetShortTermBehavior(AiBehavior.BesiegeSettlement, _mobileParty.TargetSettlement);
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.GoToSettlement)
+		{
+			SetShortTermBehavior(AiBehavior.GoToSettlement, _mobileParty.TargetSettlement);
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.EngageParty)
+		{
+			SetShortTermBehavior(AiBehavior.EngageParty, _mobileParty.TargetParty);
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.DefendSettlement)
+		{
+			SetShortTermBehavior(AiBehavior.GoToPoint, _mobileParty.TargetSettlement);
+		}
+		else if (_mobileParty.DefaultBehavior == AiBehavior.EscortParty)
+		{
+			SetShortTermBehavior(AiBehavior.EscortParty, _mobileParty.TargetParty);
+		}
+		else if (DefaultBehavior == AiBehavior.None)
+		{
+			_mobileParty.ShortTermBehavior = AiBehavior.None;
+		}
+	}
+
+	private MobileParty GetNearbyPartyToFlee(MobileParty partyToFleeFrom, Vec2 fleeDirection)
+	{
+		(MobileParty, float) tuple = (null, 0f);
+		LocatableSearchData<MobileParty> data = MobileParty.StartFindingLocatablesAroundPosition(_mobileParty.Position2D, 10f);
+		MobileParty mobileParty = MobileParty.FindNextLocatable(ref data);
+		while (mobileParty != null)
+		{
+			if (!mobileParty.IsMilitia && !mobileParty.IsGarrison && !mobileParty.IsCaravan && mobileParty != _mobileParty && (mobileParty.MapFaction == _mobileParty.MapFaction || (mobileParty.IsBandit && _mobileParty.IsBandit)))
+			{
+				if (mobileParty.AttachedTo != null || mobileParty.CurrentSettlement != null || mobileParty.MapEvent != null)
+				{
+					mobileParty = MobileParty.FindNextLocatable(ref data);
+					continue;
+				}
+				float num = ((mobileParty.Army != null && mobileParty.Army.DoesLeaderPartyAndAttachedPartiesContain(_mobileParty)) ? mobileParty.Army.TotalStrength : mobileParty.Party.TotalStrength);
+				if (num > _mobileParty.Party.TotalStrength && (_mobileParty.IsBandit || num + _mobileParty.Party.TotalStrength > partyToFleeFrom.Party.TotalStrength * 0.5f))
+				{
+					Vec2 vec = mobileParty.Position2D - _mobileParty.Position2D;
+					float length = vec.Length;
+					if (length < 1f && mobileParty._lastCalculatedSpeed < _mobileParty._lastCalculatedSpeed)
+					{
+						mobileParty = MobileParty.FindNextLocatable(ref data);
+						continue;
+					}
+					float length2 = (partyToFleeFrom.Position2D - mobileParty.Position2D).Length;
+					vec.Normalize();
+					if (vec.DistanceSquared(fleeDirection) < 0.3f + 0.1f * (10f - Math.Min(10f, length)) && length < length2 * 0.86f)
+					{
+						float num2 = length * 0.66f + num * 0.34f;
+						if (tuple.Item2 < num2)
+						{
+							tuple.Item1 = mobileParty;
+							tuple.Item2 = num2;
+						}
+					}
+				}
+			}
+			mobileParty = MobileParty.FindNextLocatable(ref data);
+		}
+		return tuple.Item1;
+	}
+
+	private (AiBehavior, Settlement) GetBehaviorForNearbySettlementToFlee(Vec2 partyToFleeFromPosition, Vec2 fleeDirection)
+	{
+		LocatableSearchData<Settlement> data = Campaign.Current.SettlementLocator.StartFindingLocatablesAroundPosition(_mobileParty.Position2D, 20f);
+		for (Settlement settlement = Campaign.Current.SettlementLocator.FindNextLocatable(ref data); settlement != null; settlement = Campaign.Current.SettlementLocator.FindNextLocatable(ref data))
+		{
+			if (settlement.IsFortification && settlement.MapFaction == _mobileParty.MapFaction && !settlement.IsUnderSiege)
+			{
+				Vec2 vec = settlement.GatePosition - _mobileParty.Position2D;
+				float length = vec.Length;
+				float length2 = (partyToFleeFromPosition - settlement.GatePosition).Length;
+				if (length < length2 * 0.86f)
+				{
+					if (length > 1f)
+					{
+						return (AiBehavior.FleeToGate, settlement);
+					}
+					DisableForHours(3);
+					return (AiBehavior.GoToSettlement, settlement);
+				}
+				vec.Normalize();
+				if (vec.DistanceSquared(fleeDirection) < 0.3f + 0.1f * (10f - TaleWorlds.Library.MathF.Min(10f, length)))
+				{
+					if (!(length > 1f))
+					{
+						return (AiBehavior.GoToSettlement, settlement);
+					}
+					return (AiBehavior.FleeToGate, settlement);
+				}
+			}
+		}
+		return (AiBehavior.None, null);
+	}
+
+	private float GetMaxPatrolRadiusForSettlement()
+	{
+		if (_mobileParty.TargetSettlement != null)
+		{
+			if (_mobileParty.TargetSettlement.IsHideout)
+			{
+				return 25f;
+			}
+			if (_mobileParty.TargetSettlement.IsFortification)
+			{
+				return 30f;
+			}
+			if (_mobileParty.TargetSettlement.IsVillage)
+			{
+				return 15f;
+			}
+		}
+		return 0f;
+	}
+
+	private float CalculateStanceScore(MobileParty otherParty)
+	{
+		if (FactionManager.IsAtWarAgainstFaction(_mobileParty.MapFaction, otherParty.MapFaction))
+		{
+			return 1f;
+		}
+		if (FactionManager.IsAlliedWithFaction(_mobileParty.MapFaction, otherParty.MapFaction))
+		{
+			return -1f;
+		}
+		return 0f;
+	}
+
+	private void CalculateInitiativeScoresForEnemy(MobileParty enemyParty, out float avoidScore, out float attackScore, float localAdvantage, float maxAggressiveness)
+	{
+		float num = 1f;
+		if (enemyParty.IsCaravan)
+		{
+			num = (_mobileParty.IsBandit ? 2f : ((_mobileParty.Army == null) ? 1.5f : 1f));
+		}
+		else if (enemyParty.IsBandit || enemyParty.Aggressiveness < 0.1f)
+		{
+			num = 0.7f;
+		}
+		else if ((_mobileParty.DefaultBehavior == AiBehavior.GoAroundParty || _mobileParty.ShortTermBehavior == AiBehavior.GoAroundParty) && enemyParty != _mobileParty.TargetParty)
+		{
+			num = 0.7f;
+		}
+		int num2 = 0;
+		for (int i = 0; i < _lastTargetedParties.Count; i++)
+		{
+			if (enemyParty == _lastTargetedParties[i])
+			{
+				num2++;
+			}
+		}
+		if (num2 > 0)
+		{
+			num *= 3f / ((float)num2 + 3f);
+		}
+		if (enemyParty.MapEvent == null && _mobileParty._lastCalculatedSpeed < enemyParty.Speed * 1.1f && (_mobileParty.DefaultBehavior != AiBehavior.GoAroundParty || _mobileParty.TargetParty != enemyParty) && (_mobileParty.DefaultBehavior != AiBehavior.DefendSettlement || enemyParty != _mobileParty.TargetSettlement.LastAttackerParty))
+		{
+			float b = TaleWorlds.Library.MathF.Max(0.5f, (_mobileParty.Speed + 0.1f) / (enemyParty.Speed + 0.1f)) / 1.1f;
+			num *= TaleWorlds.Library.MathF.Max(0.8f, b) * TaleWorlds.Library.MathF.Max(0.8f, b);
+		}
+		float num3 = ((_mobileParty.IsCaravan || _mobileParty.IsVillager) ? 0.9f : ((enemyParty.IsGarrison || enemyParty.IsMilitia || enemyParty.CurrentSettlement != null) ? 0.4f : 0.7f));
+		float num4 = 4.8f * num;
+		float num5 = 4.8f * num3;
+		num4 *= (1f + ((_mobileParty.Army != null && _mobileParty.Army.LeaderParty != null && (enemyParty.BesiegedSettlement == _mobileParty.Army.LeaderParty.TargetSettlement || (_mobileParty.Army.LeaderParty.TargetSettlement != null && enemyParty == _mobileParty.Army.LeaderParty.TargetSettlement.LastAttackerParty))) ? 1f : AttackInitiative)) / 2f;
+		num4 *= ((enemyParty.Army != null) ? TaleWorlds.Library.MathF.Pow(enemyParty.Army.Parties.Count, 0.33f) : 1f);
+		num5 *= (1f + AvoidInitiative) / 2f;
+		int num6;
+		if (enemyParty.MapEvent == null)
+		{
+			num6 = ((enemyParty.BesiegedSettlement != null) ? 1 : 0);
+			if (num6 == 0 && (_mobileParty.DefaultBehavior != AiBehavior.EngageParty || _mobileParty.TargetParty != enemyParty) && (_mobileParty.DefaultBehavior != AiBehavior.GoAroundParty || _mobileParty.TargetParty != enemyParty))
+			{
+				goto IL_0304;
+			}
+		}
+		else
+		{
+			num6 = 1;
+		}
+		num5 = 2.88f;
+		num4 = 7.2000003f;
+		goto IL_0304;
+		IL_0304:
+		Vec2 otherPartyDif = ((enemyParty.BesiegedSettlement != null) ? enemyParty.VisualPosition2DWithoutError : enemyParty.Position2D) - _mobileParty.Position2D;
+		float length = otherPartyDif.Length;
+		float num7 = num4 / (length + 1E-05f);
+		float num8 = num5 / (length + 1E-05f);
+		num7 = MBMath.ClampFloat((num6 == 0) ? (num7 * num7 * num7) : 1f, 0.05f, 1f);
+		num8 = MBMath.ClampFloat(num8 * num8 * num8, 0.05f, 1f);
+		float num9 = 1f;
+		if (enemyParty.IsMoving && enemyParty.SiegeEvent == null && enemyParty.MapEvent == null && (_mobileParty.DefaultBehavior != AiBehavior.GoAroundParty || _mobileParty.TargetParty != enemyParty))
+		{
+			num9 = CalculateInitiativeSpeedScore(enemyParty, otherPartyDif);
+		}
+		float num10 = MBMath.ClampFloat(0.5f * (1f + localAdvantage), 0.05f, 2f);
+		float num11 = MBMath.ClampFloat((localAdvantage < 1f) ? MBMath.ClampFloat(1f / localAdvantage, 0.05f, 2f) : 0f, 0.05f, 2f);
+		float num12 = CalculateStanceScore(enemyParty);
+		float num13 = ((enemyParty.IsLordParty && enemyParty.LeaderHero != null && enemyParty.LeaderHero.IsLord) ? 1f : AttackInitiative);
+		if ((double)_mobileParty.Aggressiveness < 0.01)
+		{
+			maxAggressiveness = _mobileParty.Aggressiveness;
+		}
+		float num14 = ((enemyParty.MapEvent != null && maxAggressiveness > 0.1f) ? TaleWorlds.Library.MathF.Max(1f + (enemyParty.MapEvent.IsSallyOut ? 0.3f : 0f), maxAggressiveness) : maxAggressiveness);
+		float num15 = ((_mobileParty.DefaultBehavior == AiBehavior.DefendSettlement && ((enemyParty.BesiegedSettlement != null && AiBehaviorPartyBase == enemyParty.BesiegedSettlement.Party) || (enemyParty.MapEvent != null && enemyParty.MapEvent.MapEventSettlement != null && AiBehaviorPartyBase == enemyParty.MapEvent.MapEventSettlement.Party))) ? 1.1f : 1f);
+		float num16 = 1f;
+		if (localAdvantage > 1f && IsFleeBehavior(enemyParty.ShortTermBehavior) && enemyParty.ShortTermTargetParty == _mobileParty)
+		{
+			num16 = CalculateContinueChasingScore(enemyParty);
+		}
+		attackScore = (CanAttack(enemyParty) ? (1.06f * num15 * num7 * num10 * num12 * num9 * num14 * num16 * num13) : 0f);
+		num13 = ((enemyParty.IsLordParty && enemyParty.LeaderHero != null && enemyParty.LeaderHero.IsLord) ? 1f : AvoidInitiative);
+		if (attackScore < 1f)
+		{
+			if (enemyParty.IsGarrison && _numberOfRecentFleeingFromAParty > 0)
+			{
+				avoidScore = 0f;
+				attackScore = 0f;
+				if (enemyParty == _mobileParty.ShortTermTargetParty)
+				{
+					RecalculateShortTermAi();
+				}
+			}
+			else
+			{
+				avoidScore = (CanAvoid(enemyParty) ? (0.9433963f * num13 * num8 * ((num12 > 0.01f) ? 1f : 0f) * num11) : 0f);
+			}
+		}
+		else
+		{
+			avoidScore = 0f;
+		}
+	}
+
+	private float CalculateInitiativeSpeedScore(MobileParty enemyParty, Vec2 otherPartyDif)
+	{
+		float num = 0f;
+		float num2 = 1f;
+		float length = otherPartyDif.Length;
+		float num3 = (_mobileParty.Speed + 0.1f) / (enemyParty.Speed + 0.1f);
+		float num4 = (enemyParty.IsLordParty ? 4.5f : 3f);
+		if (num3 < 1.1f && length < num4 && length > 0.5f)
+		{
+			float num5 = enemyParty.Bearing.DotProduct(otherPartyDif);
+			float num6 = 2f;
+			float num7 = num6 * 0.5f;
+			if (num5 > num6)
+			{
+				num2 = 0f;
+			}
+			else if (num5 > num6 * 0.5f)
+			{
+				num2 = 1f - (num5 - num7) / (num6 - num7);
+			}
+			else if (num5 < 0f)
+			{
+				num2 = 1f + (1.1f / num3 - 1f) * TaleWorlds.Library.MathF.Min(1f, TaleWorlds.Library.MathF.Abs(num5) / 3f);
+				float num8 = 1f - TaleWorlds.Library.MathF.Max(0f, length - num4 * 0.5f) / num4 * 0.5f * 0.67f;
+				num2 = 1f + (num2 - 1f) * num8;
+			}
+			num = num3 * 1.5f * TaleWorlds.Library.MathF.Pow(num3 / 1.1f, 1f - TaleWorlds.Library.MathF.Max(0.8f, 0.5f * num2));
+			num = TaleWorlds.Library.MathF.Pow(num, TaleWorlds.Library.MathF.Min(2.5f, length - 1f));
+		}
+		else
+		{
+			num = 1f;
+		}
+		return MBMath.ClampFloat(num, 0.0001f, 1f);
+	}
+
+	private float CalculateContinueChasingScore(MobileParty enemyParty)
+	{
+		float num = ((_mobileParty.Army != null && _mobileParty.Army.LeaderParty == _mobileParty) ? _mobileParty.Army.TotalStrength : _mobileParty.Party.TotalStrength);
+		float num2 = ((enemyParty.Army != null && enemyParty.Army.LeaderParty == _mobileParty) ? enemyParty.Army.TotalStrength : enemyParty.Party.TotalStrength) / (num + 0.01f);
+		float num3 = 1f + 0.01f * (float)enemyParty.Ai._numberOfRecentFleeingFromAParty;
+		float num4 = Math.Min(1f, (_mobileParty.Position2D - enemyParty.Position2D).Length / 3f);
+		Settlement settlement = null;
+		settlement = (_mobileParty.IsBandit ? _mobileParty.BanditPartyComponent.Hideout?.Settlement : ((!_mobileParty.IsLordParty || _mobileParty.LeaderHero == null || !_mobileParty.LeaderHero.IsMinorFactionHero) ? SettlementHelper.FindNearestFortification((Settlement x) => x.MapFaction == _mobileParty.MapFaction) : _mobileParty.MapFaction.FactionMidSettlement));
+		float num5 = Campaign.AverageDistanceBetweenTwoFortifications * 3f;
+		if (settlement != null)
+		{
+			num5 = Campaign.Current.Models.MapDistanceModel.GetDistance(_mobileParty, settlement);
+		}
+		float num6 = num5 / (Campaign.AverageDistanceBetweenTwoFortifications * 3f);
+		float input = 1f + (float)Math.Pow(enemyParty.Speed / (_mobileParty.Speed - 0.25f), 3.0);
+		input = MBMath.Map(input, 0f, 5.2f, 0f, 2f);
+		float num7 = 60000f;
+		float num8 = 10000f;
+		float num9 = (float)((enemyParty.LeaderHero != null) ? (enemyParty.PartyTradeGold + enemyParty.LeaderHero.Gold) : enemyParty.PartyTradeGold) / (enemyParty.IsCaravan ? num8 : num7);
+		float num10 = ((enemyParty.LeaderHero == null) ? 0.75f : ((enemyParty.LeaderHero.IsKingdomLeader || enemyParty.LeaderHero.IsClanLeader) ? 1.5f : 1f));
+		float num11 = num2 * num6 * input * num3 * num4;
+		return MBMath.ClampFloat(num9 * num10 / (num11 + 0.001f), 0.005f, 3f);
+	}
+
+	private bool GetAccessibleTargetPointInDirection(out Vec2 targetPoint, Vec2 direction, float distance, Vec2 alternativePosition, int neededTriesForAlternative, float rotationChangeLimitAddition = 0.1f)
+	{
+		targetPoint = _mobileParty.Position2D;
+		float num = 2f * rotationChangeLimitAddition;
+		float num2 = 1f;
+		bool flag = false;
+		int num3 = 0;
+		while (!flag)
+		{
+			Vec2 vec = direction;
+			float randomFloat = MBRandom.RandomFloat;
+			vec.RotateCCW((-0.5f + randomFloat) * num);
+			targetPoint = _mobileParty.Position2D + vec * distance * num2;
+			num3++;
+			num += rotationChangeLimitAddition;
+			num2 *= 0.97f;
+			PathFaceRecord faceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(targetPoint);
+			if (faceIndex.IsValid() && Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(faceIndex, _mobileParty.CurrentNavigationFace, ignoreDisabled: false) && (targetPoint.x > Campaign.Current.MinSettlementX - 50f || targetPoint.x > _mobileParty.Position2D.x) && (targetPoint.y > Campaign.Current.MinSettlementY - 50f || targetPoint.y > _mobileParty.Position2D.y) && (targetPoint.x < Campaign.Current.MaxSettlementX + 50f || targetPoint.x < _mobileParty.Position2D.x) && (targetPoint.y < Campaign.Current.MaxSettlementY + 50f || targetPoint.y < _mobileParty.Position2D.y))
+			{
+				flag = num3 >= neededTriesForAlternative || CheckIfThereIsAnyHugeObstacleBetweenPartyAndTarget(_mobileParty, targetPoint);
+			}
+			if (num3 >= neededTriesForAlternative)
+			{
+				flag = true;
+				targetPoint = alternativePosition;
+			}
+		}
+		return flag;
+	}
+
+	private bool CanAvoid(MobileParty targetParty)
+	{
+		if (!(targetParty.Aggressiveness > 0.01f) || !targetParty.Party.IsMobile)
+		{
+			return targetParty.IsGarrison;
+		}
+		return true;
+	}
+
+	private bool CanAttack(MobileParty targetParty)
+	{
+		bool num = targetParty != MobileParty.MainParty || !Game.Current.CheatMode || CampaignCheats.MainPartyIsAttackable;
+		bool flag = targetParty != MobileParty.MainParty || DoNotAttackMainPartyUntil.IsPast;
+		return num && flag;
+	}
+
+	private bool IsEnemy(PartyBase party)
+	{
+		return FactionManager.IsAtWarAgainstFaction(party.MapFaction, _mobileParty.MapFaction);
+	}
+
+	private bool IsFleeBehavior(AiBehavior aiBehavior)
+	{
+		if (aiBehavior != AiBehavior.FleeToPoint && aiBehavior != AiBehavior.FleeToGate)
+		{
+			return aiBehavior == AiBehavior.FleeToParty;
+		}
+		return true;
+	}
+
+	public bool IsFleeing()
+	{
+		if (!IsFleeBehavior(_mobileParty.ShortTermBehavior))
+		{
+			return IsFleeBehavior(_mobileParty.DefaultBehavior);
+		}
+		return true;
+	}
+
+	internal void CacheTargetPartyVariablesAtFrameStart(ref MobileParty.CachedPartyVariables variables)
+	{
+		if (MoveTargetParty != null)
+		{
+			variables.TargetPartyPositionAtFrameStart = MoveTargetParty.Position2D;
+			variables.TargetPartyCurrentNavigationFaceAtFrameStart = MoveTargetParty.CurrentNavigationFace;
+		}
+	}
+
+	private bool ComputePath(Vec2 newTargetPosition)
+	{
+		bool flag = false;
+		if (_mobileParty.CurrentNavigationFace.IsValid())
+		{
+			_targetAiFaceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(newTargetPosition);
+			if (_targetAiFaceIndex.IsValid())
+			{
+				Vec2 position2D = _mobileParty.Position2D;
+				flag = Campaign.Current.MapSceneWrapper.GetPathBetweenAIFaces(_mobileParty.CurrentNavigationFace, _targetAiFaceIndex, position2D, newTargetPosition, 0.1f, Path);
+			}
+			else
+			{
+				Debug.FailedAssert("Path finding target is not valid", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobilePartyAi.cs", "ComputePath", 2017);
+			}
+		}
+		PathBegin = 0;
+		if (!flag)
+		{
+			_aiPathMode = false;
+		}
+		return flag;
+	}
+
+	private void DoAIMove(ref MobileParty.CachedPartyVariables variables)
+	{
+		GetTargetPositionAndFace(ref variables, out var finalTargetPosition, out var finalTargetNavigationFace, out var forceNoPathMode);
+		if (_aiPathMode)
+		{
+			float num = ((_aiPathLastPosition.DistanceSquared(_mobileParty.Position2D) > 108f) ? 3f : (_aiPathLastPosition.DistanceSquared(_mobileParty.Position2D) / 36f));
+			if (forceNoPathMode || finalTargetNavigationFace.FaceIndex != _aiPathLastFace.FaceIndex || _aiPathLastPosition.DistanceSquared(finalTargetPosition) > num)
+			{
+				_aiPathMode = false;
+				_aiPathLastFace = PathFaceRecord.NullFaceRecord;
+			}
+		}
+		if (!_aiPathMode && !forceNoPathMode && !_aiPathNotFound)
+		{
+			if ((finalTargetNavigationFace.FaceIndex != _aiPathLastFace.FaceIndex || _aiPathNeeded) && finalTargetNavigationFace.IsValid())
+			{
+				if (_mobileParty.CurrentNavigationFace.FaceIndex != finalTargetNavigationFace.FaceIndex || _aiPathNeeded)
+				{
+					_aiPathNotFound = !ComputePath(finalTargetPosition);
+					_aiPathNeeded = false;
+					if (!_aiPathNotFound)
+					{
+						_aiPathLastFace = finalTargetNavigationFace;
+						_aiPathLastPosition = finalTargetPosition;
+						_aiPathMode = true;
+					}
+				}
+				else
+				{
+					_aiPathMode = false;
+				}
+			}
+			else if (finalTargetNavigationFace.FaceIndex == _aiPathLastFace.FaceIndex && _mobileParty.CurrentNavigationFace.FaceIndex != finalTargetNavigationFace.FaceIndex)
+			{
+				_aiPathMode = true;
+			}
+		}
+		if (!_aiPathMode)
+		{
+			NextTargetPosition = finalTargetPosition;
+		}
+	}
+
+	internal void DoAiPathMode(ref MobileParty.CachedPartyVariables variables)
+	{
+		if (variables.IsAttachedArmyMember)
+		{
+			_aiPathMode = false;
+			return;
+		}
+		DoAIMove(ref variables);
+		if (!_aiPathMode)
+		{
+			return;
+		}
+		bool flag;
+		do
+		{
+			flag = false;
+			NextTargetPosition = Path[PathBegin];
+			float lengthSquared = (NextTargetPosition - variables.CurrentPosition).LengthSquared;
+			if (lengthSquared < variables.NextMoveDistance * variables.NextMoveDistance)
+			{
+				flag = true;
+				variables.NextMoveDistance -= TaleWorlds.Library.MathF.Sqrt(lengthSquared);
+				variables.LastCurrentPosition = variables.CurrentPosition;
+				variables.CurrentPosition = NextTargetPosition;
+				int pathBegin = PathBegin + 1;
+				PathBegin = pathBegin;
+			}
+		}
+		while (flag && PathBegin < Path.Size);
+		if (PathBegin >= Path.Size)
+		{
+			_aiPathMode = false;
+			_aiPathNeeded = false;
+			if (Path.Size > 0)
+			{
+				variables.CurrentPosition = variables.LastCurrentPosition;
+				NextTargetPosition = Path[Path.Size - 1];
+			}
+		}
+	}
+
+	public void ResetAiBehaviorObject()
+	{
+		AiBehaviorPartyBase = null;
+	}
+
+	private void UpdatePathModeWithPosition(Vec2 newTargetPosition)
+	{
+		_moveTargetPoint = newTargetPosition;
+		_moveTargetAiFaceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(newTargetPosition);
+	}
+
+	internal void GetTargetPositionAndFace(ref MobileParty.CachedPartyVariables variables, out Vec2 finalTargetPosition, out PathFaceRecord finalTargetNavigationFace, out bool forceNoPathMode)
+	{
+		finalTargetPosition = _mobileParty.Position2D;
+		finalTargetNavigationFace = _mobileParty.CurrentNavigationFace;
+		forceNoPathMode = false;
+		if (PartyMoveMode == MoveModeType.Point)
+		{
+			finalTargetPosition = _moveTargetPoint;
+			finalTargetNavigationFace = _moveTargetAiFaceIndex;
+			forceNoPathMode = ForceAiNoPathMode;
+		}
+		else if (PartyMoveMode == MoveModeType.Party)
+		{
+			if (!MoveTargetParty.Party.IsValid)
+			{
+				return;
+			}
+			if (!MoveTargetParty.IsMoving)
+			{
+				finalTargetPosition = variables.TargetPartyPositionAtFrameStart;
+				finalTargetNavigationFace = variables.TargetPartyCurrentNavigationFaceAtFrameStart;
+				return;
+			}
+			Vec2 targetPartyPositionAtFrameStart = variables.TargetPartyPositionAtFrameStart;
+			if (PartyBase.IsPositionOkForTraveling(targetPartyPositionAtFrameStart))
+			{
+				finalTargetPosition = targetPartyPositionAtFrameStart;
+				finalTargetNavigationFace = Campaign.Current.MapSceneWrapper.GetFaceIndex(targetPartyPositionAtFrameStart);
+			}
+			else
+			{
+				finalTargetPosition = variables.TargetPartyPositionAtFrameStart;
+				finalTargetNavigationFace = variables.TargetPartyCurrentNavigationFaceAtFrameStart;
+			}
+		}
+		else
+		{
+			if (PartyMoveMode != MoveModeType.Escort)
+			{
+				return;
+			}
+			if (MoveTargetParty != null && MoveTargetParty.Party.IsValid && MoveTargetParty.CurrentSettlement == null && _mobileParty.CurrentSettlement == null)
+			{
+				if (variables.TargetPartyPositionAtFrameStart.DistanceSquared(_mobileParty.Position2D) > 25f)
+				{
+					finalTargetPosition = variables.TargetPartyPositionAtFrameStart;
+					finalTargetNavigationFace = variables.TargetPartyCurrentNavigationFaceAtFrameStart;
+					return;
+				}
+				float num = ((_mobileParty.Army != null) ? 0f : (((MoveTargetParty.DefaultBehavior == AiBehavior.DefendSettlement || MoveTargetParty.DefaultBehavior == AiBehavior.BesiegeSettlement || MoveTargetParty.DefaultBehavior == AiBehavior.RaidSettlement) && _mobileParty.Party.MobileParty.Position2D.DistanceSquared(MoveTargetParty.AiBehaviorTarget) < 100f) ? 1.2f : 2.4f));
+				while (true)
+				{
+					finalTargetPosition = variables.TargetPartyPositionAtFrameStart + num * _formationPosition;
+					PathFaceRecord faceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(_mobileParty.Position2D);
+					finalTargetNavigationFace = Campaign.Current.MapSceneWrapper.GetFaceIndex(finalTargetPosition);
+					PathFaceRecord targetPartyCurrentNavigationFaceAtFrameStart = variables.TargetPartyCurrentNavigationFaceAtFrameStart;
+					Vec2.StackArray6Vec2 stackArray6Vec = default(Vec2.StackArray6Vec2);
+					PathFaceRecord.StackArray6PathFaceRecord stackArray6PathFaceRecord = default(PathFaceRecord.StackArray6PathFaceRecord);
+					for (int i = 0; i < 6; i++)
+					{
+						stackArray6Vec[i] = new Vec2((finalTargetPosition.x * (float)i + _mobileParty.Position2D.x * (float)(6 - i)) / 6f, (finalTargetPosition.y * (float)i + _mobileParty.Position2D.y * (float)(6 - i)) / 6f);
+						stackArray6PathFaceRecord[i] = Campaign.Current.MapSceneWrapper.GetFaceIndex(stackArray6Vec[i]);
+					}
+					bool flag = Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(faceIndex, finalTargetNavigationFace, ignoreDisabled: false);
+					for (int j = 0; j < 6 && flag; j++)
+					{
+						if (faceIndex.FaceIndex != stackArray6PathFaceRecord[j].FaceIndex && !Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(faceIndex, stackArray6PathFaceRecord[j], ignoreDisabled: false))
+						{
+							flag = false;
+						}
+					}
+					if (flag)
+					{
+						Vec2.StackArray6Vec2 stackArray6Vec2 = default(Vec2.StackArray6Vec2);
+						PathFaceRecord.StackArray6PathFaceRecord stackArray6PathFaceRecord2 = default(PathFaceRecord.StackArray6PathFaceRecord);
+						for (int k = 0; k < 6; k++)
+						{
+							stackArray6Vec2[k] = new Vec2((finalTargetPosition.x * (float)k + variables.TargetPartyPositionAtFrameStart.x * (float)(6 - k)) / 6f, (finalTargetPosition.y * (float)k + variables.TargetPartyPositionAtFrameStart.y * (float)(6 - k)) / 6f);
+							stackArray6PathFaceRecord2[k] = Campaign.Current.MapSceneWrapper.GetFaceIndex(stackArray6Vec2[k]);
+						}
+						bool flag2 = Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(finalTargetNavigationFace, targetPartyCurrentNavigationFaceAtFrameStart, ignoreDisabled: false);
+						for (int l = 0; l < 6 && flag2; l++)
+						{
+							if (variables.TargetPartyCurrentNavigationFaceAtFrameStart.FaceIndex != stackArray6PathFaceRecord2[l].FaceIndex && !Campaign.Current.MapSceneWrapper.AreFacesOnSameIsland(variables.TargetPartyCurrentNavigationFaceAtFrameStart, stackArray6PathFaceRecord2[l], ignoreDisabled: false))
+							{
+								flag2 = false;
+							}
+						}
+						if (flag2)
+						{
+							break;
+						}
+					}
+					num *= 0.75f;
+					num -= 0.1f;
+					if (!(num < 0.1f))
+					{
+						if (num <= 0.3f)
+						{
+							num = 0f;
+						}
+						continue;
+					}
+					break;
+				}
+			}
+			else
+			{
+				SetMoveModeHold();
+			}
+		}
+	}
+
+	internal void SetNavigationModeHold()
+	{
+		PartyMoveMode = MoveModeType.Hold;
+		_aiPathMode = false;
+		_aiPathNeeded = false;
+		NextTargetPosition = _mobileParty.Position2D;
+		MoveTargetParty = null;
+	}
+
+	private void SetNavigationModePoint(Vec2 newTargetPosition)
+	{
+		PartyMoveMode = MoveModeType.Point;
+		UpdatePathModeWithPosition(newTargetPosition);
+		_aiPathNotFound = false;
+		MoveTargetParty = null;
+	}
+
+	private void SetNavigationModeParty(MobileParty targetParty)
+	{
+		PartyMoveMode = MoveModeType.Party;
+		MoveTargetParty = targetParty;
+		_aiPathNotFound = false;
+	}
+
+	private void SetNavigationModeEscort(MobileParty targetParty)
+	{
+		if (PartyMoveMode != MoveModeType.Escort || MoveTargetParty != targetParty)
+		{
+			PartyMoveMode = MoveModeType.Escort;
+			MoveTargetParty = targetParty;
+			_aiPathNotFound = false;
+		}
+	}
+
+	public void DisableForHours(int hours)
+	{
+		_isDisabled = true;
+		_enableAgainAtHour = CampaignTime.Now + CampaignTime.Hours(hours);
+	}
+
+	public void DisableAi()
+	{
+		_isDisabled = true;
+		_enableAgainAtHour = CampaignTime.Never;
+	}
+
+	public void EnableAi()
+	{
+		_isDisabled = false;
+		_enableAgainAtHour = CampaignTime.Now;
+	}
+
+	public bool EnableAgainAtHourIsPast()
+	{
+		return _enableAgainAtHour.IsPast;
+	}
+
+	public void SetDoNotAttackMainParty(int hours)
+	{
+		if (DoNotAttackMainPartyUntil.RemainingHoursFromNow < (float)hours)
+		{
+			DoNotAttackMainPartyUntil = CampaignTime.HoursFromNow(hours);
+		}
+	}
+
+	public void SetAsMainParty()
+	{
+		SetInitiative(0f, 0f, 100000000f);
+	}
+
+	internal void ForceDefaultBehaviorUpdate()
+	{
+		DefaultBehaviorNeedsUpdate = true;
+	}
+
+	public void SetInitiative(float attackInitiative, float avoidInitiative, float hoursUntilReset)
+	{
+		if (_mobileParty != MobileParty.MainParty)
+		{
+			_attackInitiative = attackInitiative;
+			_avoidInitiative = avoidInitiative;
+			_initiativeRestoreTime = CampaignTime.HoursFromNow(hoursUntilReset);
+		}
+	}
+
+	public void SetDoNotMakeNewDecisions(bool doNotMakeNewDecisions)
+	{
+		DoNotMakeNewDecisions = doNotMakeNewDecisions;
+	}
+
+	internal void InitializeForOldSaves(float attackInitiative, float avoidInitiative, CampaignTime initiativeRestoreTime, int numberOfRecentFleeingFromAParty, AiBehavior aiBehavior, Vec2 oldAiBehaviorTarget, bool oldAiPathMode, bool oldAiPathNeeded, MoveModeType oldPartyMoveMode, MobileParty oldMoveTargetParty, Vec2 oldNextTargetPosition, Vec2 oldMoveTargetPoint, Vec2 oldAiPathLastPosition, Vec2 oldFormationPosition, IMapEntity oldAiBehaviorMapEntity, CampaignTime oldDoNotAttackMainPartyUntil)
+	{
+		_attackInitiative = attackInitiative;
+		_avoidInitiative = avoidInitiative;
+		_initiativeRestoreTime = initiativeRestoreTime;
+		_numberOfRecentFleeingFromAParty = numberOfRecentFleeingFromAParty;
+		_defaultBehavior = aiBehavior;
+		BehaviorTarget = oldAiBehaviorTarget;
+		_aiPathMode = oldAiPathMode;
+		_aiPathNeeded = oldAiPathNeeded;
+		PartyMoveMode = oldPartyMoveMode;
+		MoveTargetParty = oldMoveTargetParty;
+		NextTargetPosition = oldNextTargetPosition;
+		_moveTargetPoint = oldMoveTargetPoint;
+		_aiPathLastPosition = oldAiPathLastPosition;
+		_formationPosition = oldFormationPosition;
+		AiBehaviorMapEntity = oldAiBehaviorMapEntity;
+		DoNotAttackMainPartyUntil = oldDoNotAttackMainPartyUntil;
+	}
+
+	internal void RecoverPositionsForNavMeshUpdate()
+	{
+		if (_moveTargetPoint.IsNonZero() && !PartyBase.IsPositionOkForTraveling(_moveTargetPoint))
+		{
+			Debug.Print("Target of " + _mobileParty.StringId + " is not valid! (" + _mobileParty.Position2D.x + ", " + _mobileParty.Position2D.y + ") Party will be moved to a valid position.");
+			_moveTargetPoint = _mobileParty.TargetSettlement?.GatePosition ?? _mobileParty.Position2D;
+			_mobileParty.TargetPosition = _moveTargetPoint;
+			NextTargetPosition = _moveTargetPoint;
+			BehaviorTarget = _moveTargetPoint;
+		}
+		if (_mobileParty.TargetPosition.IsNonZero() && !PartyBase.IsPositionOkForTraveling(_mobileParty.TargetPosition))
+		{
+			_mobileParty.TargetPosition = Vec2.Zero;
+		}
+		if (DefaultBehavior != 0 && ((_mobileParty.TargetPosition.IsNonZero() && !PartyBase.IsPositionOkForTraveling(_mobileParty.TargetPosition)) || (NextTargetPosition.IsNonZero() && !PartyBase.IsPositionOkForTraveling(NextTargetPosition)) || (BehaviorTarget.IsNonZero() && !PartyBase.IsPositionOkForTraveling(BehaviorTarget))))
+		{
+			ForceDefaultBehaviorUpdate();
+			SetMoveModeHold();
+			SetNavigationModeHold();
+		}
+	}
+
+	internal void ResetNumberOfRecentFleeing()
+	{
+		_numberOfRecentFleeingFromAParty = 0;
+	}
+
+	internal static bool CheckIfThereIsAnyHugeObstacleBetweenPartyAndTarget(MobileParty party, Vec2 newTargetPosition)
+	{
+		IMapScene mapSceneWrapper = Campaign.Current.MapSceneWrapper;
+		Vec2 position2D = party.Position2D;
+		Vec2 position = new Vec2((newTargetPosition.x + position2D.x * 3f) * 0.25f, (newTargetPosition.y + position2D.y * 3f) * 0.25f);
+		PathFaceRecord faceIndex = mapSceneWrapper.GetFaceIndex(position);
+		Vec2 position2 = new Vec2((newTargetPosition.x + position2D.x) * 0.5f, (newTargetPosition.y + position2D.y) * 0.5f);
+		PathFaceRecord faceIndex2 = mapSceneWrapper.GetFaceIndex(position2);
+		Vec2 position3 = new Vec2((newTargetPosition.x * 3f + position2D.x) * 0.25f, (newTargetPosition.y * 3f + position2D.y) * 0.25f);
+		PathFaceRecord faceIndex3 = mapSceneWrapper.GetFaceIndex(position3);
+		if (faceIndex.IsValid() && mapSceneWrapper.AreFacesOnSameIsland(faceIndex, party.CurrentNavigationFace, ignoreDisabled: false) && faceIndex2.IsValid() && mapSceneWrapper.AreFacesOnSameIsland(faceIndex2, party.CurrentNavigationFace, ignoreDisabled: false))
+		{
+			if (faceIndex3.IsValid())
+			{
+				return mapSceneWrapper.AreFacesOnSameIsland(faceIndex3, party.CurrentNavigationFace, ignoreDisabled: false);
+			}
+			return false;
+		}
+		return false;
+	}
+}
