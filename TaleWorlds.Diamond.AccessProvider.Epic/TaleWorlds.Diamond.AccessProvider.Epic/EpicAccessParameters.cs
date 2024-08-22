@@ -4,7 +4,7 @@ public class EpicAccessParameters
 {
 	public const string ProductName = "Bannerlord";
 
-	public const string ProductVersion = "1.2.10.44489";
+	public const string ProductVersion = "1.2.11.45697";
 
 	public const string ClientId = "e2cf3228b2914793b9a5e5570bad92b3";
 

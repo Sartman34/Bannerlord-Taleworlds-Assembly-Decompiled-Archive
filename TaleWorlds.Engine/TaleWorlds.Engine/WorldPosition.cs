@@ -1,11 +1,9 @@
 using System;
-using System.Runtime.InteropServices;
 using TaleWorlds.DotNet;
 using TaleWorlds.Library;
 
 namespace TaleWorlds.Engine;
 
-[StructLayout(LayoutKind.Sequential, Pack = 1)]
 [EngineStruct("rglWorld_position::Plain_world_position", false)]
 public struct WorldPosition
 {

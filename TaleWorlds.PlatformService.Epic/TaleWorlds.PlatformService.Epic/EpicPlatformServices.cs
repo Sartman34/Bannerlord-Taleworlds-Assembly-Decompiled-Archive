@@ -236,7 +236,7 @@ public class EpicPlatformServices : IPlatformServices
 		}
 		InitializeOptions val = default(InitializeOptions);
 		((InitializeOptions)(ref val)).ProductName = Utf8String.op_Implicit("Bannerlord");
-		((InitializeOptions)(ref val)).ProductVersion = Utf8String.op_Implicit("1.2.10.44489");
+		((InitializeOptions)(ref val)).ProductVersion = Utf8String.op_Implicit("1.2.11.45697");
 		Result val2 = PlatformInterface.Initialize(ref val);
 		if ((int)val2 != 0)
 		{
