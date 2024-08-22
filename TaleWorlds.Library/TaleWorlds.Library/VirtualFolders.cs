@@ -26,10 +26,10 @@ public class VirtualFolders
 					}
 				}
 
-				[VirtualFile("Environment", "su3lgnuOYoxmIZKGAgPtrarYFc6kMfGF.SSRdLYTA5CGtk5Mp_mWww0v53Z3SJqrPhQG_TD7avxMjsKUL.imzymKaGUE53ZZAYid4Bn.ONsweRCa_xjcwN02p3iKOiS.mluuNQrQMCivy698oHd5MemIY.56L6eCrAsEURHXRoQ-")]
+				[VirtualFile("Environment", "eIEUjZV1fWgjwmWKMx8bXYrQ8NiCt336MENgiNk6v98nV4vDh9rQN3ZVfbI.e4k9q_0EWFXoROmuya9_C9tNELxxJX2jFjsUPAMdo15cpfOFTDOCIIGvOhE_wrSHHz_RlzfkNquCNe2N4SYyFGoaeSWP41e1wr3RDLO6Dlq9Y0I-")]
 				public string Environment;
 
-				[VirtualFile("Version.xml", "<Version>\t<Singleplayer Value=\"v1.2.10\" /></Version>")]
+				[VirtualFile("Version.xml", "<Version>\t<Singleplayer Value=\"v1.2.11\" /></Version>")]
 				public string Version;
 
 				[VirtualFile("ClientProfile.xml", "<ClientProfile Value=\"DigitalOcean.Discovery\"/>")]

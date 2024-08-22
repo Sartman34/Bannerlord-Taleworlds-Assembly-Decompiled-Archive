@@ -8,7 +8,7 @@ namespace TaleWorlds.Library;
 [JsonConverter(typeof(ApplicationVersionJsonConverter))]
 public struct ApplicationVersion
 {
-	public const int DefaultChangeSet = 44489;
+	public const int DefaultChangeSet = 45697;
 
 	[JsonIgnore]
 	public static readonly ApplicationVersion Empty = new ApplicationVersion(ApplicationVersionType.Invalid, -1, -1, -1, -1);
@@ -50,7 +50,7 @@ public struct ApplicationVersion
 		return FromString(xmlDocument.ChildNodes[0].ChildNodes[0].Attributes["Value"].InnerText);
 	}
 
-	public static ApplicationVersion FromString(string versionAsString, int defaultChangeSet = 44489)
+	public static ApplicationVersion FromString(string versionAsString, int defaultChangeSet = 45697)
 	{
 		string[] array = versionAsString.Split(new char[1] { '.' });
 		if (array.Length != 3 && array.Length != 4)

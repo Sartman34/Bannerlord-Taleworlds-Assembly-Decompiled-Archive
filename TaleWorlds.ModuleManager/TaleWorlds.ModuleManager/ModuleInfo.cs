@@ -151,6 +151,6 @@ public class ModuleInfo
 
 	public void UpdateVersionChangeSet()
 	{
-		Version = new ApplicationVersion(Version.ApplicationVersionType, Version.Major, Version.Minor, Version.Revision, 44489);
+		Version = new ApplicationVersion(Version.ApplicationVersionType, Version.Major, Version.Minor, Version.Revision, 45697);
 	}
 }
