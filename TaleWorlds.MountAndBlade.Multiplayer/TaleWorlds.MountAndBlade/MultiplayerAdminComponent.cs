@@ -339,7 +339,7 @@ public class MultiplayerAdminComponent : MissionNetwork
 			else if (MultiplayerIntermissionVotingManager.Instance.IsDisableCultureVoteOverride)
 			{
 				MultiplayerIntermissionVotingManager.Instance.IsCultureVoteEnabled = false;
-				MultiplayerIntermissionVotingManager.Instance.SelectRandomCultures();
+				MultiplayerIntermissionVotingManager.Instance.SelectRandomCultures(MultiplayerOptions.MultiplayerOptionsAccessMode.NextMapOptions);
 				string strValue = MultiplayerOptions.OptionType.CultureTeam1.GetStrValue(MultiplayerOptions.MultiplayerOptionsAccessMode.NextMapOptions);
 				string strValue2 = MultiplayerOptions.OptionType.CultureTeam2.GetStrValue(MultiplayerOptions.MultiplayerOptionsAccessMode.NextMapOptions);
 				Debug.Print("[Admin] Cultures weren't valid. Randomly setting " + strValue + " vs " + strValue2 + " for next game.");

@@ -15,7 +15,8 @@ public class MissionOrderTroopControllerVM : ViewModel
 	{
 		public int Compare(OrderTroopItemVM x, OrderTroopItemVM y)
 		{
-			return x.Formation.Index.CompareTo(y.Formation.Index);
+			int index = x.Formation.Index;
+			return index.CompareTo(y.Formation.Index);
 		}
 	}
 

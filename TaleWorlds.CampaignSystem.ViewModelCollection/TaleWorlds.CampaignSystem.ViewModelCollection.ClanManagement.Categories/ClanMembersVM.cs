@@ -4,7 +4,6 @@ using System.Linq;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Conversation;
-using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements.Locations;
 using TaleWorlds.Core;
@@ -418,15 +417,13 @@ public class ClanMembersVM : ViewModel
 		if (CurrentSelectedMember?.GetHero()?.CharacterObject != null)
 		{
 			CharacterObject characterObject = CurrentSelectedMember.GetHero().CharacterObject;
-			Location location = LocationComplex.Current?.GetLocationOfCharacter(LocationComplex.Current.GetFirstLocationCharacterOfCharacter(characterObject));
-			if (location == null)
+			if (LocationComplex.Current?.GetLocationOfCharacter(LocationComplex.Current.GetFirstLocationCharacterOfCharacter(characterObject)) == null)
 			{
 				CampaignMission.OpenConversationMission(new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty), new ConversationCharacterData(characterObject, PartyBase.MainParty));
+				return;
 			}
-			else
-			{
-				PlayerEncounter.LocationEncounter.CreateAndOpenMissionController(location, null, characterObject);
-			}
+			Game.Current.GameStateManager.PopState();
+			CampaignMapConversation.OpenConversation(new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty), new ConversationCharacterData(characterObject, PartyBase.MainParty));
 		}
 	}
 

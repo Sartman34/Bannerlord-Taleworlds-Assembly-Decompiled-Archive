@@ -99,7 +99,7 @@ public class RangedSiegeWeaponView : UsableMissionObjectComponent
 	{
 		Camera = Camera.CreateCamera();
 		float aspectRatio = Screen.AspectRatio;
-		Camera.SetFovVertical((float)Math.PI / 3f, aspectRatio, 0.1f, 1000f);
+		Camera.SetFovVertical(System.MathF.PI / 3f, aspectRatio, 0.1f, 1000f);
 		Camera.Entity = CameraHolder;
 		MatrixFrame frame = CameraHolder.GetFrame();
 		Vec3 eulerAngles = frame.rotation.GetEulerAngles();
@@ -151,8 +151,8 @@ public class RangedSiegeWeaponView : UsableMissionObjectComponent
 		}
 		_cameraYaw += MissionScreen.SceneLayer.Input.GetMouseMoveX() * dt * 0.2f;
 		_cameraPitch += MissionScreen.SceneLayer.Input.GetMouseMoveY() * dt * 0.2f;
-		_cameraYaw = MBMath.ClampFloat(_cameraYaw, (float)Math.PI / 2f, 4.712389f);
-		_cameraPitch = MBMath.ClampFloat(_cameraPitch, (float)Math.PI / 3f, (float)Math.PI * 5f / 9f);
+		_cameraYaw = MBMath.ClampFloat(_cameraYaw, System.MathF.PI / 2f, 4.712389f);
+		_cameraPitch = MBMath.ClampFloat(_cameraPitch, System.MathF.PI / 3f, System.MathF.PI * 5f / 9f);
 		if (cameraPitch != _cameraPitch || cameraYaw != _cameraYaw)
 		{
 			ApplyCameraRotation();

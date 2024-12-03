@@ -118,7 +118,7 @@ public class TacticDefensiveRing : TacticComponent
 		{
 			return 0f;
 		}
-		float num = (float)TaleWorlds.Library.MathF.Max(0, _mainInfantry.CountOfUnits) * (_mainInfantry.MaximumInterval + _mainInfantry.UnitDiameter) / ((float)Math.PI * 2f);
+		float num = (float)TaleWorlds.Library.MathF.Max(0, _mainInfantry.CountOfUnits) * (_mainInfantry.MaximumInterval + _mainInfantry.UnitDiameter) / (System.MathF.PI * 2f);
 		float num2 = TaleWorlds.Library.MathF.Sqrt(_archers.CountOfUnits);
 		float num3 = _archers.UnitDiameter * num2 + _archers.Interval * (num2 - 1f);
 		if (num < num3)

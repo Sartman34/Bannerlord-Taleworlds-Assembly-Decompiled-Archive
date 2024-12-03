@@ -18,9 +18,6 @@ public class InitializeSession : LoginMessage
 	public string PlayerName { get; private set; }
 
 	[JsonProperty]
-	public AccessObject AccessObject { get; private set; }
-
-	[JsonProperty]
 	public ApplicationVersion ApplicationVersion { get; private set; }
 
 	[JsonProperty]
@@ -34,11 +31,10 @@ public class InitializeSession : LoginMessage
 	}
 
 	public InitializeSession(PlayerId playerId, string playerName, AccessObject accessObject, ApplicationVersion applicationVersion, string connectionPassword, ModuleInfoModel[] loadedModules)
-		: base(playerId.ConvertToPeerId())
+		: base(playerId.ConvertToPeerId(), accessObject)
 	{
 		PlayerId = playerId;
 		PlayerName = playerName;
-		AccessObject = accessObject;
 		ApplicationVersion = applicationVersion;
 		ConnectionPassword = connectionPassword;
 		LoadedModules = loadedModules;

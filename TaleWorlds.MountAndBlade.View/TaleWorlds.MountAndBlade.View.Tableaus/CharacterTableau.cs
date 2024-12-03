@@ -979,7 +979,7 @@ public class CharacterTableau
 		Camera continuousRenderCamera = _continuousRenderCamera;
 		if (continuousRenderCamera != null)
 		{
-			continuousRenderCamera.SetFovVertical((float)Math.PI / 4f, cameraRatio, 0.2f, 200f);
+			continuousRenderCamera.SetFovVertical(System.MathF.PI / 4f, cameraRatio, 0.2f, 200f);
 			continuousRenderCamera.Frame = camPos;
 			tableauView.SetCamera(continuousRenderCamera);
 			tableauView.SetScene(scene);

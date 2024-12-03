@@ -39,7 +39,7 @@ public static class LeaveTroopsToSettlementAction
 				}
 				else
 				{
-					int partyRank2 = settlement.Town.GarrisonParty.MemberRoster.TotalHeroes + MBRandom.RandomInt(settlement.Town.GarrisonParty.MemberRoster.TotalRegulars);
+					int partyRank2 = MBRandom.RandomInt(settlement.Town.GarrisonParty.MemberRoster.TotalRegulars);
 					CharacterObject character2 = null;
 					settlement.Town.GarrisonParty.Party.GetCharacterFromPartyRank(partyRank2, out character2, out party, out stackIndex, includeWoundeds: true);
 					characterObject = character2;

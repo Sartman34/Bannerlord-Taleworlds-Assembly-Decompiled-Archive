@@ -83,8 +83,8 @@ public class LauncherCircleLoadingAnimWidget : Widget
 			float num2 = _currentAngle;
 			for (int i = 0; i < base.ChildCount; i++)
 			{
-				float num3 = (float)Math.Cos(num2 * ((float)Math.PI / 180f)) * CircleRadius;
-				float num4 = (float)Math.Sin(num2 * ((float)Math.PI / 180f)) * CircleRadius;
+				float num3 = (float)Math.Cos(num2 * (System.MathF.PI / 180f)) * CircleRadius;
+				float num4 = (float)Math.Sin(num2 * (System.MathF.PI / 180f)) * CircleRadius;
 				GetChild(i).PositionXOffset = (IsReverse ? num4 : num3);
 				GetChild(i).PositionYOffset = (IsReverse ? num3 : num4);
 				num2 += num;

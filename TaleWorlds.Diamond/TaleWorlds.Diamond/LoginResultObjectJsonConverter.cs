@@ -29,12 +29,12 @@ public class LoginResultObjectJsonConverter : JsonConverter
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		JObject jObject = JObject.Load(reader);
-		string key = (string)jObject["_type"];
+		JObject val = JObject.Load(reader);
+		string key = (string)val["_type"];
 		if (_knownTypes.TryGetValue(key, out var value))
 		{
 			LoginResultObject loginResultObject = (LoginResultObject)Activator.CreateInstance(value);
-			serializer.Populate(jObject.CreateReader(), loginResultObject);
+			serializer.Populate(((JToken)val).CreateReader(), (object)loginResultObject);
 			return loginResultObject;
 		}
 		return null;
@@ -42,9 +42,13 @@ public class LoginResultObjectJsonConverter : JsonConverter
 
 	public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 	{
-		JProperty content = new JProperty("_type", value.GetType().FullName);
-		JObject jObject = new JObject();
-		jObject.Add(content);
+		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0016: Expected O, but got Unknown
+		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001c: Expected O, but got Unknown
+		JProperty val = new JProperty("_type", (object)value.GetType().FullName);
+		JObject val2 = new JObject();
+		((JContainer)val2).Add((object)val);
 		PropertyInfo[] properties = value.GetType().GetProperties();
 		foreach (PropertyInfo propertyInfo in properties)
 		{
@@ -53,10 +57,10 @@ public class LoginResultObjectJsonConverter : JsonConverter
 				object value2 = propertyInfo.GetValue(value);
 				if (value2 != null)
 				{
-					jObject.Add(propertyInfo.Name, JToken.FromObject(value2, serializer));
+					val2.Add(propertyInfo.Name, JToken.FromObject(value2, serializer));
 				}
 			}
 		}
-		jObject.WriteTo(writer);
+		((JToken)val2).WriteTo(writer, Array.Empty<JsonConverter>());
 	}
 }

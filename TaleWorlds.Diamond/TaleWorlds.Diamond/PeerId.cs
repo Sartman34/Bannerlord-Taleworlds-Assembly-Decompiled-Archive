@@ -133,10 +133,14 @@ public struct PeerId
 
 	public override int GetHashCode()
 	{
-		int hashCode = _chunk1.GetHashCode();
-		int hashCode2 = _chunk2.GetHashCode();
-		int hashCode3 = _chunk3.GetHashCode();
-		int hashCode4 = _chunk4.GetHashCode();
+		ulong chunk = _chunk1;
+		int hashCode = chunk.GetHashCode();
+		chunk = _chunk2;
+		int hashCode2 = chunk.GetHashCode();
+		chunk = _chunk3;
+		int hashCode3 = chunk.GetHashCode();
+		chunk = _chunk4;
+		int hashCode4 = chunk.GetHashCode();
 		return hashCode ^ hashCode2 ^ hashCode3 ^ hashCode4;
 	}
 }

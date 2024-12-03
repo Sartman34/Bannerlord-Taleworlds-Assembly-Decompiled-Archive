@@ -276,7 +276,7 @@ public class DuelTargetMarkerListPanel : ListPanel
 			{
 				position *= -1f;
 			}
-			float radian = Mathf.Atan2(position.y, position.x) - (float)Math.PI / 2f;
+			float radian = Mathf.Atan2(position.y, position.x) - System.MathF.PI / 2f;
 			float num = Mathf.Cos(radian);
 			float num2 = Mathf.Sin(radian);
 			position = vec + new Vec2(num2 * 150f, num * 150f);

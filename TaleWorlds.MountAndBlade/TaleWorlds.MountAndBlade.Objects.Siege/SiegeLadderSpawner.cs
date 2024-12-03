@@ -54,9 +54,9 @@ public class SiegeLadderSpawner : SpawnerBase
 	[EditorVisibleScriptComponentVariable(true)]
 	public string IndestructibleMerlonsTag = string.Empty;
 
-	public float UpperStateRotationRadian => UpperStateRotationDegree * ((float)Math.PI / 180f);
+	public float UpperStateRotationRadian => UpperStateRotationDegree * (System.MathF.PI / 180f);
 
-	public float DownStateRotationRadian => DownStateRotationDegree * ((float)Math.PI / 180f);
+	public float DownStateRotationRadian => DownStateRotationDegree * (System.MathF.PI / 180f);
 
 	protected internal override void OnEditorInit()
 	{
@@ -115,7 +115,7 @@ public class SiegeLadderSpawner : SpawnerBase
 		{
 			MatrixFrame frame2 = _spawnerEditorHelper.GetGhostEntityOrChild("ladder_down_state").GetFrame();
 			frame2.rotation = Mat3.Identity;
-			frame2.rotation.RotateAboutUp((float)Math.PI / 2f);
+			frame2.rotation.RotateAboutUp(System.MathF.PI / 2f);
 			frame2.rotation.RotateAboutSide(DownStateRotationRadian);
 			_spawnerEditorHelper.ChangeStableChildMatrixFrameAndApply("ladder_down_state", frame2);
 		}

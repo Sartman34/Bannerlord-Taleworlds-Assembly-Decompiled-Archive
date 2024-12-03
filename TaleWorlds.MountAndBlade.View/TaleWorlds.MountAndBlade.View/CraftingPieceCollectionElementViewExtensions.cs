@@ -16,8 +16,8 @@ public static class CraftingPieceCollectionElementViewExtensions
 		MetaMesh copy = MetaMesh.GetCopy(craftingPiece.MeshName);
 		if (copy != null)
 		{
-			identity2.RotateAboutSide(-(float)Math.PI / 2f);
-			identity2.RotateAboutForward(-(float)Math.PI / 4f);
+			identity2.RotateAboutSide(-System.MathF.PI / 2f);
+			identity2.RotateAboutForward(-System.MathF.PI / 4f);
 			Vec3 vec2 = new Vec3(1000000f, 1000000f, 1000000f);
 			Vec3 vec3 = new Vec3(-1000000f, -1000000f, -1000000f);
 			for (int i = 0; i != copy.MeshCount; i++)

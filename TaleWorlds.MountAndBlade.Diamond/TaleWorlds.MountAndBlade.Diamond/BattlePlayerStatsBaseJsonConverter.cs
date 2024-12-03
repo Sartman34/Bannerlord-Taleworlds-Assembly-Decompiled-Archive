@@ -15,9 +15,15 @@ public class BattlePlayerStatsBaseJsonConverter : JsonConverter
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		JObject jObject = JObject.Load(reader);
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0008: Invalid comparison between Unknown and I4
+		if ((int)reader.TokenType == 11)
+		{
+			return null;
+		}
+		JObject val = JObject.Load(reader);
 		BattlePlayerStatsBase battlePlayerStatsBase;
-		switch ((string)jObject["GameType"])
+		switch ((string)val["GameType"])
 		{
 		case "Skirmish":
 			battlePlayerStatsBase = new BattlePlayerStatsSkirmish();
@@ -40,7 +46,7 @@ public class BattlePlayerStatsBaseJsonConverter : JsonConverter
 		default:
 			return null;
 		}
-		serializer.Populate(jObject.CreateReader(), battlePlayerStatsBase);
+		serializer.Populate(((JToken)val).CreateReader(), (object)battlePlayerStatsBase);
 		return battlePlayerStatsBase;
 	}
 

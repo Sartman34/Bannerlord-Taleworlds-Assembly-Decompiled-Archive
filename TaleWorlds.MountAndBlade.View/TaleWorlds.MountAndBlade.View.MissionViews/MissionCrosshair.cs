@@ -100,7 +100,7 @@ public class MissionCrosshair : MissionView
 		if (base.Mission.MainAgent != null)
 		{
 			Agent mainAgent = base.Mission.MainAgent;
-			float num2 = base.MissionScreen.CameraViewAngle * ((float)Math.PI / 180f);
+			float num2 = base.MissionScreen.CameraViewAngle * (System.MathF.PI / 180f);
 			float b = TaleWorlds.Library.MathF.Tan((mainAgent.CurrentAimingError + mainAgent.CurrentAimingTurbulance) * (0.5f / TaleWorlds.Library.MathF.Tan(num2 * 0.5f)));
 			new Vec2(0.5f, 0.375f);
 			Vec2 vec = new Vec2(0f, b);
@@ -111,7 +111,7 @@ public class MissionCrosshair : MissionView
 			frame.Advance(vec.y);
 			_crosshairEntities[0].SetFrame(ref frame);
 			Vec2 vec2 = vec;
-			vec2.RotateCCW((float)Math.PI * 13f / 18f);
+			vec2.RotateCCW(System.MathF.PI * 13f / 18f);
 			MatrixFrame frame2 = base.MissionScreen.CombatCamera.Frame;
 			frame2.Elevate(-5f);
 			frame2.rotation.ApplyScaleLocal(new Vec3(num, num, num));
@@ -119,7 +119,7 @@ public class MissionCrosshair : MissionView
 			frame2.Advance(vec2.y);
 			_crosshairEntities[1].SetFrame(ref frame2);
 			Vec2 vec3 = vec;
-			vec3.RotateCCW((float)Math.PI * -13f / 18f);
+			vec3.RotateCCW(System.MathF.PI * -13f / 18f);
 			MatrixFrame frame3 = base.MissionScreen.CombatCamera.Frame;
 			frame3.Elevate(-5f);
 			frame3.rotation.ApplyScaleLocal(new Vec3(num, num, num));

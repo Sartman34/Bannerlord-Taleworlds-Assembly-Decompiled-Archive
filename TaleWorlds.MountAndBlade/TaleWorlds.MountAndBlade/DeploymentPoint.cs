@@ -204,7 +204,7 @@ public class DeploymentPoint : SynchedMissionObject
 	{
 		List<GameEntity> entities = new List<GameEntity>();
 		base.GameEntity.Scene.GetEntities(ref entities);
-		IEnumerable<SpawnerBase> source = from se in entities
+		IEnumerable<SpawnerBase?> source = from se in entities
 			where se.HasScriptOfType<SpawnerBase>()
 			select se.GetScriptComponents<SpawnerBase>().FirstOrDefault();
 		IEnumerable<SpawnerBase> first = from ssw in source

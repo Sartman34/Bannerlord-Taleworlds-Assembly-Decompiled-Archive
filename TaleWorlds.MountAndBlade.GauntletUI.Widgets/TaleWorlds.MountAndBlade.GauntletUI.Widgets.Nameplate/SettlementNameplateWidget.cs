@@ -412,7 +412,7 @@ public class SettlementNameplateWidget : Widget, IComparable<SettlementNameplate
 					{
 						position *= -1f;
 					}
-					float radian = Mathf.Atan2(position.y, position.x) - (float)Math.PI / 2f;
+					float radian = Mathf.Atan2(position.y, position.x) - System.MathF.PI / 2f;
 					float num = Mathf.Cos(radian);
 					float num2 = Mathf.Sin(radian);
 					float num3 = num / num2;

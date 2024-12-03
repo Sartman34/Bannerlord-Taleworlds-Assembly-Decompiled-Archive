@@ -364,7 +364,7 @@ internal static class EngineCallbacksGenerated
 	[MonoPInvokeCallback(typeof(ManagedExtensions_CreateScriptComponentInstance_delegate))]
 	internal static int ManagedExtensions_CreateScriptComponentInstance(IntPtr className, NativeObjectPointer entity, NativeObjectPointer managedScriptComponent)
 	{
-		string className2 = Marshal.PtrToStringAnsi(className);
+		string? className2 = Marshal.PtrToStringAnsi(className);
 		GameEntity entity2 = null;
 		if (entity.Pointer != UIntPtr.Zero)
 		{
@@ -387,7 +387,7 @@ internal static class EngineCallbacksGenerated
 	[MonoPInvokeCallback(typeof(ManagedExtensions_GetEditorVisibilityOfField_delegate))]
 	internal static bool ManagedExtensions_GetEditorVisibilityOfField(IntPtr className, IntPtr fieldName)
 	{
-		string className2 = Marshal.PtrToStringAnsi(className);
+		string? className2 = Marshal.PtrToStringAnsi(className);
 		string fieldName2 = Marshal.PtrToStringAnsi(fieldName);
 		return ManagedExtensions.GetEditorVisibilityOfField(className2, fieldName2);
 	}
@@ -412,7 +412,7 @@ internal static class EngineCallbacksGenerated
 	[MonoPInvokeCallback(typeof(ManagedExtensions_GetTypeOfField_delegate))]
 	internal static int ManagedExtensions_GetTypeOfField(IntPtr className, IntPtr fieldName)
 	{
-		string className2 = Marshal.PtrToStringAnsi(className);
+		string? className2 = Marshal.PtrToStringAnsi(className);
 		string fieldName2 = Marshal.PtrToStringAnsi(fieldName);
 		return ManagedExtensions.GetTypeOfField(className2, fieldName2);
 	}
@@ -676,7 +676,7 @@ internal static class EngineCallbacksGenerated
 	[MonoPInvokeCallback(typeof(ThumbnailCreatorView_OnThumbnailRenderComplete_delegate))]
 	internal static void ThumbnailCreatorView_OnThumbnailRenderComplete(IntPtr renderId, NativeObjectPointer renderTarget)
 	{
-		string renderId2 = Marshal.PtrToStringAnsi(renderId);
+		string? renderId2 = Marshal.PtrToStringAnsi(renderId);
 		Texture renderTarget2 = null;
 		if (renderTarget.Pointer != UIntPtr.Zero)
 		{

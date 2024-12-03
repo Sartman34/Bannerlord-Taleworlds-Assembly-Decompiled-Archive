@@ -1018,11 +1018,7 @@ public class FaceGenVM : ViewModel
 			{
 				_tab = value;
 				OnPropertyChangedWithValue(value, "Tab");
-				if (_tab <= -1 || _tab >= 7)
-				{
-					Debug.FailedAssert("Tab has been set to an invalid value!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "Tab", 2214);
-					_tab = _tabAvailabilities.IndexOf(item: true);
-				}
+				TryValidateCurrentTab();
 			}
 			switch (value)
 			{
@@ -1987,9 +1983,12 @@ public class FaceGenVM : ViewModel
 		bool flag3 = false;
 		if (keyNo > -1)
 		{
-			_faceGenerationParams.KeyWeights[keyNo] = value;
-			_enforceConstraints = MBBodyProperties.EnforceConstraints(ref _faceGenerationParams);
-			flag3 = _enforceConstraints && !calledFromInit;
+			if (keyNo < _faceGenerationParams.KeyWeights.Length)
+			{
+				_faceGenerationParams.KeyWeights[keyNo] = value;
+				_enforceConstraints = MBBodyProperties.EnforceConstraints(ref _faceGenerationParams);
+				flag3 = _enforceConstraints && !calledFromInit;
+			}
 		}
 		else
 		{
@@ -2171,7 +2170,7 @@ public class FaceGenVM : ViewModel
 				num++;
 			}
 		}
-		Debug.FailedAssert("Cannot calculate voice index", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "GetVoiceRealIndex", 927);
+		Debug.FailedAssert("Cannot calculate voice index", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "GetVoiceRealIndex", 930);
 		return -1;
 	}
 
@@ -2189,11 +2188,7 @@ public class FaceGenVM : ViewModel
 
 	private void Reset()
 	{
-		if (Tab <= -1 || Tab >= 7)
-		{
-			Debug.FailedAssert("Calling Reset on invalid tab!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "Reset", 948);
-			Tab = _tabAvailabilities.IndexOf(item: true);
-		}
+		TryValidateCurrentTab();
 		AddCommand();
 		_characterRefreshEnabled = false;
 		bool flag = _initialRace != RaceSelector.SelectedIndex;
@@ -2289,11 +2284,7 @@ public class FaceGenVM : ViewModel
 
 	public void ExecuteRandomize()
 	{
-		if (Tab <= -1 || Tab >= 7)
-		{
-			Debug.FailedAssert("Calling ExecuteRandomize on invalid tab!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "ExecuteRandomize", 1064);
-			Tab = _tabAvailabilities.IndexOf(item: true);
-		}
+		TryValidateCurrentTab();
 		AddCommand();
 		_characterRefreshEnabled = false;
 		_isRandomizing = true;
@@ -2639,6 +2630,21 @@ public class FaceGenVM : ViewModel
 			{
 				SetSelectedBeardType(beardType, addCommand);
 				break;
+			}
+		}
+	}
+
+	private void TryValidateCurrentTab()
+	{
+		if (Tab <= -1 || Tab >= 7)
+		{
+			Debug.FailedAssert($"Invalid tab: {Tab}", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "TryValidateCurrentTab", 1501);
+			Debug.Print($"Invalid tab: {Tab}");
+			Tab = _tabAvailabilities.IndexOf(item: true);
+			if (Tab <= -1 || Tab >= 7)
+			{
+				Debug.FailedAssert("No valid tabs are available!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\FaceGenerator\\FaceGenVM.cs", "TryValidateCurrentTab", 1508);
+				Debug.Print("No valid tabs are available!");
 			}
 		}
 	}

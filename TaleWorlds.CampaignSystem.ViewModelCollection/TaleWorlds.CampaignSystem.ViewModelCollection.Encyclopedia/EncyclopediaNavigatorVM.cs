@@ -55,7 +55,8 @@ public class EncyclopediaNavigatorVM : ViewModel
 				}
 				return num;
 			}
-			return y.MatchStartIndex.CompareTo(x.MatchStartIndex);
+			int matchStartIndex = y.MatchStartIndex;
+			return matchStartIndex.CompareTo(x.MatchStartIndex);
 		}
 	}
 

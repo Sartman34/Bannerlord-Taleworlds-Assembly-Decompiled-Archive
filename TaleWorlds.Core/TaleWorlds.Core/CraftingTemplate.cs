@@ -160,7 +160,7 @@ public class CraftingTemplate : MBObjectBase
 				foreach (XmlNode childNode2 in childNode.ChildNodes)
 				{
 					XmlAttribute xmlAttribute6 = childNode2.Attributes["piece_type"];
-					XmlAttribute xmlAttribute7 = childNode2.Attributes["build_order"];
+					XmlAttribute? xmlAttribute7 = childNode2.Attributes["build_order"];
 					CraftingPiece.PieceTypes pieceType = (CraftingPiece.PieceTypes)Enum.Parse(typeof(CraftingPiece.PieceTypes), xmlAttribute6.Value);
 					int order = int.Parse(xmlAttribute7.Value);
 					list2.Add(new PieceData(pieceType, order));
@@ -209,7 +209,7 @@ public class CraftingTemplate : MBObjectBase
 					if (childNode5.NodeType == XmlNodeType.Element)
 					{
 						XmlAttribute xmlAttribute4 = childNode5.Attributes["stat_type"];
-						XmlAttribute xmlAttribute5 = childNode5.Attributes["max_value"];
+						XmlAttribute? xmlAttribute5 = childNode5.Attributes["max_value"];
 						CraftingStatTypes craftingStatTypes = (CraftingStatTypes)Enum.Parse(typeof(CraftingStatTypes), xmlAttribute4.Value);
 						float num = float.Parse(xmlAttribute5.Value);
 						array2[(int)craftingStatTypes] = num;

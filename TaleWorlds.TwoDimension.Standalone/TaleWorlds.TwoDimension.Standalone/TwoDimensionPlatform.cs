@@ -39,8 +39,7 @@ public class TwoDimensionPlatform : ITwoDimensionPlatform, ITwoDimensionResource
 		string name2 = name;
 		if (!_isAssetsUnderDefaultFolders)
 		{
-			string[] array = name.Split(new char[1] { '\\' });
-			name2 = array[array.Length - 1];
+			name2 = name.Split(new char[1] { '\\' })[^1];
 		}
 		openGLTexture.LoadFromFile(resourceDepot, name2);
 		return new Texture(openGLTexture);

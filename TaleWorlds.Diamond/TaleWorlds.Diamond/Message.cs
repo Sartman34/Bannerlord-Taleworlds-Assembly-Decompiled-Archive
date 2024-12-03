@@ -7,7 +7,4 @@ namespace TaleWorlds.Diamond;
 [JsonConverter(typeof(MessageJsonConverter))]
 public abstract class Message
 {
-	static Message()
-	{
-	}
 }

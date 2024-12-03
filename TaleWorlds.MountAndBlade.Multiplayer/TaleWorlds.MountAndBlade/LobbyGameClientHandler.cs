@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TaleWorlds.Core;
-using TaleWorlds.Diamond.ChatSystem.Library;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -382,7 +381,7 @@ public class LobbyGameClientHandler : ILobbyClientSessionHandler
 				LobbyState.SetConnectionState(isAuthenticated: false);
 				break;
 			default:
-				Debug.FailedAssert("Unexpected old state:" + oldState, "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer\\LobbyGameClientHandler.cs", "HandleGameClientStateChange", 424);
+				Debug.FailedAssert("Unexpected old state:" + oldState, "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer\\LobbyGameClientHandler.cs", "HandleGameClientStateChange", 423);
 				break;
 			}
 			break;
@@ -714,13 +713,6 @@ public class LobbyGameClientHandler : ILobbyClientSessionHandler
 				InformationManager.AddSystemNotification(new TextObject(announcement.Text).ToString());
 			}
 		}
-	}
-
-	void ILobbyClientSessionHandler.OnChatMessageReceived(Guid roomId, string roomName, string playerName, string messageText, string textColor, MessageType type)
-	{
-		InformationMessage informationMessage = null;
-		informationMessage = ((type == MessageType.System) ? new InformationMessage("[" + roomName + "]: " + messageText, Color.ConvertStringToColor(textColor)) : new InformationMessage("[" + roomName + "] [" + playerName + "]: " + messageText, Color.ConvertStringToColor(textColor)));
-		InformationManager.DisplayMessage(informationMessage);
 	}
 
 	async Task<bool> ILobbyClientSessionHandler.OnInviteToPlatformSession(PlayerId playerId)

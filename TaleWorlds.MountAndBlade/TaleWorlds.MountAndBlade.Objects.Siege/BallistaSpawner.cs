@@ -25,6 +25,6 @@ public class BallistaSpawner : SpawnerBase
 	{
 		_spawnerMissionHelper.SpawnedEntity.GetFirstScriptOfType<Ballista>().AddOnDeployTag = AddOnDeployTag;
 		_spawnerMissionHelper.SpawnedEntity.GetFirstScriptOfType<Ballista>().RemoveOnDeployTag = RemoveOnDeployTag;
-		_spawnerMissionHelper.SpawnedEntity.GetFirstScriptOfType<Ballista>().HorizontalDirectionRestriction = DirectionRestrictionDegree * ((float)Math.PI / 180f);
+		_spawnerMissionHelper.SpawnedEntity.GetFirstScriptOfType<Ballista>().HorizontalDirectionRestriction = DirectionRestrictionDegree * (MathF.PI / 180f);
 	}
 }

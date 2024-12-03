@@ -174,8 +174,8 @@ public class MapNotificationItemBaseVM : ViewModel
 	public override void RefreshValues()
 	{
 		base.RefreshValues();
-		TitleText = Data.TitleText.ToString();
-		DescriptionText = Data.DescriptionText.ToString();
+		TitleText = Data.TitleText?.ToString();
+		DescriptionText = Data.DescriptionText?.ToString();
 		_removeHintText = _removeHintTextObject.ToString();
 	}
 

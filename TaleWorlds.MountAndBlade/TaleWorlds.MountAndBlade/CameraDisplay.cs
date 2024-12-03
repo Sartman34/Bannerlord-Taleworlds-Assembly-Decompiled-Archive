@@ -28,7 +28,7 @@ public class CameraDisplay : ScriptComponentBehavior
 		Vec2 realScreenResolution = Screen.RealScreenResolution;
 		float aspectRatioXY = realScreenResolution.x / realScreenResolution.y;
 		MatrixFrame globalFrame = base.GameEntity.GetGlobalFrame();
-		_myCamera.SetFovVertical((float)Math.PI / 4f, aspectRatioXY, 0.2f, 200f);
+		_myCamera.SetFovVertical(System.MathF.PI / 4f, aspectRatioXY, 0.2f, 200f);
 		_myCamera.Frame = globalFrame;
 		_sceneView.SetCamera(_myCamera);
 	}

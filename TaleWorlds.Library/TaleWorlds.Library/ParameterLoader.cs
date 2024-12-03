@@ -63,7 +63,12 @@ public class ParameterLoader
 		value = "";
 		if (node.Attributes?["GetFromEnvironment"] != null && node.Attributes["GetFromEnvironment"].InnerText.ToLower() == "true")
 		{
-			string environmentVariable = Environment.GetEnvironmentVariable(node.Attributes["Variable"].InnerText);
+			string innerText = node.Attributes["Name"].InnerText;
+			string environmentVariable = Environment.GetEnvironmentVariable(innerText);
+			if (string.IsNullOrEmpty(environmentVariable))
+			{
+				environmentVariable = Environment.GetEnvironmentVariable(GetAltEnvironmentVariableName(innerText));
+			}
 			if (!string.IsNullOrEmpty(environmentVariable))
 			{
 				value = environmentVariable;
@@ -71,5 +76,10 @@ public class ParameterLoader
 			}
 		}
 		return false;
+	}
+
+	private static string GetAltEnvironmentVariableName(string name)
+	{
+		return name.Replace(".", "_").Replace(":", "__");
 	}
 }

@@ -479,14 +479,17 @@ public class PartyScreenManager
 		OpenScreenWithDummyRoster(leftMemberRoster, leftPrisonerRoster, MobileParty.MainParty.MemberRoster, MobileParty.MainParty.PrisonRoster, leftPartyName, MobileParty.MainParty.Name, leftPartySizeLimit, MobileParty.MainParty.Party.PartySizeLimit, doneButtonCondition, onPartyScreenClosed, isTroopTransferable, partyPresentationCancelButtonActivateDelegate);
 	}
 
-	public static void OpenScreenAsCreateClanPartyForHero(Hero hero, PartyScreenClosedDelegate onScreenClosed = null, IsTroopTransferableDelegate isTroopTransferable = null)
+	public static void OpenScreenAsCreateClanPartyForHero(Hero hero, PartyScreenClosedDelegate onScreenClosed = null, IsTroopTransferableDelegate isTroopTransferable = null, bool isHeroRescued = false)
 	{
 		TroopRoster troopRoster = TroopRoster.CreateDummyTroopRoster();
 		TroopRoster leftPrisonerRoster = TroopRoster.CreateDummyTroopRoster();
 		TroopRoster troopRoster2 = MobileParty.MainParty.MemberRoster.CloneRosterData();
 		TroopRoster rightPrisonerRoster = MobileParty.MainParty.PrisonRoster.CloneRosterData();
 		troopRoster.AddToCounts(hero.CharacterObject, 1);
-		troopRoster2.AddToCounts(hero.CharacterObject, -1);
+		if (!isHeroRescued)
+		{
+			troopRoster2.AddToCounts(hero.CharacterObject, -1);
+		}
 		TextObject textObject = GameTexts.FindText("str_lord_party_name");
 		textObject.SetCharacterProperties("TROOP", hero.CharacterObject);
 		OpenScreenWithDummyRoster(troopRoster, leftPrisonerRoster, troopRoster2, rightPrisonerRoster, textObject, MobileParty.MainParty.Name, Campaign.Current.Models.PartySizeLimitModel.GetAssumedPartySizeForLordParty(hero, hero.Clan.MapFaction, hero.Clan), MobileParty.MainParty.LimitedPartySize, null, onScreenClosed ?? new PartyScreenClosedDelegate(OpenScreenAsCreateClanPartyForHeroPartyScreenClosed), isTroopTransferable ?? new IsTroopTransferableDelegate(OpenScreenAsCreateClanPartyForHeroTroopTransferableDelegate));

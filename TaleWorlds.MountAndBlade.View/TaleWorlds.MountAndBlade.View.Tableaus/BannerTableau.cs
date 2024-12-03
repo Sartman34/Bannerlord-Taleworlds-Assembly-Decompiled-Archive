@@ -258,14 +258,14 @@ public class BannerTableau
 		{
 			Mesh meshAtIndex = _currentMultiMesh.GetMeshAtIndex(_meshIndexToUpdate);
 			MatrixFrame localFrame = meshAtIndex.GetLocalFrame();
-			float a = value.Item1 * 2f * (float)Math.PI;
+			float a = value.Item1 * 2f * System.MathF.PI;
 			Vec3 scaleVector = localFrame.rotation.GetScaleVector();
 			localFrame.rotation = Mat3.Identity;
 			localFrame.rotation.RotateAboutUp(a);
 			localFrame.rotation.ApplyScaleLocal(scaleVector);
 			if (value.Item2)
 			{
-				localFrame.rotation.RotateAboutForward((float)Math.PI);
+				localFrame.rotation.RotateAboutForward(System.MathF.PI);
 			}
 			meshAtIndex.SetLocalFrame(localFrame);
 		}

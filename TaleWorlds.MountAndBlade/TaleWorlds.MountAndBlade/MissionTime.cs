@@ -79,7 +79,8 @@ public struct MissionTime : IComparable<MissionTime>
 
 	public override int GetHashCode()
 	{
-		return _numberOfTicks.GetHashCode();
+		long numberOfTicks = _numberOfTicks;
+		return numberOfTicks.GetHashCode();
 	}
 
 	public int CompareTo(MissionTime other)

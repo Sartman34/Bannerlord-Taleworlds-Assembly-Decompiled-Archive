@@ -34,7 +34,7 @@ public class CharacterAttributes : PropertyOwner<CharacterAttribute>
 		{
 			if (childNode.NodeType != XmlNodeType.Comment)
 			{
-				XmlAttributeCollection attributes = childNode.Attributes;
+				XmlAttributeCollection? attributes = childNode.Attributes;
 				string value = attributes["id"].Value;
 				string value2 = attributes["value"].Value;
 				CharacterAttribute @object = Game.Current.ObjectManager.GetObject<CharacterAttribute>(value);

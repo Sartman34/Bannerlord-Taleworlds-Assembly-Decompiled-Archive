@@ -193,14 +193,14 @@ public class MultiplayerIntermissionVotingManager
 		_votesOfPlayers.Remove(playerID);
 	}
 
-	public void SelectRandomCultures()
+	public void SelectRandomCultures(MultiplayerOptions.MultiplayerOptionsAccessMode accessMode)
 	{
 		string[] array = new string[6] { "khuzait", "aserai", "battania", "vlandia", "sturgia", "empire" };
 		Random random = new Random();
 		string value = array[random.Next(0, array.Length)];
 		string value2 = array[random.Next(0, array.Length)];
-		MultiplayerOptions.OptionType.CultureTeam1.SetValue(value, MultiplayerOptions.MultiplayerOptionsAccessMode.NextMapOptions);
-		MultiplayerOptions.OptionType.CultureTeam2.SetValue(value2, MultiplayerOptions.MultiplayerOptionsAccessMode.NextMapOptions);
+		MultiplayerOptions.OptionType.CultureTeam1.SetValue(value, accessMode);
+		MultiplayerOptions.OptionType.CultureTeam2.SetValue(value2, accessMode);
 	}
 
 	public bool IsPeerVotedForItem(NetworkCommunicator peer, string itemID)
@@ -225,6 +225,11 @@ public class MultiplayerIntermissionVotingManager
 			{
 				list.Sort((IntermissionVoteItem m1, IntermissionVoteItem m2) => -m1.VoteCount.CompareTo(m2.VoteCount));
 				string id = list[0].Id;
+				if (list[0].VoteCount <= 0)
+				{
+					Random random = new Random();
+					id = list[random.Next(0, list.Count)].Id;
+				}
 				MultiplayerOptions.OptionType.Map.SetValue(id);
 			}
 		}
@@ -233,17 +238,25 @@ public class MultiplayerIntermissionVotingManager
 			return;
 		}
 		List<IntermissionVoteItem> list2 = CultureVoteItems.ToList();
-		if (list2.Count > 2)
+		if (list2.Count <= 2)
 		{
-			list2.Sort((IntermissionVoteItem c1, IntermissionVoteItem c2) => -c1.VoteCount.CompareTo(c2.VoteCount));
-			string id2 = list2[0].Id;
-			string id3 = list2[1].Id;
-			if (list2[0].VoteCount > 2 * list2[1].VoteCount)
+			return;
+		}
+		list2.Sort((IntermissionVoteItem c1, IntermissionVoteItem c2) => -c1.VoteCount.CompareTo(c2.VoteCount));
+		string id2 = list2[0].Id;
+		string id3 = list2[1].Id;
+		if (list2[0].VoteCount > 0)
+		{
+			if (10 * list2[0].VoteCount >= 7 * list2.Select((IntermissionVoteItem item) => item.VoteCount).Sum())
 			{
 				id3 = list2[0].Id;
 			}
 			MultiplayerOptions.OptionType.CultureTeam1.SetValue(id2);
 			MultiplayerOptions.OptionType.CultureTeam2.SetValue(id3);
+		}
+		else
+		{
+			SelectRandomCultures(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions);
 		}
 	}
 }

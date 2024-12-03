@@ -29,11 +29,7 @@ internal class ClientRestSessionTask
 
 	private string _requestAddress;
 
-	private ushort _requestPort;
-
 	private string _postData;
-
-	private bool _isSecure;
 
 	private string _messageName;
 
@@ -91,12 +87,10 @@ internal class ClientRestSessionTask
 		}
 	}
 
-	public void SetRequestData(byte[] userCertificate, string address, ushort port, bool isSecure, IHttpDriver networkClient)
+	public void SetRequestData(byte[] userCertificate, string address, IHttpDriver networkClient)
 	{
 		RestRequestMessage.UserCertificate = userCertificate;
 		_requestAddress = address;
-		_requestPort = port;
-		_isSecure = isSecure;
 		_postData = RestRequestMessage.SerializeAsJson();
 		_networkClient = networkClient;
 		CreateAndSetRequest();
@@ -223,19 +217,14 @@ internal class ClientRestSessionTask
 
 	private void CreateAndSetRequest()
 	{
-		string text = "http://";
-		if (_isSecure)
-		{
-			text = "https://";
-		}
-		string text2 = text + _requestAddress + ":" + _requestPort + "/Data/ProcessMessage";
+		string text = _requestAddress + "/Data/ProcessMessage";
 		new NameValueCollection
 		{
-			{ "url", text2 },
+			{ "url", text },
 			{ "body", _postData },
 			{ "verb", "POST" }
 		};
-		Request = _networkClient.CreateHttpPostRequestTask(text2, _postData, withUserToken: true);
+		Request = _networkClient.CreateHttpPostRequestTask(text, _postData, withUserToken: true);
 		_resultExamined = false;
 	}
 

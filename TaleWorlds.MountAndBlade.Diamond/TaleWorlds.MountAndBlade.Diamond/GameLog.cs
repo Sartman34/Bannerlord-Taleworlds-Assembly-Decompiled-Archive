@@ -35,7 +35,7 @@ public class GameLog
 		string result = "{}";
 		try
 		{
-			result = JsonConvert.SerializeObject(Data, Formatting.None);
+			result = JsonConvert.SerializeObject((object)Data, (Formatting)0);
 		}
 		catch (Exception)
 		{

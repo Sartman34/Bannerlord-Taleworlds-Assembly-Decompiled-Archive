@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -28,7 +29,13 @@ public class DotNetHttpDriver : IHttpDriver
 
 	async Task<string> IHttpDriver.HttpGetString(string url, bool withUserToken)
 	{
-		return await _httpClient.GetStringAsync(url);
+		HttpResponseMessage responseMessage = await _httpClient.GetAsync(url);
+		string text = await responseMessage.Content.ReadAsStringAsync();
+		if (!responseMessage.IsSuccessStatusCode)
+		{
+			throw new Exception(text);
+		}
+		return text;
 	}
 
 	async Task<string> IHttpDriver.HttpPostString(string url, string postData, string mediaType, bool withUserToken)

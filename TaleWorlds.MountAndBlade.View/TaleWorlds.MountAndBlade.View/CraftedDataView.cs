@@ -223,7 +223,7 @@ public class CraftedDataView
 				MatrixFrame boneEntitialRestFrame = skeleton.GetBoneEntitialRestFrame(b, useBoneMapping: false);
 				if (craftedData.Template.RotateWeaponInHolster)
 				{
-					boneEntitialRestFrame.rotation.RotateAboutForward((float)Math.PI);
+					boneEntitialRestFrame.rotation.RotateAboutForward(System.MathF.PI);
 				}
 				MetaMesh metaMesh3 = metaMesh2.CreateCopy();
 				MatrixFrame frame = new MatrixFrame(boneEntitialRestFrame.rotation, boneEntitialRestFrame.origin);
