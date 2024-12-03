@@ -16,11 +16,11 @@ public class PlayerStatsBaseJsonConverter : JsonConverter
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		JObject jObject = JObject.Load(reader);
-		string text = (string)jObject["gameType"];
+		JObject val = JObject.Load(reader);
+		string text = (string)val["gameType"];
 		if (text == null)
 		{
-			text = (string)jObject["GameType"];
+			text = (string)val["GameType"];
 		}
 		PlayerStatsBase playerStatsBase;
 		switch (text)
@@ -46,7 +46,7 @@ public class PlayerStatsBaseJsonConverter : JsonConverter
 		default:
 			return null;
 		}
-		serializer.Populate(jObject.CreateReader(), playerStatsBase);
+		serializer.Populate(((JToken)val).CreateReader(), (object)playerStatsBase);
 		return playerStatsBase;
 	}
 

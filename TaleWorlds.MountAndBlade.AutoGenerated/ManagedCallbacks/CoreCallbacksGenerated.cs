@@ -690,7 +690,7 @@ internal static class CoreCallbacksGenerated
 	[MonoPInvokeCallback(typeof(MBMultiplayerData_UpdateGameServerInfo_delegate))]
 	internal static void MBMultiplayerData_UpdateGameServerInfo(IntPtr id, IntPtr gameServer, IntPtr gameModule, IntPtr gameType, IntPtr map, int currentPlayerCount, int maxPlayerCount, IntPtr address, int port)
 	{
-		string id2 = Marshal.PtrToStringAnsi(id);
+		string? id2 = Marshal.PtrToStringAnsi(id);
 		string gameServer2 = Marshal.PtrToStringAnsi(gameServer);
 		string gameModule2 = Marshal.PtrToStringAnsi(gameModule);
 		string gameType2 = Marshal.PtrToStringAnsi(gameType);

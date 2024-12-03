@@ -5,7 +5,7 @@ using TaleWorlds.Diamond;
 namespace Messages.FromClient.ToLobbyServer;
 
 [Serializable]
-[MessageDescription("LobbyServer", "Client")]
+[MessageDescription("Client", "LobbyServer")]
 public class CheckClanNameValidMessage : Message
 {
 	[JsonProperty]

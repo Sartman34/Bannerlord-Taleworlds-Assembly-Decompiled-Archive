@@ -729,7 +729,7 @@ public class MissionMultiplayerDuel : MissionMultiplayerGameModeBase
 			DuelMissionRepresentative component2 = challengeLoserPeer.GetComponent<DuelMissionRepresentative>();
 			MultiplayerClassDivisions.MPHeroClass mPHeroClassForPeer = MultiplayerClassDivisions.GetMPHeroClassForPeer(challengeWinnerPeer, skipTeamCheck: true);
 			MultiplayerClassDivisions.MPHeroClass mPHeroClassForPeer2 = MultiplayerClassDivisions.GetMPHeroClassForPeer(challengeLoserPeer, skipTeamCheck: true);
-			float gainedScore = (float)TaleWorlds.Library.MathF.Max(100, component2.Bounty) * TaleWorlds.Library.MathF.Max(1f, (float)mPHeroClassForPeer.TroopCasualCost / (float)mPHeroClassForPeer2.TroopCasualCost) * TaleWorlds.Library.MathF.Pow((float)Math.E, (float)component.NumberOfWins / 10f);
+			float gainedScore = (float)TaleWorlds.Library.MathF.Max(100, component2.Bounty) * TaleWorlds.Library.MathF.Max(1f, (float)mPHeroClassForPeer.TroopCasualCost / (float)mPHeroClassForPeer2.TroopCasualCost) * TaleWorlds.Library.MathF.Pow(System.MathF.E, (float)component.NumberOfWins / 10f);
 			component.OnDuelWon(gainedScore);
 			if (challengeWinnerPeer.Peer.Communicator.IsConnectionActive)
 			{

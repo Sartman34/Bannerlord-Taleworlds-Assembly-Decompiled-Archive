@@ -44,22 +44,30 @@ public static class ServiceAddressManager
 		LoadCache();
 	}
 
-	public static void ResolveAddress(string serviceDiscoveryAddress, string serviceAddress, ref string address, ref ushort port, ref bool isSecure)
+	public static bool ResolveAddress(string serviceDiscoveryAddress, ref string serviceAddress)
 	{
 		if (ServiceAddress.TryGetAddressName(serviceAddress, out var addressName))
 		{
-			string fileContent = VirtualFolders.GetFileContent(EnvironmentFilePath);
-			ServiceResolvedAddress resolvedAddress2;
-			if (TryGetCachedServiceAddress(addressName, fileContent, out var resolvedAddress))
+			string environmentId = VirtualFolders.GetFileContent(EnvironmentFilePath);
+			string environmentVariable = Environment.GetEnvironmentVariable("EnvironmentId");
+			if (environmentVariable != null)
 			{
-				SetServiceAddress(resolvedAddress, ref address, ref port, ref isSecure);
+				Debug.Print("EnvironmentId set from environment variable:" + environmentVariable, 3);
+				environmentId = environmentVariable;
 			}
-			else if (TryGetRemoteServiceAddress(serviceDiscoveryAddress, addressName, fileContent, out resolvedAddress2))
+			if (TryGetCachedServiceAddress(addressName, environmentId, out var resolvedAddress))
 			{
-				SetServiceAddress(resolvedAddress2, ref address, ref port, ref isSecure);
-				CacheServiceAddress(addressName, fileContent, resolvedAddress2);
+				serviceAddress = resolvedAddress.Address;
+				return true;
+			}
+			if (TryGetRemoteServiceAddressByTag(serviceDiscoveryAddress, environmentId, out var resolvedAddress2))
+			{
+				CacheServiceAddress(addressName, environmentId, resolvedAddress2);
+				serviceAddress = resolvedAddress2.Address;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private static bool TryGetRemoteServiceAddress(string remoteServiceDiscoveryAddress, string serviceName, string environmentId, out ServiceResolvedAddress resolvedAddress)
@@ -72,6 +80,24 @@ public static class ServiceAddressManager
 			if (task.IsCompleted && task.Result != null)
 			{
 				resolvedAddress = task.Result?.FirstOrDefault()?.ResolvedAddresses?.FirstOrDefault();
+				return resolvedAddress != null;
+			}
+			Debug.Print($"Couldn't resolve service address, retry count: {i + 1}");
+		}
+		resolvedAddress = null;
+		return false;
+	}
+
+	private static bool TryGetRemoteServiceAddressByTag(string remoteServiceDiscoveryAddress, string environmentId, out ServiceResolvedAddress resolvedAddress)
+	{
+		IDiscoveryService discoveryService = new RemoteDiscoveryService(remoteServiceDiscoveryAddress);
+		for (int i = 0; i < 5; i++)
+		{
+			Task<ServiceResolvedAddress> task = Task.Run(() => discoveryService.ResolveServiceByTag(environmentId));
+			task.Wait(30000);
+			if (task.IsCompleted && task.Result != null)
+			{
+				resolvedAddress = task.Result;
 				return resolvedAddress != null;
 			}
 			Debug.Print($"Couldn't resolve service address, retry count: {i + 1}");
@@ -94,16 +120,6 @@ public static class ServiceAddressManager
 		}
 		resolvedAddress = null;
 		return false;
-	}
-
-	private static void SetServiceAddress(ServiceResolvedAddress resolvedAddress, ref string address, ref ushort port, ref bool isSecure)
-	{
-		if (resolvedAddress != null)
-		{
-			address = resolvedAddress.Address;
-			port = (ushort)resolvedAddress.Port;
-			isSecure = resolvedAddress.IsSecure;
-		}
 	}
 
 	private static void CacheServiceAddress(string serviceAddress, string environmentId, ServiceResolvedAddress resolvedAddress)

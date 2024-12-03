@@ -1107,7 +1107,7 @@ public sealed class Scene : NativeObject
 	public float GetNorthRotation()
 	{
 		float northAngle = GetNorthAngle();
-		return (float)Math.PI / 180f * (0f - northAngle);
+		return System.MathF.PI / 180f * (0f - northAngle);
 	}
 
 	public bool GetTerrainMinMaxHeight(out float minHeight, out float maxHeight)

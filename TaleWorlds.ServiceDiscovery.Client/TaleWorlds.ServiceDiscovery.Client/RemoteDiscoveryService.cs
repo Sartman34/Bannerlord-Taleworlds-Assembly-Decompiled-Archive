@@ -30,6 +30,23 @@ public class RemoteDiscoveryService : IDiscoveryService
 		return result;
 	}
 
+	async Task<ServiceResolvedAddress> IDiscoveryService.ResolveServiceByTag(string tag)
+	{
+		ServiceResolvedAddress result;
+		try
+		{
+			string text = _address + "Data/Resolve/" + tag;
+			Debug.Print("Resolving service by tag:" + text, 3);
+			result = JsonConvert.DeserializeObject<ServiceResolvedAddress>(await HttpHelper.DownloadStringTaskAsync(text));
+		}
+		catch (Exception ex)
+		{
+			Debug.Print("Error on ResolveService: " + ex.Message);
+			result = null;
+		}
+		return result;
+	}
+
 	async Task<ServiceAddress[]> IDiscoveryService.DiscoverServices()
 	{
 		ServiceAddress[] result = null;

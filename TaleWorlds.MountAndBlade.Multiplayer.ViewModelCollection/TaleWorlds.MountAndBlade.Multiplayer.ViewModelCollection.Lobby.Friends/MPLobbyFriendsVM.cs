@@ -873,7 +873,7 @@ public class MPLobbyFriendsVM : ViewModel
 	{
 		if (NetworkMain.GameClient.IsPartyLeader && player.ProvidedID != NetworkMain.GameClient.PlayerData.PlayerId)
 		{
-			PartyPlayerInLobbyClient partyPlayerInLobbyClient = NetworkMain.GameClient.PlayersInParty.SingleOrDefault((PartyPlayerInLobbyClient p) => p.PlayerId == player.ProvidedID);
+			PartyPlayerInLobbyClient? partyPlayerInLobbyClient = NetworkMain.GameClient.PlayersInParty.SingleOrDefault((PartyPlayerInLobbyClient p) => p.PlayerId == player.ProvidedID);
 			if (partyPlayerInLobbyClient != null && !partyPlayerInLobbyClient.WaitingInvitation && PlatformServices.InvitationServices == null)
 			{
 				PlayerActions.Add(new StringPairItemWithActionVM(ExecuteSetPlayerAsLeader, new TextObject("{=P7moPm3F}Set as party leader").ToString(), "PromoteToPartyLeader", player));

@@ -425,7 +425,7 @@ public sealed class ItemObject : MBObjectBase
 			{
 				if (childNode.Name == "Piece")
 				{
-					XmlAttribute xmlAttribute = childNode.Attributes["id"];
+					XmlAttribute? xmlAttribute = childNode.Attributes["id"];
 					XmlAttribute xmlAttribute2 = childNode.Attributes["Type"];
 					XmlAttribute xmlAttribute3 = childNode.Attributes["scale_factor"];
 					string innerText2 = xmlAttribute.InnerText;

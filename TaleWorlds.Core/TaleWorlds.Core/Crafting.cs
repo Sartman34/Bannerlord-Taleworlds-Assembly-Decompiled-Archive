@@ -181,7 +181,7 @@ public class Crafting
 					switch (_weaponDescription.WeaponClass)
 					{
 					case WeaponClass.Javelin:
-						identity.RotateAboutSide((float)Math.PI / 2f);
+						identity.RotateAboutSide(System.MathF.PI / 2f);
 						stickingFrame = new MatrixFrame(identity, -Vec3.Up * _currentWeaponReach);
 						break;
 					case WeaponClass.ThrowingAxe:
@@ -189,20 +189,20 @@ public class Crafting
 						float bladeWidth = _craftedData.UsedPieces[0].CraftingPiece.BladeData.BladeWidth;
 						float num2 = _craftedData.PiecePivotDistances[0];
 						float scaledDistanceToNextPiece = _craftedData.UsedPieces[0].ScaledDistanceToNextPiece;
-						identity.RotateAboutUp((float)Math.PI / 2f);
-						identity.RotateAboutSide((0f - (15f + scaledDistanceToNextPiece * 3f / num2 * 25f)) * ((float)Math.PI / 180f));
+						identity.RotateAboutUp(System.MathF.PI / 2f);
+						identity.RotateAboutSide((0f - (15f + scaledDistanceToNextPiece * 3f / num2 * 25f)) * (System.MathF.PI / 180f));
 						stickingFrame = new MatrixFrame(identity, -identity.u * (num2 + scaledDistanceToNextPiece * 0.6f) - identity.f * bladeWidth * 0.8f);
 						break;
 					}
 					case WeaponClass.ThrowingKnife:
-						identity.RotateAboutForward(-(float)Math.PI / 2f);
+						identity.RotateAboutForward(-System.MathF.PI / 2f);
 						stickingFrame = new MatrixFrame(identity, Vec3.Side * _currentWeaponReach);
 						break;
 					}
 				}
 				if (_weaponDescription.WeaponClass == WeaponClass.Arrow || _weaponDescription.WeaponClass == WeaponClass.Bolt)
 				{
-					stickingFrame.rotation.RotateAboutSide((float)Math.PI / 2f);
+					stickingFrame.rotation.RotateAboutSide(System.MathF.PI / 2f);
 				}
 				Vec3 rotationSpeed = Vec3.Zero;
 				if (_weaponDescription.WeaponClass == WeaponClass.ThrowingAxe)
@@ -218,7 +218,7 @@ public class Crafting
 				Vec3 v = Vec3.Zero;
 				if (_weaponDescription.RotatedInHand)
 				{
-					identity2.RotateAboutSide((float)Math.PI);
+					identity2.RotateAboutSide(System.MathF.PI);
 				}
 				if (_weaponDescription.UseCenterOfMassAsHandBase)
 				{
@@ -1019,7 +1019,7 @@ public class Crafting
 			XmlDocument xmlDocument = new XmlDocument();
 			xmlDocument.LoadXml(xmlCode);
 			pieces = new(CraftingPiece, int)[4];
-			XmlNode xmlNode = xmlDocument.SelectSingleNode("CraftedItem");
+			XmlNode? xmlNode = xmlDocument.SelectSingleNode("CraftedItem");
 			string value = xmlNode.Attributes["crafting_template"].Value;
 			craftingTemplate = CraftingTemplate.GetTemplateFromId(value);
 			foreach (XmlNode childNode in xmlNode.SelectSingleNode("Pieces").ChildNodes)

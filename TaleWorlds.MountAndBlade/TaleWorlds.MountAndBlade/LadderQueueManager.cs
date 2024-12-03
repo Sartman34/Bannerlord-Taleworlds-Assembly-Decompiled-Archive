@@ -40,7 +40,7 @@ public class LadderQueueManager : MissionObject
 
 	private int _queuedAgentCount;
 
-	private float _arcAngle = (float)Math.PI * 3f / 4f;
+	private float _arcAngle = System.MathF.PI * 3f / 4f;
 
 	private float _queueBeginDistance = 1f;
 
@@ -620,7 +620,7 @@ public class LadderQueueManager : MissionObject
 		if (randomSeed >= 0)
 		{
 			Random random = new Random(coordinates.X * 100000 + coordinates.Y * 10000000 + randomSeed);
-			managedGlobalFrame.rotation.RotateAboutForward(random.NextFloat() * (float)Math.PI * 2f);
+			managedGlobalFrame.rotation.RotateAboutForward(random.NextFloat() * System.MathF.PI * 2f);
 			managedGlobalFrame.origin += managedGlobalFrame.rotation.u * random.NextFloat() * 0.3f;
 		}
 		managedGlobalWorldPosition.SetVec2(managedGlobalFrame.origin.AsVec2);

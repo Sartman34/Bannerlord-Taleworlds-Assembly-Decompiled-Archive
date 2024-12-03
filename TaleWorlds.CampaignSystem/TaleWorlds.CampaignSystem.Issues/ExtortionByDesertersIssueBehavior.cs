@@ -1079,7 +1079,7 @@ public class ExtortionByDesertersIssueBehavior : CampaignBehaviorBase
 			}
 			if (distance <= 1E-05f)
 			{
-				vec.RotateCCW(-(float)Math.PI / 2f + (float)MBRandom.RandomInt(0, 2) * (float)Math.PI);
+				vec.RotateCCW(-System.MathF.PI / 2f + (float)MBRandom.RandomInt(0, 2) * System.MathF.PI);
 				point = _deserterMobileParty.Position2D + vec * num;
 				point = FindFreePositionBetweenPointAndParty(_deserterMobileParty, in point, out distance);
 			}

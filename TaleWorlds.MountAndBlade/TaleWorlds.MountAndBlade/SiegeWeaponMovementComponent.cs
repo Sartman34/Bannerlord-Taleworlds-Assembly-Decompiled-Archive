@@ -93,7 +93,7 @@ public class SiegeWeaponMovementComponent : UsableMissionObjectComponent
 		set
 		{
 			_wheelDiameter = value;
-			_wheelCircumference = _wheelDiameter * (float)Math.PI;
+			_wheelCircumference = _wheelDiameter * System.MathF.PI;
 		}
 	}
 
@@ -373,7 +373,7 @@ public class SiegeWeaponMovementComponent : UsableMissionObjectComponent
 		}
 		_pathTracker.Advance(num2);
 		SetTargetFrame();
-		float angleInRadian = num2 / _wheelCircumference * 2f * (float)Math.PI;
+		float angleInRadian = num2 / _wheelCircumference * 2f * System.MathF.PI;
 		RotateWheels(angleInRadian);
 		if (GameNetwork.IsServerOrRecorder && _pathTracker.TotalDistanceTraveled - _lastSynchronizedDistance > 1f)
 		{
@@ -428,7 +428,7 @@ public class SiegeWeaponMovementComponent : UsableMissionObjectComponent
 			float totalDistanceTraveled = _pathTracker.TotalDistanceTraveled;
 			_pathTracker.Advance(1000000f);
 			SetTargetFrame();
-			float angleInRadian = (_pathTracker.TotalDistanceTraveled - totalDistanceTraveled) / _wheelCircumference * 2f * (float)Math.PI;
+			float angleInRadian = (_pathTracker.TotalDistanceTraveled - totalDistanceTraveled) / _wheelCircumference * 2f * System.MathF.PI;
 			RotateWheels(angleInRadian);
 		}
 	}

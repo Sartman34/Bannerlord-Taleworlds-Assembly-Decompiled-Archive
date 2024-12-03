@@ -15,9 +15,9 @@ public class AccessObjectJsonConverter : JsonConverter
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		JObject jObject = JObject.Load(reader);
+		JObject val = JObject.Load(reader);
 		AccessObject accessObject;
-		switch ((string)jObject["Type"])
+		switch ((string)val["Type"])
 		{
 		case "Steam":
 			accessObject = new SteamAccessObject();
@@ -40,7 +40,7 @@ public class AccessObjectJsonConverter : JsonConverter
 		default:
 			return null;
 		}
-		serializer.Populate(jObject.CreateReader(), accessObject);
+		serializer.Populate(((JToken)val).CreateReader(), (object)accessObject);
 		return accessObject;
 	}
 

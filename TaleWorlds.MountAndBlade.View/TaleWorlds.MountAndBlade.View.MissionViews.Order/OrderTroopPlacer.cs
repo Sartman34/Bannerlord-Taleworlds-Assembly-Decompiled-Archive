@@ -356,7 +356,7 @@ public class OrderTroopPlacer : MissionView
 				_formationDrawingMode = true;
 				WorldPosition worldPosition = _mouseOverFormation.CreateNewOrderWorldPosition(WorldPosition.WorldPositionEnforcedCache.GroundVec3);
 				Vec2 direction = _mouseOverFormation.Direction;
-				direction.RotateCCW(-(float)Math.PI / 2f);
+				direction.RotateCCW(-System.MathF.PI / 2f);
 				_formationDrawingStartingPosition = worldPosition;
 				_formationDrawingStartingPosition.Value.SetVec2(_formationDrawingStartingPosition.Value.AsVec2 + direction * ((_mouseOverDirection == 1) ? 0.5f : (-0.5f)) * _mouseOverFormation.Width);
 				WorldPosition worldPosition2 = worldPosition;

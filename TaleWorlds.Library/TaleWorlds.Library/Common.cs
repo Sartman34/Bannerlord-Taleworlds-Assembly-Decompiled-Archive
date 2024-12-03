@@ -175,13 +175,13 @@ public static class Common
 
 	public static byte[] SerializeObjectAsJson(object o)
 	{
-		string s = JsonConvert.SerializeObject(o, Formatting.Indented);
+		string s = JsonConvert.SerializeObject(o, (Formatting)1);
 		return Encoding.UTF8.GetBytes(s);
 	}
 
 	public static string SerializeObjectAsJsonString(object o)
 	{
-		return JsonConvert.SerializeObject(o, Formatting.Indented);
+		return JsonConvert.SerializeObject(o, (Formatting)1);
 	}
 
 	public static T DeserializeObjectFromJson<T>(string json)
@@ -317,7 +317,7 @@ public static class Common
 				string text = "unknown_module.dll";
 				try
 				{
-					StackFrame frame = stackTrace.GetFrame(i);
+					StackFrame? frame = stackTrace.GetFrame(i);
 					MethodBase method = frame.GetMethod();
 					text = method.Module.Assembly.Location;
 					int iLOffset = frame.GetILOffset();

@@ -688,7 +688,7 @@ public class BodyGeneratorView : IFaceGeneratorHandler
 
 	public static MatrixFrame InitCamera(Camera camera, Vec3 cameraPosition)
 	{
-		camera.SetFovVertical((float)Math.PI / 4f, Screen.AspectRatio, 0.02f, 200f);
+		camera.SetFovVertical(System.MathF.PI / 4f, Screen.AspectRatio, 0.02f, 200f);
 		return camera.Frame = Camera.ConstructCameraFromPositionElevationBearing(cameraPosition, -0.195f, 163.17f);
 	}
 

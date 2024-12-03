@@ -56,7 +56,8 @@ public class WeaponDesignVM : ViewModel
 	{
 		public int Compare(CraftingListPropertyItem x, CraftingListPropertyItem y)
 		{
-			return ((int)x.Type).CompareTo((int)y.Type);
+			int type = (int)x.Type;
+			return type.CompareTo((int)y.Type);
 		}
 	}
 

@@ -280,7 +280,7 @@ public class CircleActionSelectorWidget : Widget
 				float angle = num * (float)i;
 				float angle2 = AddAngle(num2, angle);
 				angle2 = AddAngle(angle2, num / 2f);
-				Vec2 vec = DirFromAngle(angle2 * ((float)Math.PI / 180f));
+				Vec2 vec = DirFromAngle(angle2 * (System.MathF.PI / 180f));
 				Widget child = GetChild(i);
 				child.PositionXOffset = vec.X * DistanceFromCenterModifier;
 				child.PositionYOffset = vec.Y * DistanceFromCenterModifier * -1f;
@@ -360,9 +360,9 @@ public class CircleActionSelectorWidget : Widget
 		{
 			float angle = num * (float)i;
 			float angle2 = num * (float)(i + 1);
-			float minAngle = AddAngle(num2, angle) * ((float)Math.PI / 180f);
-			float maxAngle = AddAngle(num2, angle2) * ((float)Math.PI / 180f);
-			if (IsAngleBetweenAngles(mouseDirectionAngle * ((float)Math.PI / 180f), minAngle, maxAngle))
+			float minAngle = AddAngle(num2, angle) * (System.MathF.PI / 180f);
+			float maxAngle = AddAngle(num2, angle2) * (System.MathF.PI / 180f);
+			if (IsAngleBetweenAngles(mouseDirectionAngle * (System.MathF.PI / 180f), minAngle, maxAngle))
 			{
 				return i;
 			}
@@ -382,15 +382,15 @@ public class CircleActionSelectorWidget : Widget
 
 	private bool IsAngleBetweenAngles(float angle, float minAngle, float maxAngle)
 	{
-		float num = angle - (float)Math.PI;
-		float num2 = minAngle - (float)Math.PI;
-		float num3 = maxAngle - (float)Math.PI;
+		float num = angle - System.MathF.PI;
+		float num2 = minAngle - System.MathF.PI;
+		float num3 = maxAngle - System.MathF.PI;
 		if (num2 == num3)
 		{
 			return true;
 		}
 		float num4 = TaleWorlds.Library.MathF.Abs(MBMath.GetSmallestDifferenceBetweenTwoAngles(num3, num2));
-		if (num4.ApproximatelyEqualsTo((float)Math.PI))
+		if (num4.ApproximatelyEqualsTo(System.MathF.PI))
 		{
 			return num < num3;
 		}

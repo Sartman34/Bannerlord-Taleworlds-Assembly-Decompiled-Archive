@@ -580,7 +580,7 @@ public class BasicCharacterTableau
 	{
 		Camera camera = Camera.CreateCamera();
 		camera.Frame = _tableauScene.FindEntityWithTag("camera_instance").GetGlobalFrame();
-		camera.SetFovVertical((float)Math.PI / 4f, _cameraRatio, 0.2f, 200f);
+		camera.SetFovVertical(System.MathF.PI / 4f, _cameraRatio, 0.2f, 200f);
 		View.SetCamera(camera);
 		camera.ManualInvalidate();
 	}

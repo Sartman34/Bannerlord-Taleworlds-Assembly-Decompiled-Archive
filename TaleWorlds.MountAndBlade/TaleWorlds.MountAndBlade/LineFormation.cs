@@ -2331,7 +2331,7 @@ public class LineFormation : IFormationArrangement
 	{
 		if (hasNewDirection)
 		{
-			return TaleWorlds.Library.MathF.Abs(MBMath.GetSmallestDifferenceBetweenTwoAngles(newDirection.Value.RotationInRadians, previousDirection.RotationInRadians)) >= (float)Math.PI * 3f / 4f;
+			return TaleWorlds.Library.MathF.Abs(MBMath.GetSmallestDifferenceBetweenTwoAngles(newDirection.Value.RotationInRadians, previousDirection.RotationInRadians)) >= System.MathF.PI * 3f / 4f;
 		}
 		return false;
 	}

@@ -21,15 +21,15 @@ public class VirtualFolders
 					[VirtualDirectory("DigitalOcean.Discovery")]
 					public class DigitalOceanDiscovery
 					{
-						[VirtualFile("LobbyClient.xml", "<Configuration>\t<SessionProvider Type=\"ThreadedRest\" />\t<Clients>\t\t<Client Type=\"LobbyClient\" />\t</Clients>\t<Parameters>\t\t<Parameter Name=\"LobbyClient.ServiceDiscovery.Address\" Value=\"https://bannerlord-service-discovery.bannerlord-services-3.net/\" />\t\t\t\t<Parameter Name=\"LobbyClient.Address\" Value=\"service://bannerlord.lobby/\" />\t\t<Parameter Name=\"LobbyClient.Port\" Value=\"443\" />\t\t<Parameter Name=\"LobbyClient.IsSecure\" Value=\"true\" />\t</Parameters></Configuration>")]
+						[VirtualFile("LobbyClient.xml", "<Configuration>\t<SessionProvider Type=\"ThreadedRest\" />\t<Clients>\t\t<Client Type=\"LobbyClient\" />\t</Clients>\t<Parameters>\t\t<Parameter Name=\"LobbyClient.ServiceDiscovery.Address\" Value=\"https://bannerlord-service-discovery.bannerlord-services-3.net/\" />\t\t<Parameter Name=\"LobbyClient.Address\" Value=\"service://bannerlord.lobby/\" />\t</Parameters></Configuration>")]
 						public string LobbyClient;
 					}
 				}
 
-				[VirtualFile("Environment", "eIEUjZV1fWgjwmWKMx8bXYrQ8NiCt336MENgiNk6v98nV4vDh9rQN3ZVfbI.e4k9q_0EWFXoROmuya9_C9tNELxxJX2jFjsUPAMdo15cpfOFTDOCIIGvOhE_wrSHHz_RlzfkNquCNe2N4SYyFGoaeSWP41e1wr3RDLO6Dlq9Y0I-")]
+				[VirtualFile("Environment", "pi.YnxRn5TJgdaZMQxsjgeRuS3KMRTs_uY9PEqkN.ZdecHsLpnnAJSb62ZviTNXlmZoCpuWiYB.6_2LgG1bGL6LGPR4SGevSI3cFXduynLR1wK91Lz70zMqaSO6hXx36I.50O1BcjijTgGMu9sy57K9Cagk43L3qoLW9q0Bt27M-")]
 				public string Environment;
 
-				[VirtualFile("Version.xml", "<Version>\t<Singleplayer Value=\"v1.2.11\" /></Version>")]
+				[VirtualFile("Version.xml", "<Version>\t<Singleplayer Value=\"v1.2.12\" /></Version>")]
 				public string Version;
 
 				[VirtualFile("ClientProfile.xml", "<ClientProfile Value=\"DigitalOcean.Discovery\"/>")]

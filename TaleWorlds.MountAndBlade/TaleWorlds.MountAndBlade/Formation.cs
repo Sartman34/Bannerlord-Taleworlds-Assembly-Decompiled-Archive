@@ -1903,7 +1903,7 @@ public sealed class Formation : IFormation
 			agent.AgentVisuals.SetContourColor(4294901760u);
 		});
 		Vec3 vec = Direction.ToVec3();
-		vec.RotateAboutZ((float)Math.PI / 2f);
+		vec.RotateAboutZ(System.MathF.PI / 2f);
 		_ = IsSimulationFormation;
 		_ = vec * Width * 0.5f;
 		_ = Direction.ToVec3() * Depth * 0.5f;

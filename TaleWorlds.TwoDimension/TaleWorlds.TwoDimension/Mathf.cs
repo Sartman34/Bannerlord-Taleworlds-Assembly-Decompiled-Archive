@@ -5,11 +5,11 @@ namespace TaleWorlds.TwoDimension;
 
 public static class Mathf
 {
-	public const float PI = (float)Math.PI;
+	public const float PI = MathF.PI;
 
-	public const float Deg2Rad = (float)Math.PI / 180f;
+	public const float Deg2Rad = MathF.PI / 180f;
 
-	public const float Rad2Deg = 180f / (float)Math.PI;
+	public const float Rad2Deg = 180f / MathF.PI;
 
 	public const float Epsilon = 1E-05f;
 

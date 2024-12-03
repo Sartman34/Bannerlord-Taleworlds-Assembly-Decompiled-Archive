@@ -166,7 +166,7 @@ public class BannerData
 		}
 	}
 
-	public float Rotation => (float)Math.PI * 2f * RotationValue;
+	public float Rotation => System.MathF.PI * 2f * RotationValue;
 
 	public BannerData(int meshId, int colorId, int colorId2, Vec2 size, Vec2 position, bool drawStroke, bool mirror, float rotationValue)
 	{

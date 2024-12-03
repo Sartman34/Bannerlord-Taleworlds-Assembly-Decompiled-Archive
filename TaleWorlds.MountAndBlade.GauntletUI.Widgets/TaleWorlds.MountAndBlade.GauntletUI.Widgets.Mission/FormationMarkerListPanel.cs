@@ -343,7 +343,7 @@ public class FormationMarkerListPanel : ListPanel
 			{
 				position *= -1f;
 			}
-			float radian = Mathf.Atan2(position.y, position.x) - (float)Math.PI / 2f;
+			float radian = Mathf.Atan2(position.y, position.x) - System.MathF.PI / 2f;
 			float num3 = Mathf.Cos(radian);
 			float num4 = Mathf.Sin(radian);
 			float num5 = num3 / num4;

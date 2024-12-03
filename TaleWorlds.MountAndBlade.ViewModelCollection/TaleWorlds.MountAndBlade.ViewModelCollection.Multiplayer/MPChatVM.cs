@@ -57,8 +57,6 @@ public class MPChatVM : ViewModel, IChatHandler
 
 	private Mission _mission;
 
-	private ChatRoomInformationForClient _currentCustomChatChannel;
-
 	private ChatChannelType _activeChannelType = ChatChannelType.NaN;
 
 	private float _chatBoxSizeX;
@@ -540,12 +538,6 @@ public class MPChatVM : ViewModel, IChatHandler
 			ActiveChannelColor = Color.White;
 			return;
 		}
-		if (ActiveChannelType == ChatChannelType.Custom)
-		{
-			ActiveChannelNameText = "(" + _currentCustomChatChannel.Name + ")";
-			ActiveChannelColor = Color.ConvertStringToColor(_currentCustomChatChannel.RoomColor);
-			return;
-		}
 		string content = GameTexts.FindText("str_multiplayer_chat_channel", ActiveChannelType.ToString()).ToString();
 		GameTexts.SetVariable("STR", content);
 		ActiveChannelNameText = GameTexts.FindText("str_STR_in_parentheses").ToString();
@@ -772,43 +764,28 @@ public class MPChatVM : ViewModel, IChatHandler
 			LobbyClient gameClient = NetworkMain.GameClient;
 			if (gameClient != null && gameClient.Connected)
 			{
-				ChatManager.GetChatRoomResult getChatRoomResult = NetworkMain.GameClient?.ChatManager.TryGetChatRoom(array[0]);
-				if (getChatRoomResult.Successful)
+				switch (array[0].ToLower())
 				{
-					activeChannelType = ChatChannelType.Custom;
-					_currentCustomChatChannel = getChatRoomResult.Room;
-				}
-				else
-				{
-					switch (array[0].ToLower())
+				case "/all":
+				case "/a":
+					activeChannelType = ChatChannelType.All;
+					break;
+				case "/team":
+				case "/t":
+					activeChannelType = ChatChannelType.Team;
+					break;
+				case "/ab":
+					if (Mission.Current != null)
 					{
-					case "/all":
-					case "/a":
-						activeChannelType = ChatChannelType.All;
-						break;
-					case "/team":
-					case "/t":
-						activeChannelType = ChatChannelType.Team;
-						break;
-					case "/ab":
-						if (Mission.Current != null)
-						{
-							Mission.Current.GetMissionBehavior<MissionLobbyComponent>()?.RequestAdminMessage(string.Join(" ", array.Skip(1)), isBroadcast: true);
-						}
-						break;
-					case "/ac":
-						if (Mission.Current != null)
-						{
-							Mission.Current.GetMissionBehavior<MissionLobbyComponent>()?.RequestAdminMessage(string.Join(" ", array.Skip(1)), isBroadcast: false);
-						}
-						break;
-					default:
+						Mission.Current.GetMissionBehavior<MissionLobbyComponent>()?.RequestAdminMessage(string.Join(" ", array.Skip(1)), isBroadcast: true);
+					}
+					break;
+				case "/ac":
+					if (Mission.Current != null)
 					{
-						MPChatLineVM chatLine = new MPChatLineVM(getChatRoomResult.ErrorMessage.ToString(), Color.White, "Social");
-						AddChatLine(chatLine);
-						break;
+						Mission.Current.GetMissionBehavior<MissionLobbyComponent>()?.RequestAdminMessage(string.Join(" ", array.Skip(1)), isBroadcast: false);
 					}
-					}
+					break;
 				}
 			}
 			ActiveChannelType = activeChannelType;
@@ -822,12 +799,10 @@ public class MPChatVM : ViewModel, IChatHandler
 			case ChatChannelType.Party:
 				CheckSpamAndSendMessage(ActiveChannelType, text);
 				break;
-			case ChatChannelType.Private:
-			case ChatChannelType.Custom:
-				SendMessageToLobbyChannel(text);
-				break;
 			default:
-				TaleWorlds.Library.Debug.FailedAssert("Player in invalid channel", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\Multiplayer\\MPChatVM.cs", "ExecuteSendMessage", 475);
+				TaleWorlds.Library.Debug.FailedAssert("Player in invalid channel", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.ViewModelCollection\\Multiplayer\\MPChatVM.cs", "ExecuteSendMessage", 472);
+				break;
+			case ChatChannelType.Private:
 				break;
 			}
 		}
@@ -873,15 +848,6 @@ public class MPChatVM : ViewModel, IChatHandler
 			default:
 				throw new NotImplementedException();
 			}
-		}
-	}
-
-	public void SendMessageToLobbyChannel(string message)
-	{
-		LobbyClient gameClient = NetworkMain.GameClient;
-		if (gameClient != null && gameClient.Connected)
-		{
-			NetworkMain.GameClient.SendChannelMessage(_currentCustomChatChannel.RoomId, message);
 		}
 	}
 

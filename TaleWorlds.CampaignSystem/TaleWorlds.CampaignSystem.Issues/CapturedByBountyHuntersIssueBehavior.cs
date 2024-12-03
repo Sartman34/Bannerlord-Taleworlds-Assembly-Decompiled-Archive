@@ -167,7 +167,7 @@ public class CapturedByBountyHuntersIssueBehavior : CampaignBehaviorBase
 		{
 			RelationshipChangeWithIssueOwner = 5;
 			base.IssueOwner.AddPower(10f);
-			base.IssueOwner.CurrentSettlement.Town.Security += 5f;
+			base.IssueOwner.CurrentSettlement.Town.Security -= 5f;
 		}
 
 		protected override void AlternativeSolutionEndWithFailureConsequence()
@@ -178,7 +178,7 @@ public class CapturedByBountyHuntersIssueBehavior : CampaignBehaviorBase
 			});
 			RelationshipChangeWithIssueOwner = -5;
 			base.IssueOwner.AddPower(-10f);
-			base.IssueOwner.CurrentSettlement.Town.Security -= 5f;
+			base.IssueOwner.CurrentSettlement.Town.Security += 5f;
 		}
 
 		public override IssueFrequency GetFrequency()
@@ -431,7 +431,7 @@ public class CapturedByBountyHuntersIssueBehavior : CampaignBehaviorBase
 			RelationshipChangeWithQuestGiver = 5;
 			if (base.QuestGiver.CurrentSettlement != null && base.QuestGiver.CurrentSettlement.Town != null)
 			{
-				base.QuestGiver.CurrentSettlement.Town.Security += 5f;
+				base.QuestGiver.CurrentSettlement.Town.Security -= 5f;
 			}
 			TraitLevelingHelper.OnIssueSolvedThroughQuest(base.QuestGiver, new Tuple<TraitObject, int>[1]
 			{
@@ -450,7 +450,7 @@ public class CapturedByBountyHuntersIssueBehavior : CampaignBehaviorBase
 			base.QuestGiver.AddPower(-10f);
 			if (base.QuestGiver.CurrentSettlement != null && base.QuestGiver.CurrentSettlement.Town != null)
 			{
-				base.QuestGiver.CurrentSettlement.Town.Security -= 5f;
+				base.QuestGiver.CurrentSettlement.Town.Security += 5f;
 			}
 			if (!isTimedOut)
 			{

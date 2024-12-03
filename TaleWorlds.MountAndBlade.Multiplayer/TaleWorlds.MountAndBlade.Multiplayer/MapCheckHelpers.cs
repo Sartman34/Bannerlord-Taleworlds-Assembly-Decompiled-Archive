@@ -46,7 +46,11 @@ public sealed class MapCheckHelpers
 			Stopwatch watch = Stopwatch.StartNew();
 			CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(TimeoutDuration));
 			Task<string> downloadTask = HttpHelper.DownloadStringTaskAsync(MapListEndpoint(serverEntry));
-			if (await Task.WhenAny(downloadTask, Task.Delay(-1, cancellationTokenSource.Token)) == downloadTask)
+			if (await Task.WhenAny(new Task[2]
+			{
+				downloadTask,
+				Task.Delay(-1, cancellationTokenSource.Token)
+			}) == downloadTask)
 			{
 				foreach (MapListItemResponse map in JsonConvert.DeserializeObject<MapListResponse>(await downloadTask).Maps)
 				{

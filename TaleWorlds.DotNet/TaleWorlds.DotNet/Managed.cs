@@ -127,7 +127,7 @@ public static class Managed
 				string text = "unknown_module.dll";
 				try
 				{
-					StackFrame frame = stack.GetFrame(i);
+					StackFrame? frame = stack.GetFrame(i);
 					MethodBase method = frame.GetMethod();
 					text = method.Module.Assembly.Location;
 					int iLOffset = frame.GetILOffset();

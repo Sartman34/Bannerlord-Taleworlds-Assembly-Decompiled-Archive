@@ -146,32 +146,48 @@ public class PartyDiplomaticHandlerCampaignBehavior : CampaignBehaviorBase
 
 	private void CheckSiegeEventContinuity(SiegeEvent siegeEvent)
 	{
+		bool flag = siegeEvent == PlayerSiege.PlayerSiegeEvent;
 		List<PartyBase> list = siegeEvent.BesiegerCamp.GetInvolvedPartiesForEventType(siegeEvent.GetCurrentBattleType()).ToList();
-		bool flag = false;
-		foreach (PartyBase item in list)
+		bool flag2 = false;
+		for (int i = 0; i < list.Count; i++)
 		{
-			if (!siegeEvent.CanPartyJoinSide(item, BattleSideEnum.Attacker))
+			PartyBase partyBase = list[i];
+			if (!siegeEvent.CanPartyJoinSide(partyBase, BattleSideEnum.Attacker))
 			{
-				if (PlayerSiege.PlayerSiegeEvent == siegeEvent && PlayerSiege.PlayerSide == BattleSideEnum.Attacker)
+				if (flag && !flag2 && partyBase == PartyBase.MainParty)
 				{
-					flag = true;
+					flag2 = true;
+					_lastFactionMadePeaceWithCausedPlayerToLeaveEvent = siegeEvent.BesiegedSettlement.MapFaction;
 				}
 				else
 				{
-					item.MobileParty.BesiegerCamp = null;
+					partyBase.MobileParty.BesiegerCamp = null;
 				}
 			}
 		}
-		if (flag)
+		if (!siegeEvent.ReadyToBeRemoved && siegeEvent.BesiegerCamp.GetInvolvedPartiesForEventType(siegeEvent.GetCurrentBattleType()).Any((PartyBase x) => x != PartyBase.MainParty))
 		{
-			if (PlayerEncounter.Current != null)
+			MBReadOnlyList<MobileParty> parties = siegeEvent.BesiegedSettlement.Parties;
+			for (int j = 0; j < parties.Count; j++)
 			{
-				PlayerEncounter.Finish();
+				PartyBase party = parties[j].Party;
+				if (!siegeEvent.CanPartyJoinSide(party, BattleSideEnum.Defender))
+				{
+					if (flag && !flag2 && party == PartyBase.MainParty)
+					{
+						flag2 = true;
+						_lastFactionMadePeaceWithCausedPlayerToLeaveEvent = siegeEvent.BesiegerCamp.LeaderParty.MapFaction;
+					}
+					else
+					{
+						LeaveSettlementAction.ApplyForParty(party.MobileParty);
+					}
+				}
 			}
-			else
-			{
-				GameMenu.ExitToLast();
-			}
+		}
+		if (flag2)
+		{
+			GameMenu.ActivateGameMenu("hostile_action_end_by_peace");
 		}
 	}
 
@@ -221,7 +237,7 @@ public class PartyDiplomaticHandlerCampaignBehavior : CampaignBehaviorBase
 		}
 		else
 		{
-			Debug.FailedAssert("no menu background to initialize!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\CampaignBehaviors\\PartyDiplomaticHandlerCampaignBehavior.cs", "hostile_action_end_by_peace_on_init", 259);
+			Debug.FailedAssert("no menu background to initialize!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\CampaignBehaviors\\PartyDiplomaticHandlerCampaignBehavior.cs", "hostile_action_end_by_peace_on_init", 275);
 		}
 	}
 

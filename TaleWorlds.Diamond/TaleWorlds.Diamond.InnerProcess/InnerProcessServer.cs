@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace TaleWorlds.Diamond.InnerProcess;
@@ -55,7 +54,7 @@ public abstract class InnerProcessServer<T> : IInnerProcessServer where T : Inne
 					break;
 				case InnerProcessMessageTaskType.Function:
 				{
-					Tuple<HandlerResult, FunctionResult> tuple = CallFunction(clientSession, sessionCredentials, message);
+					(HandlerResult, FunctionResult) tuple = CallFunction(clientSession, sessionCredentials, message);
 					if (tuple.Item1.IsSuccessful)
 					{
 						innerProcessMessageTask.SetFinishedAsSuccessful(tuple.Item2);
@@ -70,7 +69,7 @@ public abstract class InnerProcessServer<T> : IInnerProcessServer where T : Inne
 
 	protected abstract void HandleMessage(T serverSession, SessionCredentials sessionCredentials, Message message);
 
-	protected abstract Tuple<HandlerResult, FunctionResult> CallFunction(T serverSession, SessionCredentials sessionCredentials, Message message);
+	protected abstract (HandlerResult, FunctionResult) CallFunction(T serverSession, SessionCredentials sessionCredentials, Message message);
 
 	protected abstract LoginResult Login(T serverSession, LoginMessage message, InnerProcessConnectionInformation connectionInformation);
 

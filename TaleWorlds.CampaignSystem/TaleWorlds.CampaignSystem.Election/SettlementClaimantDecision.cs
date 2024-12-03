@@ -241,7 +241,7 @@ public class SettlementClaimantDecision : KingdomDecision
 
 	public override Clan DetermineChooser()
 	{
-		return ((Kingdom)Settlement.MapFaction).RulingClan;
+		return base.Kingdom.RulingClan;
 	}
 
 	public override float DetermineSupport(Clan clan, DecisionOutcome possibleOutcome)

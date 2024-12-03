@@ -28,6 +28,18 @@ public class DiamondDebugManager : IDebugManager
 		}
 	};
 
+	private ParameterContainer _parameters;
+
+	public DiamondDebugManager(ParameterContainer parameters)
+	{
+		_parameters = parameters;
+	}
+
+	public DiamondDebugManager()
+	{
+		_parameters = null;
+	}
+
 	void IDebugManager.SetCrashReportCustomString(string customString)
 	{
 	}
@@ -135,15 +147,27 @@ public class DiamondDebugManager : IDebugManager
 	{
 	}
 
+	public int GetLogLevel()
+	{
+		if (_parameters != null && _parameters.TryGetParameterAsInt("LogLevel", out var outValue))
+		{
+			return outValue;
+		}
+		return 1;
+	}
+
 	protected void PrintMessage(string message, DiamondDebugCategory debugCategory)
 	{
-		Console.Out.Flush();
-		Console.BackgroundColor = ConsoleColor.Black;
-		Console.ForegroundColor = _colors[debugCategory];
-		Console.Write(message);
-		Console.ResetColor();
-		Console.WriteLine();
-		Console.Out.Flush();
+		if (GetLogLevel() <= (int)debugCategory)
+		{
+			Console.Out.Flush();
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.ForegroundColor = _colors[debugCategory];
+			Console.Write(message);
+			Console.ResetColor();
+			Console.WriteLine();
+			Console.Out.Flush();
+		}
 	}
 
 	void IDebugManager.ReportMemoryBookmark(string message)

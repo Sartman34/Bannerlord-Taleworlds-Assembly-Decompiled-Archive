@@ -8,7 +8,6 @@ using Messages.FromClient.ToLobbyServer;
 using Messages.FromLobbyServer.ToClient;
 using TaleWorlds.Core;
 using TaleWorlds.Diamond;
-using TaleWorlds.Diamond.ChatSystem.Library;
 using TaleWorlds.Diamond.ClientApplication;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -19,7 +18,7 @@ using TaleWorlds.PlayerServices;
 
 namespace TaleWorlds.MountAndBlade.Diamond;
 
-public class LobbyClient : Client<LobbyClient>, IChatClientHandler
+public class LobbyClient : Client<LobbyClient>
 {
 	public enum State
 	{
@@ -278,7 +277,7 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 	{
 		get
 		{
-			ClanPlayer clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == _playerId);
+			ClanPlayer? clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == _playerId);
 			if (clanPlayer == null)
 			{
 				return false;
@@ -291,7 +290,7 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 	{
 		get
 		{
-			ClanPlayer clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == _playerId);
+			ClanPlayer? clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == _playerId);
 			if (clanPlayer == null)
 			{
 				return false;
@@ -376,12 +375,9 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 
 	public List<PlayerId> FriendIDs { get; private set; }
 
-	public ChatManager ChatManager { get; private set; }
-
 	public void Logout(TextObject logOutReason)
 	{
 		BeginDisconnect();
-		ChatManager.Cleanup();
 		_logOutReason = logOutReason;
 	}
 
@@ -397,7 +393,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 		PlayersInClan = new List<ClanPlayer>();
 		PlayerInfosInClan = new List<ClanPlayerInfo>();
 		FriendInfos = new FriendInfo[0];
-		ChatManager = new ChatManager(this);
 		ClanID = Guid.Empty;
 		FriendIDs = new List<PlayerId>();
 		SupportedFeatures = new SupportedFeatures();
@@ -458,8 +453,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 		AddMessageHandler<JoinPremadeGameRequestMessage>(OnJoinPremadeGameRequestMessage);
 		AddMessageHandler<JoinPremadeGameRequestResultMessage>(OnJoinPremadeGameRequestResultMessage);
 		AddMessageHandler<ClanGameCreationCancelledMessage>(OnClanGameCreationCancelledMessage);
-		AddMessageHandler<JoinChatRoomMessage>(OnJoinChatRoomMessage);
-		AddMessageHandler<ChatRoomClosedMessage>(OnChatRoomClosedMessage);
 		AddMessageHandler<SigilChangeAnswerMessage>(OnSigilChangeAnswerMessage);
 		AddMessageHandler<LobbyNotificationsMessage>(OnLobbyNotificationsMessage);
 		AddMessageHandler<CustomBattleOverMessage>(OnCustomBattleOverMessage);
@@ -795,16 +788,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 			CurrentState = State.AtLobby;
 			_handler.OnMatchmakerGameOver(message.OldExperience, message.NewExperience, message.EarnedBadges, message.GoldGained, message.OldInfo, message.NewInfo, message.BattleCancelReason);
 		}
-	}
-
-	private void OnJoinChatRoomMessage(JoinChatRoomMessage message)
-	{
-		ChatManager.OnJoinChatRoom(message.ChatRoomInformaton, PlayerData.PlayerId, PlayerData.LastPlayerName);
-	}
-
-	private void OnChatRoomClosedMessage(ChatRoomClosedMessage message)
-	{
-		ChatManager.OnChatRoomClosed(message.ChatRoomId);
 	}
 
 	private void OnBattleResultMessage(BattleResultMessage message)
@@ -1221,11 +1204,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 	{
 	}
 
-	public void SendChannelMessage(Guid roomId, string message)
-	{
-		ChatManager.SendMessage(roomId, message);
-	}
-
 	private void OnClanInfoChangedMessage(ClanInfoChangedMessage clanInfoChangedMessage)
 	{
 		UpdateClanInfo(clanInfoChangedMessage.ClanHomeInfo);
@@ -1233,25 +1211,25 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 
 	protected override void OnTick()
 	{
-		if (LoggedIn && !IsInGame)
+		if (!LoggedIn || IsInGame)
 		{
-			if (_serverStatusTimer != null && _serverStatusTimer.ElapsedMilliseconds > ServerStatusCheckDelay)
+			return;
+		}
+		if (_serverStatusTimer != null && _serverStatusTimer.ElapsedMilliseconds > ServerStatusCheckDelay)
+		{
+			_serverStatusTimer.Restart();
+			CheckAndSendMessage(new GetServerStatusMessage());
+		}
+		if (_friendListTimer != null && _friendListTimer.ElapsedMilliseconds > FriendListCheckDelay)
+		{
+			_friendListTimer.Restart();
+			CheckAndSendMessage(new GetFriendListMessage());
+			PlayerId[] recentPlayerIds = RecentPlayersManager.GetRecentPlayerIds();
+			if (recentPlayerIds.Length != 0)
 			{
-				_serverStatusTimer.Restart();
-				CheckAndSendMessage(new GetServerStatusMessage());
-			}
-			if (_friendListTimer != null && _friendListTimer.ElapsedMilliseconds > FriendListCheckDelay)
-			{
-				_friendListTimer.Restart();
-				CheckAndSendMessage(new GetFriendListMessage());
-				PlayerId[] recentPlayerIds = RecentPlayersManager.GetRecentPlayerIds();
-				if (recentPlayerIds.Length != 0)
-				{
-					CheckAndSendMessage(new GetRecentPlayersStatusMessage(recentPlayerIds));
-				}
+				CheckAndSendMessage(new GetRecentPlayersStatusMessage(recentPlayerIds));
 			}
 		}
-		ChatManager.OnTick();
 	}
 
 	private void OnInvitationToClanMessage(InvitationToClanMessage invitationToClanMessage)
@@ -1415,11 +1393,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 		}
 		UpdateClanInfo(null);
 		return null;
-	}
-
-	public void SendChatMessage(Guid roomId, string message)
-	{
-		ChatManager.SendMessage(roomId, message);
 	}
 
 	public void JoinChannel(ChatChannelType channel)
@@ -1595,31 +1568,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 	public void DisbandParty()
 	{
 		CheckAndSendMessage(new DisbandPartyMessage());
-	}
-
-	public void Test_CreateChatRoom(string name)
-	{
-		CheckAndSendMessage(new Test_CreateChatRoomMessage(name));
-	}
-
-	public void Test_AddChatRoomUser(string name)
-	{
-		CheckAndSendMessage(new Test_AddChatRoomUser(name));
-	}
-
-	public void Test_RemoveChatRoomUser(string name)
-	{
-		CheckAndSendMessage(new Test_RemoveChatRoomUser(name));
-	}
-
-	public void Test_DeleteChatRoom(Guid id)
-	{
-		CheckAndSendMessage(new Test_DeleteChatRoomMessage(id));
-	}
-
-	public IEnumerable<string> Test_ListChatRoomIds()
-	{
-		return ChatManager.Rooms.Select((ChatRoomInformationForClient room) => room.RoomId.ToString());
 	}
 
 	public void KickPlayerFromParty(PlayerId playerId)
@@ -1914,14 +1862,6 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 		}
 	}
 
-	void IChatClientHandler.OnChatMessageReceived(Guid roomId, string roomName, string playerName, string textMessage, string textColor, MessageType type)
-	{
-		if (_handler != null)
-		{
-			_handler.OnChatMessageReceived(roomId, roomName, playerName, textMessage, textColor, type);
-		}
-	}
-
 	public void AddFriendByUsernameAndId(string username, int userId, bool dontUseNameForUnknownPlayer)
 	{
 		if (username != null && username.Length >= Parameters.UsernameMinLength && username.Length <= Parameters.UsernameMaxLength && Common.IsAllLetters(username) && userId >= 0 && userId <= Parameters.UserIdMax)
@@ -1941,7 +1881,7 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 
 	public bool IsPlayerClanLeader(PlayerId playerID)
 	{
-		ClanPlayer clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == playerID);
+		ClanPlayer? clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == playerID);
 		if (clanPlayer == null)
 		{
 			return false;
@@ -1951,7 +1891,7 @@ public class LobbyClient : Client<LobbyClient>, IChatClientHandler
 
 	public bool IsPlayerClanOfficer(PlayerId playerID)
 	{
-		ClanPlayer clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == playerID);
+		ClanPlayer? clanPlayer = PlayersInClan.Find((ClanPlayer p) => p.PlayerId == playerID);
 		if (clanPlayer == null)
 		{
 			return false;

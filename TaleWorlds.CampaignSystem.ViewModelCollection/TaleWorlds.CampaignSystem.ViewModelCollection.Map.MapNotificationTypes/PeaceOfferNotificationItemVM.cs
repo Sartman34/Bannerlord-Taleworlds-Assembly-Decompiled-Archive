@@ -1,5 +1,7 @@
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.MapNotificationTypes;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 
 namespace TaleWorlds.CampaignSystem.ViewModelCollection.Map.MapNotificationTypes;
 
@@ -19,9 +21,16 @@ public class PeaceOfferNotificationItemVM : MapNotificationItemBaseVM
 		_tributeAmount = data.TributeAmount;
 		_onInspect = delegate
 		{
-			CampaignEventDispatcher.Instance.OnPeaceOfferedToPlayer(data.OpponentFaction, data.TributeAmount);
-			peaceOfferNotificationItemVM._playerInspectedNotification = true;
-			peaceOfferNotificationItemVM.ExecuteRemove();
+			if (CampaignUIHelper.GetMapScreenActionIsEnabledWithReason(out var disabledReason))
+			{
+				CampaignEventDispatcher.Instance.OnPeaceOfferedToPlayer(data.OpponentFaction, data.TributeAmount);
+				peaceOfferNotificationItemVM._playerInspectedNotification = true;
+				peaceOfferNotificationItemVM.ExecuteRemove();
+			}
+			else
+			{
+				InformationManager.ShowInquiry(new InquiryData(new TextObject("{=ho5EndaV}Decision").ToString(), disabledReason.ToString(), isAffirmativeOptionShown: true, isNegativeOptionShown: false, new TextObject("{=oHaWR73d}Ok").ToString(), null, null, null), pauseGameActiveState: true);
+			}
 		};
 		CampaignEvents.OnPeaceOfferCancelledEvent.AddNonSerializedListener(this, OnPeaceOfferCancelled);
 		base.NotificationIdentifier = "ransom";

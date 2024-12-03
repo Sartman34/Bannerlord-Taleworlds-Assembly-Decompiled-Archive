@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,11 +20,11 @@ public class RestDataJsonConverter : JsonConverter<RestData>
 		string text = null;
 		if (jObject["TypeName"] != null)
 		{
-			text = jObject["TypeName"].Value<string>();
+			text = Extensions.Value<string>((IEnumerable<JToken>)jObject["TypeName"]);
 		}
 		else if (jObject["typeName"] != null)
 		{
-			text = jObject["typeName"].Value<string>();
+			text = Extensions.Value<string>((IEnumerable<JToken>)jObject["typeName"]);
 		}
 		if (text != null)
 		{
@@ -39,6 +40,8 @@ public class RestDataJsonConverter : JsonConverter<RestData>
 
 	public override RestData ReadJson(JsonReader reader, Type objectType, RestData existingValue, bool hasExistingValue, JsonSerializer serializer)
 	{
+		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0025: Invalid comparison between Unknown and I4
 		if (reader == null)
 		{
 			throw new ArgumentNullException("reader");
@@ -47,13 +50,13 @@ public class RestDataJsonConverter : JsonConverter<RestData>
 		{
 			throw new ArgumentNullException("serializer");
 		}
-		if (reader.TokenType == JsonToken.Null)
+		if ((int)reader.TokenType == 11)
 		{
 			return null;
 		}
-		JObject jObject = JObject.Load(reader);
-		RestData restData = Create(objectType, jObject);
-		serializer.Populate(jObject.CreateReader(), restData);
+		JObject val = JObject.Load(reader);
+		RestData restData = Create(objectType, val);
+		serializer.Populate(((JToken)val).CreateReader(), (object)restData);
 		return restData;
 	}
 

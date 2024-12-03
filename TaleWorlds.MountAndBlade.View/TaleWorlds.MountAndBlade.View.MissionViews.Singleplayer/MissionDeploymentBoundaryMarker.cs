@@ -123,7 +123,7 @@ public class MissionDeploymentBoundaryMarker : MissionView
 		for (float num = 0f; num < length; num += MarkerInterval)
 		{
 			MatrixFrame frame = MatrixFrame.Identity;
-			frame.rotation.RotateAboutUp(vec.RotationZ + (float)Math.PI / 2f);
+			frame.rotation.RotateAboutUp(vec.RotationZ + System.MathF.PI / 2f);
 			frame.origin = startPoint;
 			if (!scene.GetHeightAtPoint(frame.origin.AsVec2, BodyFlags.CommonCollisionExcludeFlagsForCombat, ref frame.origin.z))
 			{

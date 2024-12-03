@@ -6,28 +6,28 @@ namespace TaleWorlds.Library;
 
 public static class MBMath
 {
-	public const float TwoPI = (float)Math.PI * 2f;
+	public const float TwoPI = System.MathF.PI * 2f;
 
-	public const float PI = (float)Math.PI;
+	public const float PI = System.MathF.PI;
 
-	public const float HalfPI = (float)Math.PI / 2f;
+	public const float HalfPI = System.MathF.PI / 2f;
 
-	public const float E = (float)Math.E;
+	public const float E = System.MathF.E;
 
-	public const float DegreesToRadians = (float)Math.PI / 180f;
+	public const float DegreesToRadians = System.MathF.PI / 180f;
 
-	public const float RadiansToDegrees = 180f / (float)Math.PI;
+	public const float RadiansToDegrees = 180f / System.MathF.PI;
 
 	public const float Epsilon = 1E-05f;
 
 	public static float ToRadians(this float f)
 	{
-		return f * ((float)Math.PI / 180f);
+		return f * (System.MathF.PI / 180f);
 	}
 
 	public static float ToDegrees(this float f)
 	{
-		return f * (180f / (float)Math.PI);
+		return f * (180f / System.MathF.PI);
 	}
 
 	public static bool ApproximatelyEqualsTo(this float f, float comparedValue, float epsilon = 1E-05f)
@@ -201,13 +201,13 @@ public static class MBMath
 	public static float GetSmallestDifferenceBetweenTwoAngles(float fromAngle, float toAngle)
 	{
 		float num = toAngle - fromAngle;
-		if (num > (float)Math.PI)
+		if (num > System.MathF.PI)
 		{
-			num = (float)Math.PI * -2f + num;
+			num = System.MathF.PI * -2f + num;
 		}
-		if (num < -(float)Math.PI)
+		if (num < -System.MathF.PI)
 		{
-			num = (float)Math.PI * 2f + num;
+			num = System.MathF.PI * 2f + num;
 		}
 		return num;
 	}
@@ -224,13 +224,13 @@ public static class MBMath
 		{
 			angle = restrictionCenter - restrictionRange;
 		}
-		if (angle > (float)Math.PI)
+		if (angle > System.MathF.PI)
 		{
-			angle -= (float)Math.PI * 2f;
+			angle -= System.MathF.PI * 2f;
 		}
-		else if (angle < -(float)Math.PI)
+		else if (angle < -System.MathF.PI)
 		{
-			angle += (float)Math.PI * 2f;
+			angle += System.MathF.PI * 2f;
 		}
 		return angle;
 	}
@@ -238,13 +238,13 @@ public static class MBMath
 	public static float WrapAngle(float angle)
 	{
 		angle = (float)Math.IEEERemainder(angle, Math.PI * 2.0);
-		if (angle <= -(float)Math.PI)
+		if (angle <= -System.MathF.PI)
 		{
-			angle += (float)Math.PI * 2f;
+			angle += System.MathF.PI * 2f;
 		}
-		else if (angle > (float)Math.PI)
+		else if (angle > System.MathF.PI)
 		{
-			angle -= (float)Math.PI * 2f;
+			angle -= System.MathF.PI * 2f;
 		}
 		return angle;
 	}

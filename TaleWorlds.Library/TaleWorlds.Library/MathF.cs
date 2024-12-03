@@ -4,17 +4,17 @@ namespace TaleWorlds.Library;
 
 public static class MathF
 {
-	public const float DegToRad = (float)Math.PI / 180f;
+	public const float DegToRad = System.MathF.PI / 180f;
 
 	public const float RadToDeg = 57.29578f;
 
-	public const float TwoPI = (float)Math.PI * 2f;
+	public const float TwoPI = System.MathF.PI * 2f;
 
-	public const float PI = (float)Math.PI;
+	public const float PI = System.MathF.PI;
 
-	public const float HalfPI = (float)Math.PI / 2f;
+	public const float HalfPI = System.MathF.PI / 2f;
 
-	public const float E = (float)Math.E;
+	public const float E = System.MathF.E;
 
 	public const float Epsilon = 1E-05f;
 
@@ -107,11 +107,11 @@ public static class MathF
 	{
 		while (angle < 0f)
 		{
-			angle += (float)Math.PI * 2f;
+			angle += System.MathF.PI * 2f;
 		}
-		while (angle > (float)Math.PI * 2f)
+		while (angle > System.MathF.PI * 2f)
 		{
-			angle -= (float)Math.PI * 2f;
+			angle -= System.MathF.PI * 2f;
 		}
 		return angle;
 	}
@@ -127,8 +127,8 @@ public static class MathF
 
 	public static float AngleLerp(float angleFrom, float angleTo, float amount, float minimumDifference = 1E-05f)
 	{
-		float num = (angleTo - angleFrom) % ((float)Math.PI * 2f);
-		float num2 = 2f * num % ((float)Math.PI * 2f) - num;
+		float num = (angleTo - angleFrom) % (System.MathF.PI * 2f);
+		float num2 = 2f * num % (System.MathF.PI * 2f) - num;
 		return AngleClamp(angleFrom + num2 * amount);
 	}
 

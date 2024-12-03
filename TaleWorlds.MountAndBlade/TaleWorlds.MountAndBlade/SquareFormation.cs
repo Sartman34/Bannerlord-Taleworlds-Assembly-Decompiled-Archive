@@ -255,7 +255,7 @@ public class SquareFormation : LineFormation
 		float num2 = vec2.RotationInRadians;
 		if (num2 < 0f)
 		{
-			num2 += (float)Math.PI * 2f;
+			num2 += System.MathF.PI * 2f;
 		}
 		if (num2 <= 0.7863982f || num2 > 5.4987874f)
 		{
