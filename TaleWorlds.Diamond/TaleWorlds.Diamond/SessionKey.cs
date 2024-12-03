@@ -24,11 +24,6 @@ public struct SessionKey
 		_guid = new Guid(b);
 	}
 
-	public SessionKey(string g)
-	{
-		_guid = new Guid(g);
-	}
-
 	public static SessionKey NewGuid()
 	{
 		return new SessionKey(Guid.NewGuid());

@@ -56,12 +56,11 @@ public struct EquipmentElement : ISerializableObject, ISavedStruct
 	{
 		get
 		{
-			float weight = Item.Weight;
-			if (!(weight > 0f))
+			if (Item == null)
 			{
 				return 0f;
 			}
-			return weight;
+			return Item.Weight;
 		}
 	}
 

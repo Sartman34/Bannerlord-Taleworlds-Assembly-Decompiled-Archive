@@ -452,7 +452,7 @@ public class MapEventSide
 						ChangeRelationAction.ApplyRelationChangeBetweenHeroes(item2.Party.Owner, party2.LeaderHero.Clan.Leader, relationChange);
 					}
 				}
-				if (MapEvent.IsRaid && MissionSide == BattleSideEnum.Defender && this == MapEvent.Winner)
+				if (MapEvent.IsRaid && MissionSide == BattleSideEnum.Defender && this == MapEvent.Winner && MapEvent.MapEventSettlement.Notables.Any())
 				{
 					ChangeRelationAction.ApplyRelationChangeBetweenHeroes(MapEvent.MapEventSettlement.Notables.GetRandomElement(), party2.LeaderHero, 5);
 				}

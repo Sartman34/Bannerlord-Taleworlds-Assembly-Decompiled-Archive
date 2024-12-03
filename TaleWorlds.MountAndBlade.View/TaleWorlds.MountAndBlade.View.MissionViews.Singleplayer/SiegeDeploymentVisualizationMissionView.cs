@@ -512,7 +512,7 @@ public class SiegeDeploymentVisualizationMissionView : MissionView
 	{
 		MatrixFrame identity = MatrixFrame.Identity;
 		identity.origin = deploymentPoint.DeploymentTargetPosition + new Vec3(0f, 0f, (deploymentPoint.GetDeploymentPointType() == DeploymentPoint.DeploymentPointType.TowerLadder) ? 10f : 3f);
-		identity.rotation.RotateAboutSide((float)Math.PI / 2f);
+		identity.rotation.RotateAboutSide(System.MathF.PI / 2f);
 		identity.Scale(new Vec3(5f, 5f, 5f));
 		GameEntity value = GameEntity.Instantiate(Mission.Current.Scene, "aserai_keep_interior_a_light_shaft_a", identity);
 		_deploymentLights.Add(deploymentPoint, value);

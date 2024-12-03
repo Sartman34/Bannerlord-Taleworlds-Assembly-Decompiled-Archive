@@ -119,7 +119,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 
 	private bool _playerDeploymentCancelled;
 
-	private const float LookUpLimit = (float)Math.PI * 5f / 14f;
+	private const float LookUpLimit = System.MathF.PI * 5f / 14f;
 
 	private const float LookDownLimit = -1.3659099f;
 
@@ -504,7 +504,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 		Vec3 v = -frame.rotation.u;
 		CameraBearing = v.RotationZ;
 		Vec3 v2 = new Vec3(0f, 0f, 1f);
-		CameraElevation = TaleWorlds.Library.MathF.Acos(Vec3.DotProduct(v2, v)) - (float)Math.PI / 2f;
+		CameraElevation = TaleWorlds.Library.MathF.Acos(Vec3.DotProduct(v2, v)) - System.MathF.PI / 2f;
 	}
 
 	protected override void OnFrameTick(float dt)
@@ -742,7 +742,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				_zoomAmount = MBMath.ClampFloat(_zoomAmount, 0f, 1f);
 				float valueTo = 37f / MaxCameraZoom;
 				CameraViewAngle = MBMath.Lerp(Mission.GetFirstPersonFov(), valueTo, _zoomAmount, 0.005f);
-				CustomCamera.SetFovVertical(_cameraSpecialCurrentFOV * (CameraViewAngle / 65f) * ((float)Math.PI / 180f), Screen.AspectRatio, 0.065f, 12500f);
+				CustomCamera.SetFovVertical(_cameraSpecialCurrentFOV * (CameraViewAngle / 65f) * (System.MathF.PI / 180f), Screen.AspectRatio, 0.065f, 12500f);
 			}
 			CombatCamera.FillParametersFrom(CustomCamera);
 			if (CustomCamera.Entity != null)
@@ -832,7 +832,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 		if ((IsPhotoModeEnabled && !photoModeOrbit) || (agentToFollow == null && agentVisualToFollow == null))
 		{
 			float a = 0f - scene.GetPhotoModeRoll();
-			cameraFrame.rotation.RotateAboutSide((float)Math.PI / 2f);
+			cameraFrame.rotation.RotateAboutSide(System.MathF.PI / 2f);
 			cameraFrame.rotation.RotateAboutForward(CameraBearing);
 			cameraFrame.rotation.RotateAboutSide(CameraElevation);
 			cameraFrame.rotation.RotateAboutUp(a);
@@ -1083,7 +1083,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 					CameraBearing = MBMath.LerpRadians(num7, newBearing, Math.Min(dt * 12f, 1f), 1E-05f, 0.5f);
 					CameraElevation = MBMath.LerpRadians(num8, newElevation, Math.Min(dt * 12f, 1f), 1E-05f, 0.5f);
 				}
-				cameraFrame.rotation.RotateAboutSide((float)Math.PI / 2f);
+				cameraFrame.rotation.RotateAboutSide(System.MathF.PI / 2f);
 				cameraFrame.rotation.RotateAboutForward(CameraBearing);
 				cameraFrame.rotation.RotateAboutSide(CameraElevation);
 				float actionChannelWeight = agentToFollow.GetActionChannelWeight(1);
@@ -1179,7 +1179,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				{
 					num21 = 1f * num19;
 				}
-				CameraBearing = MBMath.WrapAngle(agentVisualToFollow.GetFrame().rotation.f.RotationZ + (float)Math.PI);
+				CameraBearing = MBMath.WrapAngle(agentVisualToFollow.GetFrame().rotation.f.RotationZ + System.MathF.PI);
 				CameraElevation = 0.15f;
 			}
 			else
@@ -1314,7 +1314,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 					_cameraSpecialCurrentAddedElevation += num32;
 				}
 			}
-			cameraFrame.rotation.RotateAboutSide((float)Math.PI / 2f);
+			cameraFrame.rotation.RotateAboutSide(System.MathF.PI / 2f);
 			if (agentToFollow != null && !agentToFollow.IsMine && cameraType == SpectatorCameraTypes.LockToTeamMembersView)
 			{
 				Vec3 lookDirection = agentToFollow.LookDirection;
@@ -1458,7 +1458,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				}
 				flag10 = false;
 				MatrixFrame cameraFrame2 = new MatrixFrame(cameraFrame.rotation, o);
-				Camera.GetNearPlanePointsStatic(ref cameraFrame2, IsPhotoModeEnabled ? (num * ((float)Math.PI / 180f)) : (CameraViewAngle * ((float)Math.PI / 180f)), Screen.AspectRatio, 0.2f, 1f, _cameraNearPlanePoints);
+				Camera.GetNearPlanePointsStatic(ref cameraFrame2, IsPhotoModeEnabled ? (num * (System.MathF.PI / 180f)) : (CameraViewAngle * (System.MathF.PI / 180f)), Screen.AspectRatio, 0.2f, 1f, _cameraNearPlanePoints);
 				Vec3 zero2 = Vec3.Zero;
 				for (int i = 0; i < 4; i++)
 				{
@@ -1547,7 +1547,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 			scene.SetDepthOfFieldParameters(0f, 0f, isVignetteOn: false);
 			scene.SetDepthOfFieldFocus(0f);
 		}
-		CombatCamera.SetFovVertical(IsPhotoModeEnabled ? (num * ((float)Math.PI / 180f)) : (_cameraSpecialCurrentFOV * (CameraViewAngle / 65f) * ((float)Math.PI / 180f)), Screen.AspectRatio, newDNear, 12500f);
+		CombatCamera.SetFovVertical(IsPhotoModeEnabled ? (num * (System.MathF.PI / 180f)) : (_cameraSpecialCurrentFOV * (CameraViewAngle / 65f) * (System.MathF.PI / 180f)), Screen.AspectRatio, newDNear, 12500f);
 		SceneView.SetCamera(CombatCamera);
 		Vec3 attenuationPosition = agentToFollow?.GetEyeGlobalPosition() ?? cameraFrame.origin;
 		Mission.SetCameraFrame(ref cameraFrame, 65f / CameraViewAngle, ref attenuationPosition);
@@ -1583,7 +1583,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				frame = gameEntity.GetGlobalFrame();
 				frame.rotation.Orthonormalize();
 				CameraBearing = frame.rotation.f.RotationZ;
-				CameraElevation = frame.rotation.f.RotationX - (float)Math.PI / 2f;
+				CameraElevation = frame.rotation.f.RotationX - System.MathF.PI / 2f;
 			}
 			else
 			{
@@ -1599,7 +1599,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 			{
 				frame = gameEntity2.GetGlobalFrame();
 				CameraBearing = frame.rotation.f.RotationZ;
-				CameraElevation = frame.rotation.f.RotationX - (float)Math.PI / 2f;
+				CameraElevation = frame.rotation.f.RotationX - System.MathF.PI / 2f;
 			}
 			else if (Mission.HasSpawnPath)
 			{
@@ -1608,7 +1608,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				frame.origin.z += 25f;
 				frame.origin -= 25f * frame.rotation.f;
 				CameraBearing = frame.rotation.f.RotationZ;
-				CameraElevation = -(float)Math.PI / 4f;
+				CameraElevation = -System.MathF.PI / 4f;
 			}
 			else
 			{
@@ -1921,10 +1921,10 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 					}
 				}
 				float value = CameraElevation + _cameraSpecialTargetAddedElevation;
-				value = MBMath.ClampFloat(value, -1.3659099f, (float)Math.PI * 5f / 14f);
+				value = MBMath.ClampFloat(value, -1.3659099f, System.MathF.PI * 5f / 14f);
 				_cameraSpecialTargetAddedElevation = value - CameraElevation;
 				value = CameraElevation + _cameraSpecialCurrentAddedElevation;
-				value = MBMath.ClampFloat(value, -1.3659099f, (float)Math.PI * 5f / 14f);
+				value = MBMath.ClampFloat(value, -1.3659099f, System.MathF.PI * 5f / 14f);
 				_cameraSpecialCurrentAddedElevation = value - CameraElevation;
 			}
 			else
@@ -1938,16 +1938,16 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 					CalculateNewBearingAndElevationForFirstPerson(agentToFollow, num15, num16, out var newBearing, out var newElevation);
 					if (newBearing != num15)
 					{
-						_cameraBearingDelta = (MBMath.IsBetween(MBMath.WrapAngle(_cameraBearingDelta), 0f, (float)Math.PI) ? MBMath.ClampFloat(MBMath.WrapAngle(newBearing - CameraBearing), 0f, _cameraBearingDelta) : MBMath.ClampFloat(MBMath.WrapAngle(newBearing - CameraBearing), _cameraBearingDelta, 0f));
+						_cameraBearingDelta = (MBMath.IsBetween(MBMath.WrapAngle(_cameraBearingDelta), 0f, System.MathF.PI) ? MBMath.ClampFloat(MBMath.WrapAngle(newBearing - CameraBearing), 0f, _cameraBearingDelta) : MBMath.ClampFloat(MBMath.WrapAngle(newBearing - CameraBearing), _cameraBearingDelta, 0f));
 					}
 					if (newElevation != num16)
 					{
-						_cameraElevationDelta = (MBMath.IsBetween(MBMath.WrapAngle(_cameraElevationDelta), 0f, (float)Math.PI) ? MBMath.ClampFloat(MBMath.WrapAngle(newElevation - CameraElevation), 0f, _cameraElevationDelta) : MBMath.ClampFloat(MBMath.WrapAngle(newElevation - CameraElevation), _cameraElevationDelta, 0f));
+						_cameraElevationDelta = (MBMath.IsBetween(MBMath.WrapAngle(_cameraElevationDelta), 0f, System.MathF.PI) ? MBMath.ClampFloat(MBMath.WrapAngle(newElevation - CameraElevation), 0f, _cameraElevationDelta) : MBMath.ClampFloat(MBMath.WrapAngle(newElevation - CameraElevation), _cameraElevationDelta, 0f));
 					}
 				}
 				CameraBearing += _cameraBearingDelta;
 				CameraElevation += _cameraElevationDelta;
-				CameraElevation = MBMath.ClampFloat(CameraElevation, -1.3659099f, (float)Math.PI * 5f / 14f);
+				CameraElevation = MBMath.ClampFloat(CameraElevation, -1.3659099f, System.MathF.PI * 5f / 14f);
 			}
 			if (LockCameraMovement)
 			{
@@ -1988,7 +1988,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 			}
 			CameraBearing += _cameraBearingDelta;
 			CameraElevation += _cameraElevationDelta;
-			CameraElevation = MBMath.ClampFloat(CameraElevation, -1.3659099f, (float)Math.PI * 5f / 14f);
+			CameraElevation = MBMath.ClampFloat(CameraElevation, -1.3659099f, System.MathF.PI * 5f / 14f);
 		}
 		return;
 		IL_06f8:
@@ -2944,7 +2944,7 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 					MatrixFrame battleSideDeploymentFrame = Mission.DeploymentPlan.GetBattleSideDeploymentFrame(side);
 					MatrixFrame frame = battleSideDeploymentFrame;
 					float num = Math.Max(0.2f * (float)Mission.DeploymentPlan.GetTroopCountForSide(side, DeploymentPlanType.Initial), 32f);
-					frame.rotation.RotateAboutSide(-(float)Math.PI / 6f);
+					frame.rotation.RotateAboutSide(-System.MathF.PI / 6f);
 					frame.origin -= num * frame.rotation.f;
 					bool flag2 = false;
 					if (Mission.IsPositionInsideBoundaries(frame.origin.AsVec2))
@@ -3015,13 +3015,13 @@ public class MissionScreen : ScreenBase, IMissionSystemHandler, IGameStateListen
 				num2 += num4;
 				num += num4 * ((rotationZ < 0f) ? 0.5f : (-0.5f));
 			}
-			if (num <= -(float)Math.PI)
+			if (num <= -System.MathF.PI)
 			{
-				num += (float)Math.PI * 2f;
+				num += System.MathF.PI * 2f;
 			}
-			else if (num > (float)Math.PI)
+			else if (num > System.MathF.PI)
 			{
-				num -= (float)Math.PI * 2f;
+				num -= System.MathF.PI * 2f;
 			}
 			newBearing = MBMath.ClampAngle(MBMath.WrapAngle(cameraBearing), num, num2);
 			float restrictionRange = 50f.ToRadians();

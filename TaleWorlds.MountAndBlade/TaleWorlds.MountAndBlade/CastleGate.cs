@@ -228,9 +228,9 @@ public class CastleGate : UsableMachine, IPointDefendable, ICastleKeyPosition, I
 		{
 			MatrixFrame identity = MatrixFrame.Identity;
 			identity.origin.y -= 2f;
-			identity.rotation.RotateAboutSide(-(float)Math.PI / 2f);
-			identity.rotation.RotateAboutForward((float)Math.PI);
-			_queueManager.Initialize(_queueManager.ManagedNavigationFaceId, identity, -identity.rotation.u, BattleSideEnum.Defender, 15, (float)Math.PI / 5f, 3f, 2.2f, 0f, 0f, blockUsage: false, 1f, 2.1474836E+09f, 5f, doesManageMultipleIDs: false, -2, -2, int.MaxValue, 15);
+			identity.rotation.RotateAboutSide(-System.MathF.PI / 2f);
+			identity.rotation.RotateAboutForward(System.MathF.PI);
+			_queueManager.Initialize(_queueManager.ManagedNavigationFaceId, identity, -identity.rotation.u, BattleSideEnum.Defender, 15, System.MathF.PI / 5f, 3f, 2.2f, 0f, 0f, blockUsage: false, 1f, 2.1474836E+09f, 5f, doesManageMultipleIDs: false, -2, -2, int.MaxValue, 15);
 			_queueManager.Activate();
 		}
 		switch (SideTag)

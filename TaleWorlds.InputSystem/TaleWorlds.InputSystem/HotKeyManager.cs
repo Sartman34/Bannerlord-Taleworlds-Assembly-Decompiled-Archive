@@ -299,7 +299,8 @@ public static class HotKeyManager
 			xmlDocument.InsertBefore(newChild2, documentElement);
 			XmlElement xmlElement = xmlDocument.CreateElement("HotKeyCategories");
 			xmlElement.SetAttribute("hotkeyEditEnabled", _hotkeyEditEnabled.ToString());
-			xmlElement.SetAttribute("version", _versionOfHotkeys.ToString());
+			float versionOfHotkeys = _versionOfHotkeys;
+			xmlElement.SetAttribute("version", versionOfHotkeys.ToString());
 			xmlDocument.AppendChild(xmlElement);
 			foreach (KeyValuePair<string, GameKeyContext> category in _categories)
 			{

@@ -39,7 +39,7 @@ public class BannerVisual : IBannerVisual
 		identity.rotation.RotateAboutUp(rotation);
 		if (mirrored)
 		{
-			identity.rotation.RotateAboutForward((float)Math.PI);
+			identity.rotation.RotateAboutForward(System.MathF.PI);
 		}
 		identity.rotation.ApplyScaleLocal(new Vec3(x, y, 1f));
 		identity.origin.x = 0f;
@@ -59,7 +59,7 @@ public class BannerVisual : IBannerVisual
 		fromResource.ManualInvalidate();
 		mesh.Color = BannerManager.GetColor(bannerData.ColorId2);
 		mesh.Color2 = BannerManager.GetColor(bannerData.ColorId);
-		MatrixFrame meshMatrix = GetMeshMatrix(ref mesh, bannerData.Position.x, bannerData.Position.y, bannerData.Size.x, bannerData.Size.y, bannerData.Mirror, bannerData.RotationValue * 2f * (float)Math.PI, 0.5f);
+		MatrixFrame meshMatrix = GetMeshMatrix(ref mesh, bannerData.Position.x, bannerData.Position.y, bannerData.Size.x, bannerData.Size.y, bannerData.Mirror, bannerData.RotationValue * 2f * System.MathF.PI, 0.5f);
 		mesh.SetLocalFrame(meshMatrix);
 		metaMesh.AddMesh(mesh);
 		mesh.ManualInvalidate();
@@ -84,7 +84,7 @@ public class BannerVisual : IBannerVisual
 				mesh2.AddFace(num4, patchNode2, num3, uIntPtr);
 				mesh2.UnlockEditDataWrite(uIntPtr);
 				mesh2.SetColorAndStroke(BannerManager.GetColor(bannerData2.ColorId), BannerManager.GetColor(bannerData2.ColorId2), bannerData2.DrawStroke);
-				meshMatrix = GetMeshMatrix(ref mesh2, bannerData2.Position.x, bannerData2.Position.y, bannerData2.Size.x, bannerData2.Size.y, bannerData2.Mirror, bannerData2.RotationValue * 2f * (float)Math.PI, i);
+				meshMatrix = GetMeshMatrix(ref mesh2, bannerData2.Position.x, bannerData2.Position.y, bannerData2.Size.x, bannerData2.Size.y, bannerData2.Mirror, bannerData2.RotationValue * 2f * System.MathF.PI, i);
 				mesh2.SetLocalFrame(meshMatrix);
 				metaMesh.AddMesh(mesh2);
 			}

@@ -1180,6 +1180,7 @@ public sealed class Agent : DotNetObject, IAgent, IFocusable, IUsable, IFormatio
 			}
 			if (value != ControllerType.AI && GetAgentFlags().HasAnyFlag(AgentFlag.IsHumanoid))
 			{
+				MountAgent?.SetMaximumSpeedLimit(-1f, isMultiplier: false);
 				SetMaximumSpeedLimit(-1f, isMultiplier: false);
 				if (WalkMode)
 				{
@@ -1222,7 +1223,7 @@ public sealed class Agent : DotNetObject, IAgent, IFocusable, IUsable, IFormatio
 			{
 				return Team.Color;
 			}
-			TaleWorlds.Library.Debug.FailedAssert("Clothing color is not set.", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Agent.cs", "ClothingColor1", 1115);
+			TaleWorlds.Library.Debug.FailedAssert("Clothing color is not set.", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Agent.cs", "ClothingColor1", 1116);
 			return uint.MaxValue;
 		}
 	}
@@ -2764,7 +2765,7 @@ public sealed class Agent : DotNetObject, IAgent, IFocusable, IUsable, IFormatio
 		case BoneBodyPartType.ShoulderRight:
 			return GetAgentDrivenPropertyValue(DrivenProperty.ArmorTorso);
 		default:
-			TaleWorlds.Library.Debug.FailedAssert("false", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Agent.cs", "GetBaseArmorEffectivenessForBodyPart", 2826);
+			TaleWorlds.Library.Debug.FailedAssert("false", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Agent.cs", "GetBaseArmorEffectivenessForBodyPart", 2827);
 			return GetAgentDrivenPropertyValue(DrivenProperty.ArmorTorso);
 		}
 	}

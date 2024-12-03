@@ -7,7 +7,7 @@ namespace TaleWorlds.MountAndBlade;
 
 public abstract class AgentStatCalculateModel : GameModel
 {
-	protected const float MaxHorizontalErrorRadian = (float)Math.PI / 90f;
+	protected const float MaxHorizontalErrorRadian = System.MathF.PI / 90f;
 
 	private float _AILevelMultiplier = 1f;
 
@@ -197,7 +197,7 @@ public abstract class AgentStatCalculateModel : GameModel
 		agentDrivenProperties.AiRangerLeadErrorMin = (0f - num4) * 0.35f;
 		agentDrivenProperties.AiRangerLeadErrorMax = num4 * 0.2f;
 		agentDrivenProperties.AiRangerVerticalErrorMultiplier = num4 * 0.1f;
-		agentDrivenProperties.AiRangerHorizontalErrorMultiplier = num4 * ((float)Math.PI / 90f);
+		agentDrivenProperties.AiRangerHorizontalErrorMultiplier = num4 * (System.MathF.PI / 90f);
 		agentDrivenProperties.AIAttackOnDecideChance = TaleWorlds.Library.MathF.Clamp(0.1f * CalculateAIAttackOnDecideMaxValue() * (3f - agent.Defensiveness), 0.05f, 1f);
 		agentDrivenProperties.SetStat(DrivenProperty.UseRealisticBlocking, (agent.Controller != Agent.ControllerType.Player) ? 1f : 0f);
 	}

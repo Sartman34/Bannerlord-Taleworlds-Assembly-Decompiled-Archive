@@ -183,7 +183,7 @@ internal static class LibraryCallbacksGenerated
 	[MonoPInvokeCallback(typeof(Managed_CallCommandlineFunction_delegate))]
 	internal static UIntPtr Managed_CallCommandlineFunction(IntPtr functionName, IntPtr arguments)
 	{
-		string functionName2 = Marshal.PtrToStringAnsi(functionName);
+		string? functionName2 = Marshal.PtrToStringAnsi(functionName);
 		string arguments2 = Marshal.PtrToStringAnsi(arguments);
 		string text = Managed.CallCommandlineFunction(functionName2, arguments2);
 		UIntPtr threadLocalCachedRglVarString = NativeStringHelper.GetThreadLocalCachedRglVarString();
@@ -248,7 +248,7 @@ internal static class LibraryCallbacksGenerated
 	[MonoPInvokeCallback(typeof(Managed_GetEnumNamesOfField_delegate))]
 	internal static UIntPtr Managed_GetEnumNamesOfField(IntPtr className, IntPtr fieldName)
 	{
-		string className2 = Marshal.PtrToStringAnsi(className);
+		string? className2 = Marshal.PtrToStringAnsi(className);
 		string fieldName2 = Marshal.PtrToStringAnsi(fieldName);
 		string enumNamesOfField = Managed.GetEnumNamesOfField(className2, fieldName2);
 		UIntPtr threadLocalCachedRglVarString = NativeStringHelper.GetThreadLocalCachedRglVarString();
@@ -322,7 +322,7 @@ internal static class LibraryCallbacksGenerated
 	[MonoPInvokeCallback(typeof(Managed_IsClassFieldExists_delegate))]
 	internal static bool Managed_IsClassFieldExists(IntPtr className, IntPtr fieldName)
 	{
-		string className2 = Marshal.PtrToStringAnsi(className);
+		string? className2 = Marshal.PtrToStringAnsi(className);
 		string fieldName2 = Marshal.PtrToStringAnsi(fieldName);
 		return Managed.IsClassFieldExists(className2, fieldName2);
 	}
@@ -330,7 +330,7 @@ internal static class LibraryCallbacksGenerated
 	[MonoPInvokeCallback(typeof(Managed_LoadManagedComponent_delegate))]
 	internal static void Managed_LoadManagedComponent(IntPtr assemblyName, IntPtr managedInterface)
 	{
-		string assemblyName2 = Marshal.PtrToStringAnsi(assemblyName);
+		string? assemblyName2 = Marshal.PtrToStringAnsi(assemblyName);
 		string managedInterface2 = Marshal.PtrToStringAnsi(managedInterface);
 		Managed.LoadManagedComponent(assemblyName2, managedInterface2);
 	}

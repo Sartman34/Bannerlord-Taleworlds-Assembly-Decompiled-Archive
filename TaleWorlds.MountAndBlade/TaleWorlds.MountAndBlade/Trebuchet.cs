@@ -14,7 +14,7 @@ public class Trebuchet : RangedSiegeWeapon, ISpawnable
 {
 	private static readonly ActionIndexCache act_usage_trebuchet_idle = ActionIndexCache.Create("act_usage_trebuchet_idle");
 
-	public const float TrebuchetDirectionRestriction = (float)Math.PI * 4f / 9f;
+	public const float TrebuchetDirectionRestriction = System.MathF.PI * 4f / 9f;
 
 	private static readonly ActionIndexCache act_usage_trebuchet_reload = ActionIndexCache.Create("act_usage_trebuchet_reload");
 
@@ -98,7 +98,7 @@ public class Trebuchet : RangedSiegeWeapon, ISpawnable
 
 	private sbyte _missileBoneIndex;
 
-	public override float DirectionRestriction => (float)Math.PI * 4f / 9f;
+	public override float DirectionRestriction => System.MathF.PI * 4f / 9f;
 
 	protected override float ShootingSpeed => ProjectileSpeed;
 

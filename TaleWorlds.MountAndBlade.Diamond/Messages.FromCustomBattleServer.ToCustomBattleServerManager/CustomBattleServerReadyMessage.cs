@@ -27,7 +27,7 @@ public class CustomBattleServerReadyMessage : LoginMessage
 	}
 
 	public CustomBattleServerReadyMessage(PeerId peerId, ApplicationVersion applicationVersion, string authToken, ModuleInfoModel[] loadedModules, bool allowsOptionalModules)
-		: base(peerId)
+		: base(peerId, null)
 	{
 		ApplicationVersion = applicationVersion;
 		AuthToken = authToken;

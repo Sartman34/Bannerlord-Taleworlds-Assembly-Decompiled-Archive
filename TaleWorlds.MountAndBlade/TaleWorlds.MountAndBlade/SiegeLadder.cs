@@ -387,16 +387,16 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 		if (array.Length != 0)
 		{
 			_queueManagerForAttackers = array[0];
-			_queueManagerForAttackers.Initialize(OnWallNavMeshId, managedFrame, -managedFrame.rotation.f, BattleSideEnum.Attacker, 3, (float)Math.PI * 3f / 4f, 2f, 0.8f, 6f, 5f, blockUsage: false, 0.8f, num, 5f, doesManageMultipleIDs: false, -2, -2, num, 2);
+			_queueManagerForAttackers.Initialize(OnWallNavMeshId, managedFrame, -managedFrame.rotation.f, BattleSideEnum.Attacker, 3, System.MathF.PI * 3f / 4f, 2f, 0.8f, 6f, 5f, blockUsage: false, 0.8f, num, 5f, doesManageMultipleIDs: false, -2, -2, num, 2);
 		}
 		if (array.Length > 1 && _pushingWithForkStandingPoint != null)
 		{
 			_queueManagerForDefenders = array[1];
 			MatrixFrame globalFrame = _pushingWithForkStandingPoint.GameEntity.GetGlobalFrame();
-			globalFrame.rotation.RotateAboutSide((float)Math.PI / 2f);
+			globalFrame.rotation.RotateAboutSide(System.MathF.PI / 2f);
 			globalFrame.origin -= globalFrame.rotation.u;
 			globalFrame = base.GameEntity.GetGlobalFrame().TransformToLocal(globalFrame);
-			_queueManagerForDefenders.Initialize(OnWallNavMeshId, globalFrame, managedFrame.rotation.f, BattleSideEnum.Defender, 1, (float)Math.PI * 9f / 10f, 0.5f, 0.8f, 6f, 5f, blockUsage: true, 0.8f, float.MaxValue, 5f, doesManageMultipleIDs: false, -2, -2, 0, 0);
+			_queueManagerForDefenders.Initialize(OnWallNavMeshId, globalFrame, managedFrame.rotation.f, BattleSideEnum.Defender, 1, System.MathF.PI * 9f / 10f, 0.5f, 0.8f, 6f, 5f, blockUsage: true, 0.8f, float.MaxValue, 5f, doesManageMultipleIDs: false, -2, -2, 0, 0);
 		}
 		base.GameEntity.Scene.MarkFacesWithIdAsLadder(OnWallNavMeshId, isLadder: true);
 		EnemyRangeToStopUsing = 0f;
@@ -491,7 +491,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 		{
 			_animationState = LadderAnimationState.Animated;
 			MatrixFrame frame3 = gameEntity.GetFrame();
-			frame3.rotation.RotateAboutSide(-(float)Math.PI / 2f);
+			frame3.rotation.RotateAboutSide(-System.MathF.PI / 2f);
 			gameEntity.SetFrame(ref frame3);
 			_ladderSkeleton.SetAnimationAtChannel(_raiseAnimationIndex, 0);
 			_ladderSkeleton.ForceUpdateBoneFrames();
@@ -518,7 +518,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 		{
 			_animationState = LadderAnimationState.PhysicallyDynamic;
 			MatrixFrame frame2 = gameEntity.GetGlobalFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-			frame2.rotation.RotateAboutForward((float)Math.PI / 2f);
+			frame2.rotation.RotateAboutForward(System.MathF.PI / 2f);
 			_fallAngularSpeed = GetCurrentLadderAngularSpeed(_raiseAnimationIndex);
 			float animationParameterAtChannel2 = _ladderSkeleton.GetAnimationParameterAtChannel(0);
 			gameEntity.SetGlobalFrame(in frame2);
@@ -537,7 +537,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 		{
 			_animationState = LadderAnimationState.PhysicallyDynamic;
 			MatrixFrame frame = gameEntity.GetGlobalFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-			frame.rotation.RotateAboutForward((float)Math.PI / 2f);
+			frame.rotation.RotateAboutForward(System.MathF.PI / 2f);
 			_fallAngularSpeed = GetCurrentLadderAngularSpeed(_pushBackAnimationIndex);
 			float animationParameterAtChannel = _ladderSkeleton.GetAnimationParameterAtChannel(0);
 			gameEntity.SetGlobalFrame(in frame);
@@ -597,7 +597,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 		if (!flag2)
 		{
 			MatrixFrame frame = _ladderObject.GameEntity.GetGlobalFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-			frame.rotation.RotateAboutForward((float)Math.PI / 2f);
+			frame.rotation.RotateAboutForward(System.MathF.PI / 2f);
 			_ladderBodyObject.GameEntity.SetGlobalFrame(in frame);
 			flag3 = State != LadderState.BeingPushedBack || frame.rotation.f.z < 0f;
 			if (!flag3)
@@ -922,7 +922,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 				if (!flag4)
 				{
 					MatrixFrame frame3 = gameEntity.GetGlobalFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-					frame3.rotation.RotateAboutForward((float)Math.PI / 2f);
+					frame3.rotation.RotateAboutForward(System.MathF.PI / 2f);
 					if ((animationParameterAtChannel4 > 0.9f && animationParameterAtChannel4 != 1f) || frame3.rotation.f.z <= 0.2f)
 					{
 						_animationState = LadderAnimationState.PhysicallyDynamic;
@@ -1012,7 +1012,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 				if (!flag3)
 				{
 					MatrixFrame frame = gameEntity.GetGlobalFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-					frame.rotation.RotateAboutForward((float)Math.PI / 2f);
+					frame.rotation.RotateAboutForward(System.MathF.PI / 2f);
 					if (animationParameterAtChannel2 > 0.9999f || frame.rotation.f.z >= 0f)
 					{
 						_animationState = LadderAnimationState.PhysicallyDynamic;
@@ -1036,7 +1036,7 @@ public class SiegeLadder : SiegeWeapon, IPrimarySiegeWeapon, IOrderableWithInter
 				frame2.rotation.RotateAboutSide(_fallAngularSpeed * dt);
 				gameEntity.SetFrame(ref frame2);
 				MatrixFrame matrixFrame = gameEntity.GetFrame().TransformToParent(_ladderSkeleton.GetBoneEntitialFrameWithIndex(0));
-				matrixFrame.rotation.RotateAboutForward((float)Math.PI / 2f);
+				matrixFrame.rotation.RotateAboutForward(System.MathF.PI / 2f);
 				float num3 = Vec3.DotProduct(matrixFrame.rotation.f, _ladderDownFrame.rotation.f);
 				if (_fallAngularSpeed > 0f && num3 > 0.95f && num3 < _lastDotProductOfAnimationAndTargetRotation)
 				{

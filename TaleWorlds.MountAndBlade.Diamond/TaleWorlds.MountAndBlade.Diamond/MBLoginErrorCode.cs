@@ -13,5 +13,6 @@ public enum MBLoginErrorCode
 	BannedFromHostingServers,
 	CustomBattleServerIncompatibleVersion,
 	ReachedMaxNumberofCustomBattleServers,
-	CouldNotDestroyOldSession
+	CouldNotDestroyOldSession,
+	LoggingInDisabled
 }

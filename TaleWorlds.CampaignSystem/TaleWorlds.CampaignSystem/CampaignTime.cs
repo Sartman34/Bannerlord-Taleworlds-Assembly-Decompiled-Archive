@@ -188,7 +188,8 @@ public struct CampaignTime : IComparable<CampaignTime>
 
 	public override int GetHashCode()
 	{
-		return _numTicks.GetHashCode();
+		long numTicks = _numTicks;
+		return numTicks.GetHashCode();
 	}
 
 	public int CompareTo(CampaignTime other)

@@ -191,7 +191,7 @@ public class TypeDefinition : TypeDefinitionBase
 		{
 			string name = customField.Name;
 			short saveId = customField.SaveId;
-			FieldInfo field = base.Type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			FieldInfo? field = base.Type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			byte classLevel2 = TypeDefinitionBase.GetClassLevel(field.DeclaringType);
 			MemberTypeId memberTypeId2 = new MemberTypeId(classLevel2, saveId);
 			FieldDefinition fieldDefinition2 = new FieldDefinition(field, memberTypeId2);

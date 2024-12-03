@@ -211,7 +211,7 @@ public class AgingCampaignBehavior : CampaignBehaviorBase
 		foreach (TraitObject item in DefaultTraits.Personality)
 		{
 			int num = hero.GetTraitLevel(item);
-			if (hero.Father == null && hero.Mother == null)
+			if (hero.Father == null && hero.Mother == null && hero.Template != null)
 			{
 				hero.SetTraitLevel(item, hero.Template.GetTraitLevel(item));
 				continue;

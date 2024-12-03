@@ -159,7 +159,7 @@ public class MPPerkSelectionManager
 					xmlDocument.Load(_xmlPath);
 					foreach (XmlNode childNode in xmlDocument.DocumentElement.ChildNodes)
 					{
-						XmlAttribute xmlAttribute = childNode.Attributes["id"];
+						XmlAttribute? xmlAttribute = childNode.Attributes["id"];
 						MultiplayerClassDivisions.MPHeroClass mPHeroClass = null;
 						string value = xmlAttribute.Value;
 						for (int i = 0; i < count; i++)
@@ -228,8 +228,10 @@ public class MPPerkSelectionManager
 				foreach (MPPerkSelection item in value)
 				{
 					XmlElement xmlElement3 = xmlDocument.CreateElement("PerkSelection");
-					xmlElement3.SetAttribute("index", item.Index.ToString());
-					xmlElement3.SetAttribute("listIndex", item.ListIndex.ToString());
+					int index = item.Index;
+					xmlElement3.SetAttribute("index", index.ToString());
+					index = item.ListIndex;
+					xmlElement3.SetAttribute("listIndex", index.ToString());
 					xmlElement2.AppendChild(xmlElement3);
 				}
 			}

@@ -836,14 +836,17 @@ public sealed class PartyBase : IBattleCombatant, IRandomOwner
 		for (int i = 0; i < MemberRoster.Count; i++)
 		{
 			TroopRosterElement elementCopyAtIndex = MemberRoster.GetElementCopyAtIndex(i);
-			int num = elementCopyAtIndex.Number - ((!includeWoundeds) ? elementCopyAtIndex.WoundedNumber : 0);
-			partyRank -= num;
-			if (!elementCopyAtIndex.Character.IsHero && partyRank < 0)
+			if (!elementCopyAtIndex.Character.IsHero)
 			{
-				character = elementCopyAtIndex.Character;
-				party = this;
-				stackIndex = i;
-				return true;
+				int num = elementCopyAtIndex.Number - ((!includeWoundeds) ? elementCopyAtIndex.WoundedNumber : 0);
+				partyRank -= num;
+				if (partyRank <= 0)
+				{
+					character = elementCopyAtIndex.Character;
+					party = this;
+					stackIndex = i;
+					return true;
+				}
 			}
 		}
 		character = null;

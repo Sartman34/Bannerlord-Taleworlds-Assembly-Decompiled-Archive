@@ -2520,7 +2520,7 @@ public class LordConversationsCampaignBehavior : CampaignBehaviorBase
 
 	public bool conversation_player_want_to_end_service_as_mercenary_on_condition()
 	{
-		if (Hero.OneToOneConversationHero.MapFaction == null || Hero.OneToOneConversationHero.Clan == null)
+		if (Hero.OneToOneConversationHero.MapFaction == null || Hero.OneToOneConversationHero.Clan == null || MobileParty.MainParty.Army != null)
 		{
 			return false;
 		}

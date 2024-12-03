@@ -293,18 +293,44 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 		{
 			ShowNextFeedback();
 		}
-		if (_lobbyLayer != null)
+		if (_lobbyLayer == null)
 		{
-			KeybindingPopup keybindingPopup = _keybindingPopup;
-			if (keybindingPopup != null && keybindingPopup.IsActive)
-			{
-				_keybindingPopup?.Tick();
-			}
-			else if (_lobbyDataSource != null && !_keybindingPopup.IsActive && !_lobbyLayer.IsFocusedOnInput())
-			{
-				HandleInput(dt);
-			}
+			return;
 		}
+		MPLobbyVM lobbyDataSource = _lobbyDataSource;
+		MPOptionsVM options;
+		int areHotkeysEnabled;
+		if (lobbyDataSource != null && lobbyDataSource.Options?.IsEnabled == true)
+		{
+			options = _lobbyDataSource.Options;
+			KeybindingPopup keybindingPopup = _keybindingPopup;
+			if ((keybindingPopup == null || !keybindingPopup.IsActive) && !_lobbyLayer.IsFocusedOnInput())
+			{
+				Func<bool> isAnyInquiryActive = InformationManager.IsAnyInquiryActive;
+				if (isAnyInquiryActive == null || !isAnyInquiryActive())
+				{
+					areHotkeysEnabled = (_lobbyDataSource.HasNoPopupOpen() ? 1 : 0);
+					goto IL_00cc;
+				}
+			}
+			areHotkeysEnabled = 0;
+			goto IL_00cc;
+		}
+		goto IL_00d1;
+		IL_00d1:
+		KeybindingPopup keybindingPopup2 = _keybindingPopup;
+		if (keybindingPopup2 != null && keybindingPopup2.IsActive)
+		{
+			_keybindingPopup.Tick();
+		}
+		else if (_lobbyDataSource != null && !_lobbyLayer.IsFocusedOnInput())
+		{
+			HandleInput(dt);
+		}
+		return;
+		IL_00cc:
+		options.AreHotkeysEnabled = (byte)areHotkeysEnabled != 0;
+		goto IL_00d1;
 	}
 
 	private void HandleInput(float dt)
@@ -318,7 +344,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 				_lobbyDataSource.Login.ExecuteLogin();
 				UISoundsHelper.PlayUISound("event:/ui/default");
 			}
-			else if (_lobbyDataSource.Options.IsEnabled && flag)
+			else if (_lobbyDataSource.Options.IsEnabled && _lobbyDataSource.Options.AreHotkeysEnabled && flag)
 			{
 				_lobbyDataSource.Options.ExecuteApply();
 				UISoundsHelper.PlayUISound("event:/ui/default");
@@ -357,7 +383,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 					_lobbyDataSource.Armory.ExecuteEmptyFocusedSlot();
 				}
 			}
-			else if (_lobbyDataSource.Options.IsEnabled)
+			else if (_lobbyDataSource.Options.IsEnabled && _lobbyDataSource.Options.AreHotkeysEnabled)
 			{
 				UISoundsHelper.PlayUISound("event:/ui/default");
 				_lobbyDataSource.Options.SelectPreviousCategory();
@@ -380,7 +406,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 					_lobbyDataSource.Armory.ExecuteSelectFocusedSlot();
 				}
 			}
-			else if (_lobbyDataSource.Options.IsEnabled)
+			else if (_lobbyDataSource.Options.IsEnabled && _lobbyDataSource.Options.AreHotkeysEnabled)
 			{
 				UISoundsHelper.PlayUISound("event:/ui/default");
 				_lobbyDataSource.Options.SelectNextCategory();
@@ -418,7 +444,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 		}
 		else if (_lobbyLayer.Input.IsHotKeyReleased("Reset"))
 		{
-			if (_lobbyDataSource.HasNoPopupOpen() && _lobbyDataSource.Options.IsEnabled)
+			if (_lobbyDataSource.HasNoPopupOpen() && _lobbyDataSource.Options.IsEnabled && _lobbyDataSource.Options.AreHotkeysEnabled)
 			{
 				UISoundsHelper.PlayUISound("event:/ui/default");
 				_lobbyDataSource.Options.ExecuteCancel();
@@ -1007,7 +1033,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 		GameKeyOptionVM gameKey;
 		if (key.IsControllerInput)
 		{
-			TaleWorlds.Library.Debug.FailedAssert("Trying to use SetHotKey with a controller input", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1231);
+			TaleWorlds.Library.Debug.FailedAssert("Trying to use SetHotKey with a controller input", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1239);
 			MBInformationManager.AddQuickInformation(new TextObject("{=B41vvGuo}Invalid key"));
 			_keybindingPopup.OnToggle(isActive: false);
 		}
@@ -1016,7 +1042,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 			GameKeyGroupVM gameKeyGroupVM = _lobbyDataSource?.Options.GameKeyOptionGroups.GameKeyGroups.FirstOrDefault((GameKeyGroupVM g) => g.GameKeys.Contains(gameKey));
 			if (gameKeyGroupVM == null)
 			{
-				TaleWorlds.Library.Debug.FailedAssert("Could not find GameKeyGroup during SetHotKey", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1243);
+				TaleWorlds.Library.Debug.FailedAssert("Could not find GameKeyGroup during SetHotKey", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1251);
 				MBInformationManager.AddQuickInformation(new TextObject("{=oZrVNUOk}Error"));
 				_keybindingPopup.OnToggle(isActive: false);
 				return;
@@ -1046,7 +1072,7 @@ public class MultiplayerLobbyGauntletScreen : ScreenBase, IGameStateListener, IL
 			AuxiliaryKeyGroupVM auxiliaryKeyGroupVM = _lobbyDataSource.Options.GameKeyOptionGroups.AuxiliaryKeyGroups.FirstOrDefault((AuxiliaryKeyGroupVM g) => g.HotKeys.Contains(auxiliaryKey));
 			if (auxiliaryKeyGroupVM == null)
 			{
-				TaleWorlds.Library.Debug.FailedAssert("Could not find AuxiliaryKeyGroup during SetHotKey", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1270);
+				TaleWorlds.Library.Debug.FailedAssert("Could not find AuxiliaryKeyGroup during SetHotKey", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.GauntletUI\\MultiplayerLobbyGauntletScreen.cs", "SetHotKey", 1278);
 				MBInformationManager.AddQuickInformation(new TextObject("{=oZrVNUOk}Error"));
 				_keybindingPopup.OnToggle(isActive: false);
 				return;

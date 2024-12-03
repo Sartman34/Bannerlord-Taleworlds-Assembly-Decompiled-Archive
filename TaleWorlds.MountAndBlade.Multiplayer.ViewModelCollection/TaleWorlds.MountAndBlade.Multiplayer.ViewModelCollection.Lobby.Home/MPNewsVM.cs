@@ -11,6 +11,8 @@ public class MPNewsVM : ViewModel
 
 	private const int _numOfNewsItemsToShow = 4;
 
+	private MBReadOnlyList<NewsItem> _newsItemsCached;
+
 	private bool _hasValidNews;
 
 	private MPNewsItemVM _mainNews;
@@ -73,22 +75,30 @@ public class MPNewsVM : ViewModel
 		_newsManager = newsManager;
 		ImportantNews = new MBBindingList<MPNewsItemVM>();
 		GetNewsItems();
-		if (MainNews != null)
-		{
-			HasValidNews = true;
-		}
 	}
 
 	private async void GetNewsItems()
 	{
-		await _newsManager.GetNewsItems(forceRefresh: false);
+		if (_newsManager == null)
+		{
+			Debug.FailedAssert("News manager is null!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.ViewModelCollection\\Lobby\\Home\\MPNewsVM.cs", "GetNewsItems", 27);
+			return;
+		}
+		_newsItemsCached = await _newsManager.GetNewsItems(forceRefresh: false);
 		RefreshNews();
 	}
 
 	private void RefreshNews()
 	{
+		MainNews = null;
 		ImportantNews.Clear();
-		List<IGrouping<int, NewsItem>> list = (from i in (from i in _newsManager.NewsItems.Where((NewsItem n) => n.Feeds.Any((NewsType t) => t.Type == NewsItem.NewsTypes.MultiplayerLobby) && !string.IsNullOrEmpty(n.Title) && !string.IsNullOrEmpty(n.NewsLink) && !string.IsNullOrEmpty(n.ImageSourcePath)).ToList()
+		HasValidNews = false;
+		if (_newsItemsCached == null)
+		{
+			Debug.FailedAssert("News items list is null!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade.Multiplayer.ViewModelCollection\\Lobby\\Home\\MPNewsVM.cs", "RefreshNews", 44);
+			return;
+		}
+		List<IGrouping<int, NewsItem>> list = (from i in (from i in _newsItemsCached.Where((NewsItem n) => n.Feeds.Any((NewsType t) => t.Type == NewsItem.NewsTypes.MultiplayerLobby) && !string.IsNullOrEmpty(n.Title) && !string.IsNullOrEmpty(n.NewsLink) && !string.IsNullOrEmpty(n.ImageSourcePath)).ToList()
 				group i by i.Feeds.First((NewsType t) => t.Type == NewsItem.NewsTypes.MultiplayerLobby).Index).ToList()
 			orderby i.Key
 			select i).ToList();

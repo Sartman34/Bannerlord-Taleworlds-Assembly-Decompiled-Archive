@@ -35,7 +35,7 @@ public class BattleServerReadyMessage : LoginMessage
 	}
 
 	public BattleServerReadyMessage(PeerId peerId, ApplicationVersion applicationVersion, string assignedAddress, ushort assignedPort, string region, sbyte priority, string password, string gameType)
-		: base(peerId)
+		: base(peerId, null)
 	{
 		ApplicationVersion = applicationVersion;
 		AssignedAddress = assignedAddress;

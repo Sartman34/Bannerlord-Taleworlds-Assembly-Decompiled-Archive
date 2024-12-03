@@ -32,15 +32,15 @@ public class AnimatedFlag : ScriptComponentBehavior
 	private void SmoothTheta(ref float theta, float dt)
 	{
 		float num = theta - _prevTheta;
-		if (num > (float)Math.PI)
+		if (num > System.MathF.PI)
 		{
-			num -= (float)Math.PI * 2f;
-			_prevTheta += (float)Math.PI * 2f;
+			num -= System.MathF.PI * 2f;
+			_prevTheta += System.MathF.PI * 2f;
 		}
-		else if (num < -(float)Math.PI)
+		else if (num < -System.MathF.PI)
 		{
-			num += (float)Math.PI * 2f;
-			_prevTheta -= (float)Math.PI * 2f;
+			num += System.MathF.PI * 2f;
+			_prevTheta -= System.MathF.PI * 2f;
 		}
 		num = TaleWorlds.Library.MathF.Min(num, 150f * dt);
 		theta = _prevTheta + num * 0.05f;

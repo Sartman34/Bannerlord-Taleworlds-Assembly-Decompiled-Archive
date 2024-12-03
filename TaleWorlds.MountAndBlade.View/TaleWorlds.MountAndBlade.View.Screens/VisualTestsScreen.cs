@@ -277,7 +277,7 @@ public class VisualTestsScreen : ScreenBase
 		MatrixFrame camFrame = cameraPoint.CamFrame;
 		_camera.Frame = camFrame;
 		float aspectRatio = Screen.AspectRatio;
-		_camera.SetFovVertical((float)Math.PI / 3f, aspectRatio, 0.1f, 500f);
+		_camera.SetFovVertical(System.MathF.PI / 3f, aspectRatio, 0.1f, 500f);
 		_sceneLayer.SetCamera(_camera);
 		CameraPointTestType type = cameraPoint.TestTypes[TestSubIndex];
 		Utilities.SetRenderMode(GetRenderMode(type));

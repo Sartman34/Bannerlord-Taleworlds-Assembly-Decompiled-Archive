@@ -108,7 +108,7 @@ public struct FormOrder
 			}
 			else
 			{
-				num = (float)Math.PI * CustomFlankWidth;
+				num = System.MathF.PI * CustomFlankWidth;
 			}
 			circularFormation.FormFromCircumference(num);
 		}

@@ -76,7 +76,7 @@ public class Ballista : RangedSiegeWeapon, ISpawnable
 	private float _verticalOffsetAngle;
 
 	[EditableScriptComponentVariable(false)]
-	public float HorizontalDirectionRestriction = (float)Math.PI / 2f;
+	public float HorizontalDirectionRestriction = System.MathF.PI / 2f;
 
 	public float BallistaShootingSpeed = 120f;
 

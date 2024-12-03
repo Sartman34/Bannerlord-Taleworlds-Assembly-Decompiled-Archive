@@ -1505,7 +1505,7 @@ public sealed class MobileParty : CampaignObjectBase, ILocatable<MobileParty>, I
 	{
 		if (newLeader == null || !MemberRoster.Contains(newLeader.CharacterObject))
 		{
-			Debug.FailedAssert(string.Concat(newLeader?.Name, " is not a member of ", Name, "!\nParty leader did not change."), "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobileParty.cs", "ChangePartyLeader", 849);
+			Debug.FailedAssert(string.Concat(newLeader?.Name, " is not a member of ", Name, "!\nParty leader did not change."), "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobileParty.cs", "ChangePartyLeader", 851);
 		}
 		else
 		{
@@ -1583,16 +1583,9 @@ public sealed class MobileParty : CampaignObjectBase, ILocatable<MobileParty>, I
 		{
 			_isDisorganized = true;
 		}
-		if (MBSaveLoad.IsUpdatingGameVersion && MBSaveLoad.LastLoadedGameVersion < ApplicationVersion.FromString("v1.2.2"))
+		if (MBSaveLoad.IsUpdatingGameVersion && MBSaveLoad.LastLoadedGameVersion.IsOlderThan(ApplicationVersion.FromString("v1.2.11.45697")) && ((LeaderHero != null && this != MainParty && LeaderHero.PartyBelongedTo != this) || (MapEvent == null && base.StringId.Contains("troops_of_"))))
 		{
-			if (LeaderHero != null && this != MainParty && LeaderHero.PartyBelongedTo != this)
-			{
-				DestroyPartyAction.Apply(null, this);
-			}
-			if (MapEvent == null && (base.StringId.Contains("troops_of_CharacterObject") || base.StringId.Contains("troops_of_TaleWorlds.CampaignSystem.CharacterObject")))
-			{
-				DestroyPartyAction.Apply(null, this);
-			}
+			DestroyPartyAction.Apply(null, this);
 		}
 	}
 
@@ -1854,7 +1847,7 @@ public sealed class MobileParty : CampaignObjectBase, ILocatable<MobileParty>, I
 					vec2 = Vec2.Zero;
 				}
 				float num = vec2.LeftVec().Normalized().DotProduct(Army.LeaderParty.Position2D + vec4 - vec);
-				vec2.RotateCCW((num < 0f) ? TaleWorlds.Library.MathF.Max(num * 2f, -(float)Math.PI / 4f) : TaleWorlds.Library.MathF.Min(num * 2f, (float)Math.PI / 4f));
+				vec2.RotateCCW((num < 0f) ? TaleWorlds.Library.MathF.Max(num * 2f, -System.MathF.PI / 4f) : TaleWorlds.Library.MathF.Min(num * 2f, System.MathF.PI / 4f));
 			}
 		}
 		else
@@ -2268,7 +2261,7 @@ public sealed class MobileParty : CampaignObjectBase, ILocatable<MobileParty>, I
 			}
 			return false;
 		case SkillEffect.PerkRole.Personal:
-			Debug.FailedAssert("personal perk is called in party", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobileParty.cs", "HasPerk", 1987);
+			Debug.FailedAssert("personal perk is called in party", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.CampaignSystem\\Party\\MobileParty.cs", "HasPerk", 1986);
 			return LeaderHero?.GetPerkValue(perk) ?? false;
 		case SkillEffect.PerkRole.ClanLeader:
 			if (LeaderHero != null)
@@ -2490,7 +2483,7 @@ public sealed class MobileParty : CampaignObjectBase, ILocatable<MobileParty>, I
 		Vec2 accessiblePointNearPosition = Campaign.Current.MapSceneWrapper.GetAccessiblePointNearPosition(position, spawnRadius);
 		Position2D = new Vec2(accessiblePointNearPosition.x, accessiblePointNearPosition.y);
 		Vec2 bearing = new Vec2(1f, 0f);
-		float angleInRadians = MBRandom.RandomFloat * 2f * (float)Math.PI;
+		float angleInRadians = MBRandom.RandomFloat * 2f * System.MathF.PI;
 		bearing.RotateCCW(angleInRadians);
 		Bearing = bearing;
 		Party.UpdateVisibilityAndInspected();

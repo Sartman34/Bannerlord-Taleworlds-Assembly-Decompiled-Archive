@@ -7,5 +7,6 @@ public enum MessageType
 {
 	Login,
 	Message,
-	Function
+	Function,
+	SessionlessMessage
 }

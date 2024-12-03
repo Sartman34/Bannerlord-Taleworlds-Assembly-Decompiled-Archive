@@ -18,6 +18,6 @@ public abstract class RestData
 
 	public string SerializeAsJson()
 	{
-		return JsonConvert.SerializeObject(this);
+		return JsonConvert.SerializeObject((object)this);
 	}
 }

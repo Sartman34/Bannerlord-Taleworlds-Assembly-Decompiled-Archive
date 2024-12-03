@@ -374,7 +374,7 @@ public class GOGPlatformServices : IPlatformServices
 			}
 			for (int k = 0; k < xmlNodeList.Count; k++)
 			{
-				XmlNode xmlNode2 = xmlNodeList[k];
+				XmlNode? xmlNode2 = xmlNodeList[k];
 				string value = xmlNode2.Attributes["statName"].Value;
 				int item = int.Parse(xmlNode2.Attributes["threshold"].Value);
 				list.Add((value, item));

@@ -357,7 +357,7 @@ public class DefaultMapWeatherModel : MapWeatherModel
 	{
 		if (!_sunIsMoon || forceDay)
 		{
-			float a = TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow((environmentMultiplier - 0.001f) / 0.999f, 1.2f) * ((float)Math.PI / 2f)) * 85f;
+			float a = TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow((environmentMultiplier - 0.001f) / 0.999f, 1.2f) * (System.MathF.PI / 2f)) * 85f;
 			return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(a, 0.2f), 35f);
 		}
 		return 0.2f;
@@ -370,7 +370,7 @@ public class DefaultMapWeatherModel : MapWeatherModel
 
 	private float GetSunRayStrength(float envMultiplier)
 	{
-		return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow((envMultiplier - 0.001f) / 0.999f, 0.4f) * (float)Math.PI / 2f) - 0.15f, 0.01f), 0.5f);
+		return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow((envMultiplier - 0.001f) / 0.999f, 0.4f) * System.MathF.PI / 2f) - 0.15f, 0.01f), 0.5f);
 	}
 
 	private float GetEnvironmentMultiplier(SunPosition sunPos)
@@ -401,7 +401,7 @@ public class DefaultMapWeatherModel : MapWeatherModel
 		float x = (envMultiplier - 0.001f) / 0.999f;
 		if (!_sunIsMoon)
 		{
-			num = TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow(x, 1.3f) * ((float)Math.PI / 2f)) * 80f;
+			num = TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow(x, 1.3f) * (System.MathF.PI / 2f)) * 80f;
 			num -= 1f;
 			return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(num, 0.055f), 25f);
 		}
@@ -439,7 +439,7 @@ public class DefaultMapWeatherModel : MapWeatherModel
 	private float GetRayleighConstant(float envMultiplier)
 	{
 		float num = (envMultiplier - 0.001f) / 0.999f;
-		return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(1f - TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow(num, 0.45f) * (float)Math.PI / 2f) + (0.14f + num * 2f), 0.65f), 0.99f);
+		return TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(1f - TaleWorlds.Library.MathF.Sin(TaleWorlds.Library.MathF.Pow(num, 0.45f) * System.MathF.PI / 2f) + (0.14f + num * 2f), 0.65f), 0.99f);
 	}
 
 	private float GetHourOfDay()

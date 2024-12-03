@@ -24,8 +24,6 @@ public class ClientRestSession : IClientSession
 
 	private readonly string _address;
 
-	private readonly ushort _port;
-
 	private byte[] _userCertificate;
 
 	private ClientRestSessionTask _currentMessageTask;
@@ -42,23 +40,19 @@ public class ClientRestSession : IClientSession
 
 	private RestDataJsonConverter _restDataJsonConverter;
 
-	private bool _isSecure;
-
 	private IHttpDriver _platformNetworkClient;
 
 	public bool IsConnected { get; private set; }
 
 	public IClient Client { get; private set; }
 
-	public ClientRestSession(IClient client, string address, ushort port, bool isSecure, IHttpDriver platformNetworkClient)
+	public ClientRestSession(IClient client, string address, IHttpDriver platformNetworkClient)
 	{
 		Client = client;
 		_sessionInitialized = false;
-		_isSecure = isSecure;
 		_platformNetworkClient = platformNetworkClient;
 		ResetTimer();
 		_address = address;
-		_port = port;
 		_messageTaskQueue = new Queue<ClientRestSessionTask>();
 		_currentConnectionResultType = ConnectionResultType.None;
 		_restDataJsonConverter = new RestDataJsonConverter();
@@ -95,7 +89,7 @@ public class ClientRestSession : IClientSession
 		if (flag)
 		{
 			_currentMessageTask = requestMessageTask;
-			_currentMessageTask.SetRequestData(_userCertificate, _address, _port, _isSecure, _platformNetworkClient);
+			_currentMessageTask.SetRequestData(_userCertificate, _address, _platformNetworkClient);
 			restRequestMessage.SerializeAsJson();
 			_lastRequestOperationTime = _timer.ElapsedMilliseconds;
 		}
@@ -138,7 +132,7 @@ public class ClientRestSession : IClientSession
 					string responseData = _currentMessageTask.Request.ResponseData;
 					if (!string.IsNullOrEmpty(responseData))
 					{
-						RestResponse restResponse = JsonConvert.DeserializeObject<RestResponse>(responseData, new JsonConverter[1] { _restDataJsonConverter });
+						RestResponse restResponse = JsonConvert.DeserializeObject<RestResponse>(responseData, (JsonConverter[])(object)new JsonConverter[1] { (JsonConverter)_restDataJsonConverter });
 						if (restResponse.Successful)
 						{
 							_userCertificate = restResponse.UserCertificate;
@@ -312,12 +306,7 @@ public class ClientRestSession : IClientSession
 	{
 		try
 		{
-			string text = "http://";
-			if (_isSecure)
-			{
-				text = "https://";
-			}
-			string url = text + _address + ":" + _port + "/Data/Ping";
+			string url = _address + "/Data/Ping";
 			await _platformNetworkClient.HttpGetString(url, withUserToken: false);
 			return true;
 		}

@@ -72,7 +72,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 		ApproachToCamera
 	}
 
-	public const float DefaultDirectionRestriction = (float)Math.PI * 2f / 3f;
+	public const float DefaultDirectionRestriction = System.MathF.PI * 2f / 3f;
 
 	public const string MultipleProjectileId = "grapeshot_fire_stack";
 
@@ -206,9 +206,9 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 
 	private float _syncTimer;
 
-	public float TopReleaseAngleRestriction = (float)Math.PI / 2f;
+	public float TopReleaseAngleRestriction = System.MathF.PI / 2f;
 
-	public float BottomReleaseAngleRestriction = -(float)Math.PI / 2f;
+	public float BottomReleaseAngleRestriction = -System.MathF.PI / 2f;
 
 	protected float ReleaseAngleRestrictionCenter;
 
@@ -224,7 +224,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 
 	private Agent _lastShooterAgent;
 
-	private float _lastCanPickUpAmmoStandingPointsSortedAngle = -(float)Math.PI;
+	private float _lastCanPickUpAmmoStandingPointsSortedAngle = -System.MathF.PI;
 
 	protected BattleSideEnum _defaultSide;
 
@@ -344,7 +344,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 		}
 	}
 
-	public virtual float DirectionRestriction => (float)Math.PI * 2f / 3f;
+	public virtual float DirectionRestriction => System.MathF.PI * 2f / 3f;
 
 	public Vec3 OriginalDirection => _originalDirection;
 
@@ -466,7 +466,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 		}
 		_rotationObjectInitialFrame = RotationObject.GameEntity.GetFrame();
 		_originalDirection = RotationObject.GameEntity.GetGlobalFrame().rotation.f;
-		_originalDirection.RotateAboutZ((float)Math.PI);
+		_originalDirection.RotateAboutZ(System.MathF.PI);
 		currentDirection = (_lastSyncedDirection = 0f);
 		_syncTimer = 0f;
 		List<GameEntity> list = base.GameEntity.CollectChildrenEntitiesWithTag("cameraHolder");
@@ -568,7 +568,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 
 	private void SortCanPickUpAmmoStandingPoints()
 	{
-		if (!(MBMath.GetSmallestDifferenceBetweenTwoAngles(_lastCanPickUpAmmoStandingPointsSortedAngle, currentDirection) > (float)Math.PI * 3f / 50f))
+		if (!(MBMath.GetSmallestDifferenceBetweenTwoAngles(_lastCanPickUpAmmoStandingPointsSortedAngle, currentDirection) > System.MathF.PI * 3f / 50f))
 		{
 			return;
 		}
@@ -1271,7 +1271,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 	public virtual float GetTargetDirection(Vec3 target)
 	{
 		MatrixFrame globalFrame = base.GameEntity.GetGlobalFrame();
-		globalFrame.rotation.RotateAboutUp((float)Math.PI);
+		globalFrame.rotation.RotateAboutUp(System.MathF.PI);
 		return globalFrame.TransformToLocal(target).AsVec2.RotationInRadians;
 	}
 
@@ -1300,8 +1300,8 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 
 	public virtual void AimAtRotation(float horizontalRotation, float verticalRotation)
 	{
-		horizontalRotation = MBMath.ClampFloat(horizontalRotation, -(float)Math.PI, (float)Math.PI);
-		verticalRotation = MBMath.ClampFloat(verticalRotation, -(float)Math.PI, (float)Math.PI);
+		horizontalRotation = MBMath.ClampFloat(horizontalRotation, -System.MathF.PI, System.MathF.PI);
+		verticalRotation = MBMath.ClampFloat(verticalRotation, -System.MathF.PI, System.MathF.PI);
 		horizontalRotation = MBMath.ClampAngle(horizontalRotation, 0f, DirectionRestriction);
 		verticalRotation = MBMath.ClampAngle(verticalRotation, ReleaseAngleRestrictionCenter, ReleaseAngleRestrictionAngle);
 		if (!_exactInputGiven || horizontalRotation != _inputTargetX || verticalRotation != _inputTargetY)
@@ -1599,7 +1599,7 @@ public abstract class RangedSiegeWeapon : SiegeWeapon
 		mat.u = Vec3.Up;
 		Mat3 mat2 = mat;
 		mat2.Orthonormalize();
-		float a = MBRandom.RandomFloat * ((float)Math.PI * 2f);
+		float a = MBRandom.RandomFloat * (System.MathF.PI * 2f);
 		mat2.RotateAboutForward(a);
 		float f = BallisticErrorAmount * MBRandom.RandomFloat;
 		mat2.RotateAboutSide(f.ToRadians());

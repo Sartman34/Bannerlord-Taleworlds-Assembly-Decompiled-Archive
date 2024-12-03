@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TaleWorlds.Diamond.ChatSystem.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade.Diamond.Ranked;
 using TaleWorlds.PlayerServices;
@@ -75,8 +74,6 @@ public interface ILobbyClientSessionHandler
 	void OnRecentPlayerStatusesReceived(FriendInfo[] friends);
 
 	void OnNotificationsReceived(LobbyNotification[] notifications);
-
-	void OnChatMessageReceived(Guid roomId, string roomName, string playerName, string messageText, string textColor, MessageType type);
 
 	void OnClanInvitationReceived(string clanName, string clanTag, bool isCreation);
 

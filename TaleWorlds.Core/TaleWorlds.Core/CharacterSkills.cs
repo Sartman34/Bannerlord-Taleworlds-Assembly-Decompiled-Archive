@@ -23,7 +23,7 @@ public class CharacterSkills : PropertyOwner<SkillObject>
 		{
 			if (childNode.NodeType != XmlNodeType.Comment)
 			{
-				XmlAttributeCollection attributes = childNode.Attributes;
+				XmlAttributeCollection? attributes = childNode.Attributes;
 				string value = attributes["id"].Value;
 				string value2 = attributes["value"].Value;
 				SkillObject @object = Game.Current.ObjectManager.GetObject<SkillObject>(value);

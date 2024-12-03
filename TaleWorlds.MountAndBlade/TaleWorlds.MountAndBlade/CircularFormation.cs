@@ -13,7 +13,7 @@ public class CircularFormation : LineFormation
 		}
 		set
 		{
-			float circumference = (float)Math.PI * value;
+			float circumference = System.MathF.PI * value;
 			FormFromCircumference(circumference);
 		}
 	}
@@ -22,7 +22,7 @@ public class CircularFormation : LineFormation
 
 	private float Diameter => 2f * Radius;
 
-	private float Radius => (base.FlankWidth + base.Interval) / ((float)Math.PI * 2f);
+	private float Radius => (base.FlankWidth + base.Interval) / (System.MathF.PI * 2f);
 
 	public override float MinimumWidth
 	{
@@ -32,7 +32,7 @@ public class CircularFormation : LineFormation
 			int currentMaximumRankCount = GetCurrentMaximumRankCount(unitCountWithOverride);
 			float radialInterval = owner.MinimumInterval + base.UnitDiameter;
 			float distanceInterval = owner.MinimumDistance + base.UnitDiameter;
-			return GetCircumferenceAux(unitCountWithOverride, currentMaximumRankCount, radialInterval, distanceInterval) / (float)Math.PI;
+			return GetCircumferenceAux(unitCountWithOverride, currentMaximumRankCount, radialInterval, distanceInterval) / System.MathF.PI;
 		}
 	}
 
@@ -42,7 +42,7 @@ public class CircularFormation : LineFormation
 		{
 			int unitCountWithOverride = GetUnitCountWithOverride();
 			float num = owner.MaximumInterval + base.UnitDiameter;
-			return TaleWorlds.Library.MathF.Max(0f, (float)unitCountWithOverride * num) / (float)Math.PI;
+			return TaleWorlds.Library.MathF.Max(0f, (float)unitCountWithOverride * num) / System.MathF.PI;
 		}
 	}
 
@@ -75,7 +75,7 @@ public class CircularFormation : LineFormation
 
 	protected override bool IsNarrowApplicable(int amount)
 	{
-		return ((float)(base.FileCount - 1 - amount) * (base.Interval + base.UnitDiameter) + base.UnitDiameter) / ((float)Math.PI * 2f) - (float)base.RankCount * (base.Distance + base.UnitDiameter) >= 0f;
+		return ((float)(base.FileCount - 1 - amount) * (base.Interval + base.UnitDiameter) + base.UnitDiameter) / (System.MathF.PI * 2f) - (float)base.RankCount * (base.Distance + base.UnitDiameter) >= 0f;
 	}
 
 	private int GetUnitCountOfRank(int rankIndex)
@@ -85,7 +85,7 @@ public class CircularFormation : LineFormation
 			return base.FileCount;
 		}
 		float distanceFromCenterOfRank = GetDistanceFromCenterOfRank(rankIndex);
-		int b = TaleWorlds.Library.MathF.Floor((float)Math.PI * 2f * distanceFromCenterOfRank / (base.Interval + base.UnitDiameter));
+		int b = TaleWorlds.Library.MathF.Floor(System.MathF.PI * 2f * distanceFromCenterOfRank / (base.Interval + base.UnitDiameter));
 		return TaleWorlds.Library.MathF.Max(1, b);
 	}
 
@@ -126,7 +126,7 @@ public class CircularFormation : LineFormation
 	{
 		int unitCountOfRank = GetUnitCountOfRank(rankIndex);
 		int num = (base.FileCount - unitCountOfRank) / 2;
-		Vec2 result = Vec2.FromRotation((float)((fileIndex - num) * 2) * (float)Math.PI / (float)unitCountOfRank + (float)Math.PI);
+		Vec2 result = Vec2.FromRotation((float)((fileIndex - num) * 2) * System.MathF.PI / (float)unitCountOfRank + System.MathF.PI);
 		result.x *= -1f;
 		return result;
 	}
@@ -173,12 +173,12 @@ public class CircularFormation : LineFormation
 		int num = (base.FileCount - unitCountOfRank) / 2;
 		vec2.x *= -1f;
 		float rotationInRadians = vec2.RotationInRadians;
-		rotationInRadians -= (float)Math.PI;
+		rotationInRadians -= System.MathF.PI;
 		if (rotationInRadians < 0f)
 		{
-			rotationInRadians += (float)Math.PI * 2f;
+			rotationInRadians += System.MathF.PI * 2f;
 		}
-		int num2 = TaleWorlds.Library.MathF.Round(rotationInRadians / 2f / (float)Math.PI * (float)unitCountOfRank);
+		int num2 = TaleWorlds.Library.MathF.Round(rotationInRadians / 2f / System.MathF.PI * (float)unitCountOfRank);
 		fileIndex = num2 + num;
 		if (fileIndex < 0 || fileIndex >= base.FileCount)
 		{
@@ -196,7 +196,7 @@ public class CircularFormation : LineFormation
 		while (num2 < unitCount)
 		{
 			float num5 = (float)num * num4;
-			int b = (int)((float)Math.PI * 2f * num5 / num3);
+			int b = (int)(System.MathF.PI * 2f * num5 / num3);
 			num2 += TaleWorlds.Library.MathF.Max(1, b);
 			num++;
 		}

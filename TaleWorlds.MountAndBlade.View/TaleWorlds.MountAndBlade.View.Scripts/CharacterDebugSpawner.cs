@@ -177,7 +177,7 @@ public class CharacterDebugSpawner : ScriptComponentBehavior
 			MovementDirection.Normalize();
 			MovementSpeed = MBRandom.RandomFloat * 9f + 1f;
 			PhaseDiff = MBRandom.RandomFloat;
-			MovementDirectionChange = MBRandom.RandomFloatNormal * (float)Math.PI;
+			MovementDirectionChange = MBRandom.RandomFloatNormal * System.MathF.PI;
 			Time = 0f;
 			ActionSetTimer = 0f;
 			ActionChangeInterval = MBRandom.RandomFloat * 0.5f + 0.5f;

@@ -416,7 +416,11 @@ public sealed class Mission : DotNetObject, IMission
 			MissionObject missionObject = Current.MissionObjects.FirstOrDefault((MissionObject mo) => mo.Id == missionObjectId);
 			if (missionObject == null)
 			{
-				MBDebug.Print("MissionObject with ID: " + missionObjectId.Id + " runtime: " + missionObjectId.CreatedAtRuntime.ToString() + " could not be found.");
+				object[] obj = new object[5] { "MissionObject with ID: ", missionObjectId.Id, " runtime: ", null, null };
+				bool createdAtRuntime = missionObjectId.CreatedAtRuntime;
+				obj[3] = createdAtRuntime.ToString();
+				obj[4] = " could not be found.";
+				MBDebug.Print(string.Concat(obj));
 			}
 			return missionObject;
 		}
@@ -510,7 +514,7 @@ public sealed class Mission : DotNetObject, IMission
 			float num7 = (num3 + num5) * 0.5f;
 			Vec3 vec = missileVelocity.Reflect(collisionData.CollisionGlobalNormal);
 			float num8 = Vec3.DotProduct(vec, collisionData.CollisionGlobalNormal);
-			Vec3 vec2 = collisionData.CollisionGlobalNormal.RotateAboutAnArbitraryVector(Vec3.CrossProduct(vec, collisionData.CollisionGlobalNormal).NormalizedCopy(), (float)Math.PI / 2f);
+			Vec3 vec2 = collisionData.CollisionGlobalNormal.RotateAboutAnArbitraryVector(Vec3.CrossProduct(vec, collisionData.CollisionGlobalNormal).NormalizedCopy(), System.MathF.PI / 2f);
 			float num9 = Vec3.DotProduct(vec, vec2);
 			velocity = collisionData.CollisionGlobalNormal * (num7 * num8) + vec2 * (num9 * num6);
 			velocity += collisionData.CollisionGlobalNormal;
@@ -4593,7 +4597,7 @@ public sealed class Mission : DotNetObject, IMission
 	public Vec3 GetRandomPositionAroundPoint(Vec3 center, float minDistance, float maxDistance, bool nearFirst = false)
 	{
 		Vec3 vec = new Vec3(-1f);
-		vec.RotateAboutZ((float)Math.PI * 2f * MBRandom.RandomFloat);
+		vec.RotateAboutZ(System.MathF.PI * 2f * MBRandom.RandomFloat);
 		float num = maxDistance - minDistance;
 		if (nearFirst)
 		{
@@ -4601,7 +4605,7 @@ public sealed class Mission : DotNetObject, IMission
 			{
 				for (int i = 0; (float)i <= 10f; i++)
 				{
-					vec.RotateAboutZ((float)Math.PI * 2f / 5f);
+					vec.RotateAboutZ(System.MathF.PI * 2f / 5f);
 					Vec3 position = center + vec * (minDistance + num / (float)num2);
 					if (Scene.GetNavigationMeshForPosition(ref position))
 					{
@@ -4616,7 +4620,7 @@ public sealed class Mission : DotNetObject, IMission
 			{
 				for (int k = 0; (float)k <= 10f; k++)
 				{
-					vec.RotateAboutZ((float)Math.PI * 2f / 5f);
+					vec.RotateAboutZ(System.MathF.PI * 2f / 5f);
 					Vec3 position2 = center + vec * (minDistance + num / (float)j);
 					if (Scene.GetNavigationMeshForPosition(ref position2))
 					{

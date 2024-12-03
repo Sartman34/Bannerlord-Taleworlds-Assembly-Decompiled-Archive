@@ -338,9 +338,9 @@ public struct Quaternion
 
 	public static Quaternion QuaternionFromEulerAngles(float yaw, float pitch, float roll)
 	{
-		float num = yaw * ((float)Math.PI / 180f);
-		float num2 = pitch * ((float)Math.PI / 180f);
-		float num3 = roll * ((float)Math.PI / 180f);
+		float num = yaw * (System.MathF.PI / 180f);
+		float num2 = pitch * (System.MathF.PI / 180f);
+		float num3 = roll * (System.MathF.PI / 180f);
 		float num4 = MathF.Cos(num * 0.5f);
 		float num5 = MathF.Sin(num * 0.5f);
 		float num6 = MathF.Cos(num2 * 0.5f);

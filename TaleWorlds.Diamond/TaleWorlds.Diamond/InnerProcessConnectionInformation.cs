@@ -6,4 +6,9 @@ public sealed class InnerProcessConnectionInformation : IConnectionInformation
 	{
 		return "InnerProcess";
 	}
+
+	string IConnectionInformation.GetCountry()
+	{
+		return "TR";
+	}
 }

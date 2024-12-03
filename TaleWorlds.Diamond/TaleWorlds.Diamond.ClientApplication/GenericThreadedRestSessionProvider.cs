@@ -9,17 +9,11 @@ public class GenericThreadedRestSessionProvider<T> : IClientSessionProvider<T> w
 
 	private string _address;
 
-	private ushort _port;
-
-	private bool _isSecure;
-
 	private IHttpDriver _httpDriver;
 
-	public GenericThreadedRestSessionProvider(string address, ushort port, bool isSecure, IHttpDriver httpDriver)
+	public GenericThreadedRestSessionProvider(string address, IHttpDriver httpDriver)
 	{
 		_address = address;
-		_port = port;
-		_isSecure = isSecure;
 		_httpDriver = httpDriver;
 	}
 
@@ -30,7 +24,7 @@ public class GenericThreadedRestSessionProvider<T> : IClientSessionProvider<T> w
 			outValue = 100;
 		}
 		ThreadedClient threadedClient = new ThreadedClient(client);
-		ClientRestSession session = new ClientRestSession(threadedClient, _address, _port, _isSecure, _httpDriver);
+		ClientRestSession session = new ClientRestSession(threadedClient, _address, _httpDriver);
 		return new ThreadedClientSession(threadedClient, session, outValue);
 	}
 }

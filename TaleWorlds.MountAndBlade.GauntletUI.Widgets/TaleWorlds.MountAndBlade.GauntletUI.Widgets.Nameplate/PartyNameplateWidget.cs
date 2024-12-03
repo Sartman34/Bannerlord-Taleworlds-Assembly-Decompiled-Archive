@@ -546,7 +546,7 @@ public class PartyNameplateWidget : Widget
 				{
 					headPosition *= -1f;
 				}
-				float radian = Mathf.Atan2(headPosition.y, headPosition.x) - (float)Math.PI / 2f;
+				float radian = Mathf.Atan2(headPosition.y, headPosition.x) - System.MathF.PI / 2f;
 				float num2 = Mathf.Cos(radian);
 				float num3 = Mathf.Sin(radian);
 				headPosition = vec + new Vec2(num3 * 150f, num2 * 150f);

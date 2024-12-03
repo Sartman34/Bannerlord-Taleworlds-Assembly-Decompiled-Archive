@@ -60,7 +60,7 @@ public static class XmlResource
 			}
 			foreach (XmlNode item2 in xmlNodeList)
 			{
-				XmlNode xmlNode = item2.SelectSingleNode("XmlName");
+				XmlNode? xmlNode = item2.SelectSingleNode("XmlName");
 				string innerText = xmlNode.Attributes["id"].InnerText;
 				string innerText2 = xmlNode.Attributes["path"].InnerText;
 				List<string> list = new List<string>();

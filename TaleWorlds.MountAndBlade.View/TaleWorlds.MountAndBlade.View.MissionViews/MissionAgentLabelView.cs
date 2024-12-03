@@ -292,13 +292,13 @@ public class MissionAgentLabelView : MissionView
 
 	private bool IsAllyInAllyTeam(Agent agent)
 	{
-		if (agent?.Team != null && agent != base.Mission.MainAgent)
+		if (agent?.Team != null && base.Mission != null && agent != base.Mission.MainAgent)
 		{
 			Team team = null;
 			Team team2;
 			if (GameNetwork.IsSessionActive)
 			{
-				team2 = (GameNetwork.IsMyPeerReady ? GameNetwork.MyPeer.GetComponent<MissionPeer>().Team : null);
+				team2 = ((!GameNetwork.IsMyPeerReady) ? null : GameNetwork.MyPeer?.GetComponent<MissionPeer>()?.Team);
 			}
 			else
 			{

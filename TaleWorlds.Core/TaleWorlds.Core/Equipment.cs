@@ -200,7 +200,7 @@ public class Equipment
 	{
 		if (node.NodeType != XmlNodeType.Comment)
 		{
-			XmlAttributeCollection attributes = node.Attributes;
+			XmlAttributeCollection? attributes = node.Attributes;
 			XmlAttribute xmlAttribute = attributes["id"];
 			XmlAttribute xmlAttribute2 = attributes["slot"];
 			string objectName = (xmlAttribute.Value.Contains(".") ? xmlAttribute.Value.Split(new char[1] { '.' })[1] : xmlAttribute.Value);

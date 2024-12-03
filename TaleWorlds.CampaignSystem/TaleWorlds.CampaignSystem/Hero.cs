@@ -1539,9 +1539,9 @@ public sealed class Hero : MBObjectBase, ITrackableCampaignObject, ITrackableBas
 			{
 				_companionOf.OnCompanionAdded(this);
 			}
-			else if (_clan?.StringId != "neutral")
+			else if (_clan != null && _clan.StringId != "neutral" && Occupation == Occupation.Lord)
 			{
-				_clan?.OnLordAdded(this);
+				_clan.OnLordAdded(this);
 			}
 			if (CurrentSettlement != null && PartyBelongedTo == null && PartyBelongedToAsPrisoner == null)
 			{

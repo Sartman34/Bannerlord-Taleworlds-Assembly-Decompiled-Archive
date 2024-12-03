@@ -1,10 +1,15 @@
 using System;
+using Newtonsoft.Json;
 
 namespace TaleWorlds.MountAndBlade.Diamond;
 
 [Serializable]
 public struct CustomBattleId
 {
+	[JsonIgnore]
+	public static CustomBattleId Empty = new CustomBattleId(Guid.Empty);
+
+	[JsonProperty]
 	public Guid Guid { get; private set; }
 
 	public CustomBattleId(Guid guid)

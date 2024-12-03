@@ -163,6 +163,38 @@ public sealed class HandleMissileCollisionReaction : GameNetworkMessage
 
 	protected override string OnGetLogFormat()
 	{
-		return string.Concat("Handle Missile Collision with index: ", MissileIndex, " collision reaction: ", CollisionReaction, " AttackerAgent index: ", AttackerAgentIndex, " AttachedAgent index: ", AttachedAgentIndex, " AttachedToShield: ", AttachedToShield.ToString(), " AttachedBoneIndex: ", AttachedBoneIndex, " AttachedMissionObject id: ", (AttachedMissionObjectId != MissionObjectId.Invalid) ? AttachedMissionObjectId.Id.ToString() : "-1", " ForcedSpawnIndex: ", ForcedSpawnIndex);
+		object[] obj = new object[16]
+		{
+			"Handle Missile Collision with index: ",
+			MissileIndex,
+			" collision reaction: ",
+			CollisionReaction,
+			" AttackerAgent index: ",
+			AttackerAgentIndex,
+			" AttachedAgent index: ",
+			AttachedAgentIndex,
+			" AttachedToShield: ",
+			AttachedToShield.ToString(),
+			" AttachedBoneIndex: ",
+			AttachedBoneIndex,
+			" AttachedMissionObject id: ",
+			null,
+			null,
+			null
+		};
+		object obj2;
+		if (!(AttachedMissionObjectId != MissionObjectId.Invalid))
+		{
+			obj2 = "-1";
+		}
+		else
+		{
+			int id = AttachedMissionObjectId.Id;
+			obj2 = id.ToString();
+		}
+		obj[13] = obj2;
+		obj[14] = " ForcedSpawnIndex: ";
+		obj[15] = ForcedSpawnIndex;
+		return string.Concat(obj);
 	}
 }

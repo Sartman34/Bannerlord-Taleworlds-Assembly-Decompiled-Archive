@@ -21,18 +21,18 @@ public class RESTClient
 	private ServiceException GetServiceErrorCode(Stream stream)
 	{
 		string text = new StreamReader(stream).ReadToEnd();
-		JObject jObject = JObject.Parse(text);
-		if (jObject["ExceptionMessage"] != null)
+		JObject val = JObject.Parse(text);
+		if (val["ExceptionMessage"] != null)
 		{
 			return JsonConvert.DeserializeObject<ServiceExceptionModel>(text).ToServiceException();
 		}
-		if (jObject["error_description"] != null)
+		if (val["error_description"] != null)
 		{
-			if ((string)jObject["error"] == "invalid_grant")
+			if ((string)val["error"] == "invalid_grant")
 			{
 				return new ServiceException(string.Empty, "InvalidUsernameOrPassword");
 			}
-			return new ServiceException((string)jObject["error"], (string)jObject["error_description"]);
+			return new ServiceException((string)val["error"], (string)val["error_description"]);
 		}
 		return new ServiceException("unknown", string.Empty);
 	}

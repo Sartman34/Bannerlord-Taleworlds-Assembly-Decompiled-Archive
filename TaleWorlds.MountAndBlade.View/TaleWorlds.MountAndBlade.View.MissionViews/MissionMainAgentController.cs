@@ -436,11 +436,11 @@ public class MissionMainAgentController : MissionView
 		if (movementInputVector.IsNonZero())
 		{
 			float rotationInRadians = movementInputVector.RotationInRadians;
-			if (rotationInRadians > -(float)Math.PI / 4f && rotationInRadians < (float)Math.PI / 4f)
+			if (rotationInRadians > -System.MathF.PI / 4f && rotationInRadians < System.MathF.PI / 4f)
 			{
 				flag3 = true;
 			}
-			else if (rotationInRadians < (float)Math.PI * -3f / 4f || rotationInRadians > (float)Math.PI * 3f / 4f)
+			else if (rotationInRadians < System.MathF.PI * -3f / 4f || rotationInRadians > System.MathF.PI * 3f / 4f)
 			{
 				flag5 = true;
 			}

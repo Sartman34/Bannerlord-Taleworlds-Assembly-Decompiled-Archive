@@ -52,7 +52,7 @@ public class GameApplicationDomainController : MarshalByRefObject
 			{
 				Console.WriteLine("gameApi is null");
 			}
-			Type type = assembly.GetType("TaleWorlds.DotNet.Managed");
+			Type? type = assembly.GetType("TaleWorlds.DotNet.Managed");
 			if (type == null)
 			{
 				Console.WriteLine("engineManagedType is null");

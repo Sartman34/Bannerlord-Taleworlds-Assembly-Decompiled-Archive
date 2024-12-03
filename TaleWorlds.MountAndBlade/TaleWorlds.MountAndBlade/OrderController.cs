@@ -1230,7 +1230,7 @@ public class OrderController
 				num2 = formations.Max((Formation f) => f.Width);
 			}
 			Vec2 direction = formations.MaxBy((Formation f) => f.CountOfUnitsWithoutDetachedOnes).Direction;
-			direction.RotateCCW(-(float)Math.PI / 2f);
+			direction.RotateCCW(-System.MathF.PI / 2f);
 			direction.Normalize();
 			formationLineEnd = Mission.Current.GetStraightPathToTarget(formationLineBegin.AsVec2 + num2 / 2f * direction, formationLineBegin);
 			formationLineBegin = Mission.Current.GetStraightPathToTarget(formationLineBegin.AsVec2 - num2 / 2f * direction, formationLineBegin);

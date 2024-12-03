@@ -234,7 +234,7 @@ public class LauncherModsVM : ViewModel
 		for (int i = 0; i < info.IncompatibleModules.Count; i++)
 		{
 			DependedModule module = info.IncompatibleModules[i];
-			LauncherModuleVM launcherModuleVM = _modules.FirstOrDefault((LauncherModuleVM m) => m.Info.Id == module.ModuleId);
+			LauncherModuleVM? launcherModuleVM = _modules.FirstOrDefault((LauncherModuleVM m) => m.Info.Id == module.ModuleId);
 			if (launcherModuleVM != null && launcherModuleVM.IsSelected)
 			{
 				return false;

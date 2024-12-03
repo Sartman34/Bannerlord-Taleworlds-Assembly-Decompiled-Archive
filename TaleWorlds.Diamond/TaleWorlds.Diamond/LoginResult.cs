@@ -1,32 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace TaleWorlds.Diamond;
 
 [Serializable]
-[DataContract]
 public sealed class LoginResult : FunctionResult
 {
-	[DataMember]
+	[JsonProperty]
 	public PeerId PeerId { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public SessionKey SessionKey { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public bool Successful { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public string ErrorCode { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public Dictionary<string, string> ErrorParameters { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public string ProviderResponse { get; private set; }
 
-	[DataMember]
+	[JsonProperty]
 	public LoginResultObject LoginResultObject { get; private set; }
 
 	public LoginResult()

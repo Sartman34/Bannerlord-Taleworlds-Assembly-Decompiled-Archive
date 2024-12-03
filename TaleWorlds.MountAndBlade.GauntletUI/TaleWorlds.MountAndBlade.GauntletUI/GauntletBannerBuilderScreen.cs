@@ -430,9 +430,9 @@ public class GauntletBannerBuilderScreen : ScreenBase, IGameStateListener
 		MatrixFrame characterFrame = _characterFrame;
 		characterFrame.rotation.RotateAboutUp(_cameraCurrentRotation);
 		characterFrame.origin += _cameraCurrentElevationAdder * characterFrame.rotation.u + _cameraCurrentDistanceAdder * characterFrame.rotation.f;
-		characterFrame.rotation.RotateAboutSide(-(float)Math.PI / 2f);
-		characterFrame.rotation.RotateAboutUp((float)Math.PI);
-		characterFrame.rotation.RotateAboutForward((float)Math.PI * 3f / 50f);
+		characterFrame.rotation.RotateAboutSide(-System.MathF.PI / 2f);
+		characterFrame.rotation.RotateAboutUp(System.MathF.PI);
+		characterFrame.rotation.RotateAboutForward(System.MathF.PI * 3f / 50f);
 		_camera.Frame = characterFrame;
 		SceneLayer.SetCamera(_camera);
 		SoundManager.SetListenerFrame(characterFrame);

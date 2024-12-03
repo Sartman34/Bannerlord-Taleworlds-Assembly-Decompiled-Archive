@@ -146,10 +146,10 @@ public class OrderFlag
 		_widthLeft.AddComponent(MetaMesh.GetCopy("order_arrow_a"));
 		_widthRight.AddComponent(MetaMesh.GetCopy("order_arrow_a"));
 		MatrixFrame frame3 = MatrixFrame.Identity;
-		frame3.rotation.RotateAboutUp(-(float)Math.PI / 2f);
+		frame3.rotation.RotateAboutUp(-System.MathF.PI / 2f);
 		_widthLeft.SetFrame(ref frame3);
 		frame3 = MatrixFrame.Identity;
-		frame3.rotation.RotateAboutUp((float)Math.PI / 2f);
+		frame3.rotation.RotateAboutUp(System.MathF.PI / 2f);
 		_widthRight.SetFrame(ref frame3);
 		_width.AddChild(_widthLeft);
 		_width.AddChild(_widthRight);

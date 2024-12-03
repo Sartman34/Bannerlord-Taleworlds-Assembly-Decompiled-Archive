@@ -6,15 +6,23 @@ public class HandlerResult
 
 	public string Error { get; }
 
-	protected HandlerResult(bool isSuccessful, string error = null)
+	public Message NextMessage { get; }
+
+	protected HandlerResult(bool isSuccessful, string error = null, Message followUp = null)
 	{
 		IsSuccessful = isSuccessful;
 		Error = error;
+		NextMessage = followUp;
 	}
 
 	public static HandlerResult CreateSuccessful()
 	{
 		return new HandlerResult(isSuccessful: true);
+	}
+
+	public static HandlerResult CreateSuccessful(Message nextMessage)
+	{
+		return new HandlerResult(isSuccessful: true, null, nextMessage);
 	}
 
 	public static HandlerResult CreateFailed(string error)

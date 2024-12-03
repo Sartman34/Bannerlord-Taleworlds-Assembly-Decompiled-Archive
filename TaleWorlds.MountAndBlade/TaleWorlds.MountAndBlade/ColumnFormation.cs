@@ -855,7 +855,7 @@ public class ColumnFormation : IFormationArrangement
 	{
 		if (newPosition.HasValue && UnitCount > 0 && RankCount > 0 && (newPosition.Value.AsVec2 - previousPosition).LengthSquared >= RankDepth * RankDepth)
 		{
-			return TaleWorlds.Library.MathF.Abs(MBMath.GetSmallestDifferenceBetweenTwoAngles(CalculateArrangementOrientation().RotationInRadians, (newPosition.Value.AsVec2 - previousPosition).Normalized().RotationInRadians)) >= (float)Math.PI * 3f / 4f;
+			return TaleWorlds.Library.MathF.Abs(MBMath.GetSmallestDifferenceBetweenTwoAngles(CalculateArrangementOrientation().RotationInRadians, (newPosition.Value.AsVec2 - previousPosition).Normalized().RotationInRadians)) >= System.MathF.PI * 3f / 4f;
 		}
 		return false;
 	}

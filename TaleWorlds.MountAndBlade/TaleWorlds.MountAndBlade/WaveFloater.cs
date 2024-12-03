@@ -84,7 +84,7 @@ public class WaveFloater : ScriptComponentBehavior
 
 	private float ConvertToRadians(float angle)
 	{
-		return (float)Math.PI / 180f * angle;
+		return System.MathF.PI / 180f * angle;
 	}
 
 	private void SetMatrix()
@@ -110,7 +110,7 @@ public class WaveFloater : ScriptComponentBehavior
 		{
 			return maxVal * 2f * fq * 1f;
 		}
-		return maxVal * (float)Math.PI / 90f * fq * 1f;
+		return maxVal * System.MathF.PI / 90f * fq * 1f;
 	}
 
 	private void CalculateOscilations()

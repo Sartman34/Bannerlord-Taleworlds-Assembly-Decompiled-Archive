@@ -56,8 +56,8 @@ public sealed class DrawObject2D
 			Vector2 item = default(Vector2);
 			float num = i;
 			num *= 22.5f;
-			item.X = Mathf.Cos(num * ((float)Math.PI / 180f));
-			item.Y = Mathf.Sin(num * ((float)Math.PI / 180f));
+			item.X = Mathf.Cos(num * (System.MathF.PI / 180f));
+			item.Y = Mathf.Sin(num * (System.MathF.PI / 180f));
 			_referenceCirclePoints.Add(item);
 		}
 	}
@@ -184,10 +184,10 @@ public sealed class DrawObject2D
 		Vector2 vector = new Vector2(1f, 0f);
 		vector.X *= radius;
 		vector.Y *= radius;
-		array[array.Length - 4] = 0f;
-		array[array.Length - 3] = 0f;
-		array[array.Length - 2] = vector.X;
-		array[array.Length - 1] = vector.Y;
+		array[^4] = 0f;
+		array[^3] = 0f;
+		array[^2] = vector.X;
+		array[^1] = vector.Y;
 		return new DrawObject2D(MeshTopology.Lines, array, uvs, indices, num);
 	}
 

@@ -239,60 +239,60 @@ public static class ItemCollectionElementViewExtensions
 			case ItemObject.ItemTypeEnum.HeadArmor:
 			case ItemObject.ItemTypeEnum.BodyArmor:
 			case ItemObject.ItemTypeEnum.Cape:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI);
-				identity.RotateAboutSide((float)Math.PI * -3f / 50f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI);
+				identity.RotateAboutSide(System.MathF.PI * -3f / 50f);
 				break;
 			case ItemObject.ItemTypeEnum.Horse:
 			case ItemObject.ItemTypeEnum.Animal:
 			case ItemObject.ItemTypeEnum.HorseHarness:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI / 2f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI / 2f);
 				break;
 			case ItemObject.ItemTypeEnum.OneHandedWeapon:
 			case ItemObject.ItemTypeEnum.TwoHandedWeapon:
 			case ItemObject.ItemTypeEnum.Polearm:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutForward(-(float)Math.PI / 4f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutForward(-System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.HandArmor:
-				identity.RotateAboutSide((float)Math.PI * 11f / 20f);
+				identity.RotateAboutSide(System.MathF.PI * 11f / 20f);
 				num = 2.1f;
 				positionShift = new Vec3(0f, -0.4f);
 				break;
 			case ItemObject.ItemTypeEnum.LegArmor:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI);
-				identity.RotateAboutSide(-(float)Math.PI / 10f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI);
+				identity.RotateAboutSide(-System.MathF.PI / 10f);
 				identity.RotateAboutUp(0.47123894f);
 				break;
 			case ItemObject.ItemTypeEnum.Shield:
-				identity.RotateAboutUp((float)Math.PI);
+				identity.RotateAboutUp(System.MathF.PI);
 				break;
 			case ItemObject.ItemTypeEnum.Crossbow:
-				identity.RotateAboutForward((float)Math.PI * 3f / 4f);
-				identity.RotateAboutSide((float)Math.PI * -3f / 4f);
-				identity.RotateAboutUp(-(float)Math.PI / 2f);
+				identity.RotateAboutForward(System.MathF.PI * 3f / 4f);
+				identity.RotateAboutSide(System.MathF.PI * -3f / 4f);
+				identity.RotateAboutUp(-System.MathF.PI / 2f);
 				break;
 			case ItemObject.ItemTypeEnum.Bow:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutForward(-(float)Math.PI / 4f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutForward(-System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.Arrows:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutForward(-(float)Math.PI / 4f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutForward(-System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.Bolts:
 			case ItemObject.ItemTypeEnum.Thrown:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutForward(-(float)Math.PI / 4f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutForward(-System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.Goods:
 				identity.RotateAboutSide(-1.0995574f);
-				identity.RotateAboutUp((float)Math.PI / 4f);
+				identity.RotateAboutUp(System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.Book:
-				identity.RotateAboutSide(-(float)Math.PI / 5f);
+				identity.RotateAboutSide(-System.MathF.PI / 5f);
 				identity.RotateAboutUp(-0.47123894f);
 				break;
 			}
@@ -323,17 +323,17 @@ public static class ItemCollectionElementViewExtensions
 			case ItemObject.ItemTypeEnum.HeadArmor:
 			case ItemObject.ItemTypeEnum.BodyArmor:
 			case ItemObject.ItemTypeEnum.Cape:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI);
 				break;
 			case ItemObject.ItemTypeEnum.Arrows:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
 				break;
 			case ItemObject.ItemTypeEnum.Horse:
 			case ItemObject.ItemTypeEnum.Animal:
 			case ItemObject.ItemTypeEnum.HorseHarness:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI / 2f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI / 2f);
 				num = 0.65f;
 				break;
 			case ItemObject.ItemTypeEnum.OneHandedWeapon:
@@ -343,16 +343,16 @@ public static class ItemCollectionElementViewExtensions
 			case ItemObject.ItemTypeEnum.Bow:
 			case ItemObject.ItemTypeEnum.Crossbow:
 			case ItemObject.ItemTypeEnum.Thrown:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutForward(-(float)Math.PI / 4f);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutForward(-System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.LegArmor:
-				identity.RotateAboutSide(-(float)Math.PI / 2f);
-				identity.RotateAboutUp((float)Math.PI);
+				identity.RotateAboutSide(-System.MathF.PI / 2f);
+				identity.RotateAboutUp(System.MathF.PI);
 				break;
 			case ItemObject.ItemTypeEnum.HandArmor:
-				identity.RotateAboutSide((float)Math.PI / 2f);
-				identity.RotateAboutSide((float)Math.PI * -2f / 25f);
+				identity.RotateAboutSide(System.MathF.PI / 2f);
+				identity.RotateAboutSide(System.MathF.PI * -2f / 25f);
 				num = 2.1f;
 				positionShift = new Vec3(0f, -0.4f);
 				break;
@@ -361,10 +361,10 @@ public static class ItemCollectionElementViewExtensions
 				break;
 			case ItemObject.ItemTypeEnum.Goods:
 				identity.RotateAboutSide(-1.0995574f);
-				identity.RotateAboutUp((float)Math.PI / 4f);
+				identity.RotateAboutUp(System.MathF.PI / 4f);
 				break;
 			case ItemObject.ItemTypeEnum.Book:
-				identity.RotateAboutSide(-(float)Math.PI / 5f);
+				identity.RotateAboutSide(-System.MathF.PI / 5f);
 				identity.RotateAboutUp(-0.47123894f);
 				break;
 			}

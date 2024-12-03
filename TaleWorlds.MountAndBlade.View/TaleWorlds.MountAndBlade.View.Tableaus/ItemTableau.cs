@@ -339,7 +339,7 @@ public class ItemTableau
 		{
 			_panRotation += mouseMoveX * 0.004363323f;
 			_tiltRotation += mouseMoveY * 0.004363323f;
-			_tiltRotation = TaleWorlds.Library.MathF.Clamp(_tiltRotation, (float)Math.PI * -19f / 20f, -(float)Math.PI / 20f);
+			_tiltRotation = TaleWorlds.Library.MathF.Clamp(_tiltRotation, System.MathF.PI * -19f / 20f, -System.MathF.PI / 20f);
 			MatrixFrame frame = _itemTableauEntity.GetFrame();
 			Vec3 vec = (_itemTableauEntity.GetBoundingBoxMax() + _itemTableauEntity.GetBoundingBoxMin()) * 0.5f;
 			MatrixFrame identity = MatrixFrame.Identity;
@@ -552,7 +552,7 @@ public class ItemTableau
 			}
 			else if (itemType == ItemObject.ItemTypeEnum.Shield)
 			{
-				_panRotation = -(float)Math.PI;
+				_panRotation = -System.MathF.PI;
 			}
 			if (_hasInitialTiltRotation)
 			{
@@ -564,7 +564,7 @@ public class ItemTableau
 			}
 			else
 			{
-				_tiltRotation = -(float)Math.PI / 2f;
+				_tiltRotation = -System.MathF.PI / 2f;
 			}
 		}
 	}

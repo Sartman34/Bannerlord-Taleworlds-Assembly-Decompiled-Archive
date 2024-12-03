@@ -46,4 +46,13 @@ public class KingdomDecisionMapNotification : InformationData
 		KingdomOfDecision = kingdom;
 		Decision = decision;
 	}
+
+	public override bool IsValid()
+	{
+		if (Decision is KingdomPolicyDecision kingdomPolicyDecision)
+		{
+			return kingdomPolicyDecision.Policy.IsReady;
+		}
+		return true;
+	}
 }

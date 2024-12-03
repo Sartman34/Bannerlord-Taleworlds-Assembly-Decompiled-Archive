@@ -12,7 +12,7 @@ public class CircularSchiltronFormation : CircularFormation
 			int currentMaximumRankCount = GetCurrentMaximumRankCount(unitCountWithOverride);
 			float radialInterval = owner.MaximumInterval + base.UnitDiameter;
 			float distanceInterval = owner.MaximumDistance + base.UnitDiameter;
-			return GetCircumferenceAux(unitCountWithOverride, currentMaximumRankCount, radialInterval, distanceInterval) / (float)Math.PI;
+			return GetCircumferenceAux(unitCountWithOverride, currentMaximumRankCount, radialInterval, distanceInterval) / MathF.PI;
 		}
 	}
 

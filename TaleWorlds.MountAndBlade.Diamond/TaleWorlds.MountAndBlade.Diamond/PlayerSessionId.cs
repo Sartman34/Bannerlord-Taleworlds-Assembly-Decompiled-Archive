@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using TaleWorlds.Diamond;
 
 namespace TaleWorlds.MountAndBlade.Diamond;
@@ -8,7 +9,18 @@ public struct PlayerSessionId
 {
 	private Guid _guid;
 
-	public Guid Guid => _guid;
+	[JsonProperty]
+	public Guid Guid
+	{
+		get
+		{
+			return _guid;
+		}
+		private set
+		{
+			_guid = value;
+		}
+	}
 
 	public SessionKey SessionKey => new SessionKey(_guid);
 
@@ -20,16 +32,6 @@ public struct PlayerSessionId
 	public PlayerSessionId(SessionKey sessionKey)
 	{
 		_guid = sessionKey.Guid;
-	}
-
-	public PlayerSessionId(byte[] b)
-	{
-		_guid = new Guid(b);
-	}
-
-	public PlayerSessionId(string g)
-	{
-		_guid = new Guid(g);
 	}
 
 	public static PlayerSessionId NewGuid()

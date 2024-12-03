@@ -74,7 +74,7 @@ public class SiegeTowerSpawner : SpawnerBase
 	[EditorVisibleScriptComponentVariable(true)]
 	public string BarrierTagToRemove = string.Empty;
 
-	public float RampRotationRadian => RampRotationDegree * ((float)Math.PI / 180f);
+	public float RampRotationRadian => RampRotationDegree * (System.MathF.PI / 180f);
 
 	protected internal override void OnEditorInit()
 	{
@@ -101,7 +101,7 @@ public class SiegeTowerSpawner : SpawnerBase
 		if ((double)vec.x < 0.0)
 		{
 			num = 0f - num;
-			num += (float)Math.PI * 2f;
+			num += System.MathF.PI * 2f;
 		}
 		float num2 = num;
 		RampRotationDegree = num2 * 57.29578f;

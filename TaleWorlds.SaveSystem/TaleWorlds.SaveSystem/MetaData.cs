@@ -45,7 +45,7 @@ public class MetaData
 
 	public void Serialize(Stream stream)
 	{
-		byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this));
+		byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((object)this));
 		stream.Write(BitConverter.GetBytes(bytes.Length), 0, 4);
 		stream.Write(bytes, 0, bytes.Length);
 	}

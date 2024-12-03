@@ -1800,7 +1800,7 @@ public class MPLobbyPlayerBaseVM : ViewModel
 
 	private void ExecuteShowRankProgression()
 	{
-		MPLobbyGameTypeVM mPLobbyGameTypeVM = GameTypes.FirstOrDefault((MPLobbyGameTypeVM gt) => gt.IsSelected);
+		MPLobbyGameTypeVM? mPLobbyGameTypeVM = GameTypes.FirstOrDefault((MPLobbyGameTypeVM gt) => gt.IsSelected);
 		if (mPLobbyGameTypeVM != null && !mPLobbyGameTypeVM.IsCasual)
 		{
 			OnRankProgressionRequested?.Invoke(this);

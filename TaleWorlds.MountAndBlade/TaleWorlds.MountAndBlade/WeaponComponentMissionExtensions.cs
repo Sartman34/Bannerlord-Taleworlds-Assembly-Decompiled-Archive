@@ -34,7 +34,7 @@ public static class WeaponComponentMissionExtensions
 			body.GetCapsule(ref data, i);
 			Vec3 vec = (data.P1 + data.P2) * 0.5f;
 			float num3 = data.P1.Distance(data.P2);
-			float num4 = data.Radius * data.Radius * (float)Math.PI * (1.3333334f * data.Radius + num3);
+			float num4 = data.Radius * data.Radius * System.MathF.PI * (1.3333334f * data.Radius + num3);
 			num += num4;
 			result += vec * num4;
 		}

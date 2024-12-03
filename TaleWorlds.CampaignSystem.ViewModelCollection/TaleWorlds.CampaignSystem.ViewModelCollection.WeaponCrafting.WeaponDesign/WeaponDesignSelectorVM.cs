@@ -135,7 +135,9 @@ public class WeaponDesignSelectorVM : ViewModel
 		{
 			if (item.IsValid && item.CurValue > 0f && item.MaxValue > 0f)
 			{
-				list.Add(new TooltipProperty(item.DescriptionText.ToString(), item.CurValue.ToString(), 0));
+				string definition = item.DescriptionText.ToString();
+				float curValue = item.CurValue;
+				list.Add(new TooltipProperty(definition, curValue.ToString(), 0));
 			}
 		}
 		return list;

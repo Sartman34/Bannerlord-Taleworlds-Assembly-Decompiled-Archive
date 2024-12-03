@@ -98,7 +98,7 @@ public class ChatClient
 	{
 		if (IsConnected)
 		{
-			byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+			byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((object)message));
 			ArraySegment<byte> buffer = new ArraySegment<byte>(bytes, 0, bytes.Length);
 			await _socket.SendAsync(buffer, WebSocketMessageType.Text, endOfMessage: true, CancellationToken.None);
 		}

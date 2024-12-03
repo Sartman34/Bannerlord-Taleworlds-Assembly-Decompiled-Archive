@@ -288,13 +288,13 @@ public struct ArrangementOrder
 		Func<WorldPosition> func = delegate
 		{
 			WorldPosition result = center;
-			float rotation = MBRandom.RandomFloat * (float)Math.PI * 2f;
+			float rotation = MBRandom.RandomFloat * System.MathF.PI * 2f;
 			result.SetVec2(center.AsVec2 + Vec2.FromRotation(rotation) * distanceMultiplied);
 			return result;
 		};
 		WorldPosition[] array = ((Func<WorldPosition[]>)delegate
 		{
-			float num2 = MBRandom.RandomFloat * (float)Math.PI * 2f;
+			float num2 = MBRandom.RandomFloat * System.MathF.PI * 2f;
 			switch (count)
 			{
 			case 2:
@@ -302,7 +302,7 @@ public struct ArrangementOrder
 				WorldPosition worldPosition9 = center;
 				worldPosition9.SetVec2(center.AsVec2 + Vec2.FromRotation(num2) * distanceMultiplied);
 				WorldPosition worldPosition10 = center;
-				worldPosition10.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + (float)Math.PI) * distanceMultiplied);
+				worldPosition10.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + System.MathF.PI) * distanceMultiplied);
 				return new WorldPosition[2] { worldPosition9, worldPosition10 };
 			}
 			case 3:
@@ -310,7 +310,7 @@ public struct ArrangementOrder
 				WorldPosition worldPosition6 = center;
 				worldPosition6.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + 0f) * distanceMultiplied);
 				WorldPosition worldPosition7 = center;
-				worldPosition7.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + (float)Math.PI * 2f / 3f) * distanceMultiplied);
+				worldPosition7.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + System.MathF.PI * 2f / 3f) * distanceMultiplied);
 				WorldPosition worldPosition8 = center;
 				worldPosition8.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + 4.1887903f) * distanceMultiplied);
 				return new WorldPosition[3] { worldPosition6, worldPosition7, worldPosition8 };
@@ -320,9 +320,9 @@ public struct ArrangementOrder
 				WorldPosition worldPosition2 = center;
 				worldPosition2.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + 0f) * distanceMultiplied);
 				WorldPosition worldPosition3 = center;
-				worldPosition3.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + (float)Math.PI / 2f) * distanceMultiplied);
+				worldPosition3.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + System.MathF.PI / 2f) * distanceMultiplied);
 				WorldPosition worldPosition4 = center;
-				worldPosition4.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + (float)Math.PI) * distanceMultiplied);
+				worldPosition4.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + System.MathF.PI) * distanceMultiplied);
 				WorldPosition worldPosition5 = center;
 				worldPosition5.SetVec2(center.AsVec2 + Vec2.FromRotation(num2 + 4.712389f) * distanceMultiplied);
 				return new WorldPosition[4] { worldPosition2, worldPosition3, worldPosition4, worldPosition5 };
@@ -462,7 +462,7 @@ public struct ArrangementOrder
 			Vec2 direction = formation.Direction;
 			Vec2 vector = (formation.OrderPosition - previousOrderPosition).Normalized();
 			float num = direction.AngleBetween(vector);
-			if ((num > (float)Math.PI / 2f || num < -(float)Math.PI / 2f) && formation.QuerySystem.AveragePosition.DistanceSquared(formation.OrderPosition) < formation.Depth * formation.Depth / 10f)
+			if ((num > System.MathF.PI / 2f || num < -System.MathF.PI / 2f) && formation.QuerySystem.AveragePosition.DistanceSquared(formation.OrderPosition) < formation.Depth * formation.Depth / 10f)
 			{
 				formation.ReferencePosition = formation.OrderPosition;
 			}

@@ -166,7 +166,7 @@ public class MobilePartyTrackerItemWidget : Widget
 				{
 					vec *= -1f;
 				}
-				float radian = Mathf.Atan2(vec.y, vec.x) - (float)Math.PI / 2f;
+				float radian = Mathf.Atan2(vec.y, vec.x) - System.MathF.PI / 2f;
 				float num = Mathf.Cos(radian);
 				float num2 = Mathf.Sin(radian);
 				float num3 = num / num2;

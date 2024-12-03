@@ -57,7 +57,7 @@ public class LobbyNotification
 		string result = "{}";
 		try
 		{
-			result = JsonConvert.SerializeObject(Parameters, Formatting.None);
+			result = JsonConvert.SerializeObject((object)Parameters, (Formatting)0);
 		}
 		catch (Exception)
 		{

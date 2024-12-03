@@ -128,7 +128,7 @@ public class DeclareDragonBannerSceneNotificationItem : SceneNotificationData
 		}
 		else if (num != -1 && clanHeroesPool.ElementAtOrDefault(num) != null)
 		{
-			Hero hero = clanHeroesPool.ElementAtOrDefault(num);
+			Hero? hero = clanHeroesPool.ElementAtOrDefault(num);
 			characterObject = hero.CharacterObject;
 			customColor = hero.MapFaction.Color;
 			customColor2 = hero.MapFaction.Color2;

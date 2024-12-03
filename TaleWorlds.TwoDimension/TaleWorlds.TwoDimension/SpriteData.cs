@@ -56,7 +56,7 @@ public class SpriteData
 	private void LoadSpriteDataFromFile(XmlDocument spriteData, string filePath)
 	{
 		spriteData.Load(filePath);
-		XmlElement xmlElement = spriteData["SpriteData"];
+		XmlElement? xmlElement = spriteData["SpriteData"];
 		XmlNode xmlNode = xmlElement["SpriteCategories"];
 		XmlNode xmlNode2 = xmlElement["SpriteParts"];
 		XmlNode xmlNode3 = xmlElement["Sprites"];

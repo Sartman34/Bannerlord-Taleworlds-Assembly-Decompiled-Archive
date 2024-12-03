@@ -57,6 +57,8 @@ public struct MissionObjectId
 
 	public override string ToString()
 	{
-		return Id + " - " + CreatedAtRuntime.ToString();
+		object obj = Id;
+		bool createdAtRuntime = CreatedAtRuntime;
+		return string.Concat(obj, " - ", createdAtRuntime.ToString());
 	}
 }

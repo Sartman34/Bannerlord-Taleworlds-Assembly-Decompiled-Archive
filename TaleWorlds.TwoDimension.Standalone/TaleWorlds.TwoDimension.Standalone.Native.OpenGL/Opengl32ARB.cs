@@ -202,8 +202,8 @@ internal static class Opengl32ARB
 			string text = array[i];
 			byte[] array4 = new byte[Encoding.UTF8.GetByteCount(text) + 2];
 			Encoding.UTF8.GetBytes(text, 0, text.Length, array4, 0);
-			array4[array4.Length - 2] = 10;
-			array4[array4.Length - 1] = 0;
+			array4[^2] = 10;
+			array4[^1] = 0;
 			array2[i] = array4;
 			array3[i] = array4.Length - 1;
 		}

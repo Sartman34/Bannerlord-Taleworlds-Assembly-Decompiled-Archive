@@ -661,7 +661,7 @@ public class SiegeTower : SiegeWeapon, IPathHolder, IPrimarySiegeWeapon, IMoveab
 						gameEntity = item2;
 						continue;
 					}
-					LadderQueueManager ladderQueueManager = item2.GetScriptComponents<LadderQueueManager>().FirstOrDefault();
+					LadderQueueManager? ladderQueueManager = item2.GetScriptComponents<LadderQueueManager>().FirstOrDefault();
 					ladderQueueManager.Initialize(-1, MatrixFrame.Identity, Vec3.Zero, BattleSideEnum.None, int.MaxValue, 1f, 5f, 5f, 5f, 0f, blockUsage: false, 1f, 0f, 0f, doesManageMultipleIDs: false, -1, -1, int.MaxValue, int.MaxValue);
 					ladderQueueManager.DeactivateImmediate();
 				}
@@ -683,9 +683,9 @@ public class SiegeTower : SiegeWeapon, IPathHolder, IPrimarySiegeWeapon, IMoveab
 				if (ladderQueueManager2 != null)
 				{
 					MatrixFrame identity = MatrixFrame.Identity;
-					identity.rotation.RotateAboutSide((float)Math.PI / 2f);
-					identity.rotation.RotateAboutForward((float)Math.PI / 8f);
-					ladderQueueManager2.Initialize(DynamicNavmeshIdStart + 5, identity, new Vec3(0f, 0f, 1f), BattleSideEnum.Attacker, list3.Count * 2, (float)Math.PI / 4f, 2f, 1f, 4f, 3f, blockUsage: false, 0.8f, (float)num2 * 2f / 3f, 5f, list3.Count > 1, DynamicNavmeshIdStart + 6, DynamicNavmeshIdStart + 7, num2 * TaleWorlds.Library.MathF.Round((float)list3.Count * 0.666f), list3.Count + 1);
+					identity.rotation.RotateAboutSide(System.MathF.PI / 2f);
+					identity.rotation.RotateAboutForward(System.MathF.PI / 8f);
+					ladderQueueManager2.Initialize(DynamicNavmeshIdStart + 5, identity, new Vec3(0f, 0f, 1f), BattleSideEnum.Attacker, list3.Count * 2, System.MathF.PI / 4f, 2f, 1f, 4f, 3f, blockUsage: false, 0.8f, (float)num2 * 2f / 3f, 5f, list3.Count > 1, DynamicNavmeshIdStart + 6, DynamicNavmeshIdStart + 7, num2 * TaleWorlds.Library.MathF.Round((float)list3.Count * 0.666f), list3.Count + 1);
 					_queueManagers.Add(ladderQueueManager2);
 				}
 				base.GameEntity.Scene.MarkFacesWithIdAsLadder(5, isLadder: true);
@@ -700,9 +700,9 @@ public class SiegeTower : SiegeWeapon, IPathHolder, IPrimarySiegeWeapon, IMoveab
 				{
 					MatrixFrame identity2 = MatrixFrame.Identity;
 					identity2.origin.y += 4f;
-					identity2.rotation.RotateAboutSide(-(float)Math.PI / 2f);
-					identity2.rotation.RotateAboutUp((float)Math.PI);
-					ladderQueueManager3.Initialize(DynamicNavmeshIdStart + 2, identity2, new Vec3(0f, -1f), BattleSideEnum.Attacker, 15, (float)Math.PI / 4f, 2f, 1f, 3f, 1f, blockUsage: false, 0.8f, 4f, 5f, doesManageMultipleIDs: false, -2, -2, int.MaxValue, 15);
+					identity2.rotation.RotateAboutSide(-System.MathF.PI / 2f);
+					identity2.rotation.RotateAboutUp(System.MathF.PI);
+					ladderQueueManager3.Initialize(DynamicNavmeshIdStart + 2, identity2, new Vec3(0f, -1f), BattleSideEnum.Attacker, 15, System.MathF.PI / 4f, 2f, 1f, 3f, 1f, blockUsage: false, 0.8f, 4f, 5f, doesManageMultipleIDs: false, -2, -2, int.MaxValue, 15);
 					_queueManagers.Add(ladderQueueManager3);
 				}
 			}

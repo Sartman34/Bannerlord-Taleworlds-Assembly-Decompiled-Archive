@@ -59,7 +59,7 @@ public class Font
 	{
 		XmlDocument xmlDocument = new XmlDocument();
 		xmlDocument.Load(path);
-		XmlElement xmlElement = xmlDocument["font"];
+		XmlElement? xmlElement = xmlDocument["font"];
 		XmlElement xmlElement2 = xmlElement["info"];
 		_realSize = Math.Abs(Convert.ToInt32(xmlElement2.Attributes["size"].Value));
 		Smooth = true;

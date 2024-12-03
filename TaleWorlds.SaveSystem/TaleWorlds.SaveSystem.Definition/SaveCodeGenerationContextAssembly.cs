@@ -175,7 +175,7 @@ internal class SaveCodeGenerationContextAssembly
 		text2 = text2.Replace('+', '.');
 		string[] nestedClasses = GetNestedClasses(text2);
 		NamespaceCode namespaceCode = _codeGenerationContext.FindOrCreateNamespace(@namespace);
-		string text3 = nestedClasses[nestedClasses.Length - 1];
+		string text3 = nestedClasses[^1];
 		ClassCode classCode = null;
 		for (int i = 0; i < nestedClasses.Length; i++)
 		{

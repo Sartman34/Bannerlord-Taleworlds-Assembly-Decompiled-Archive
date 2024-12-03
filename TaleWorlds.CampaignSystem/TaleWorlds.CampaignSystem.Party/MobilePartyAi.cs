@@ -845,7 +845,7 @@ public class MobilePartyAi
 				for (int j = num2; j < num2 + 9; j++)
 				{
 					Vec2 vec4 = vec2;
-					vec4.RotateCCW((float)j / 9f * ((float)Math.PI / 2f) * (float)i * 0.5f * (TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(0f, length - 3.6000001f), 9f) / 9f));
+					vec4.RotateCCW((float)j / 9f * (System.MathF.PI / 2f) * (float)i * 0.5f * (TaleWorlds.Library.MathF.Min(TaleWorlds.Library.MathF.Max(0f, length - 3.6000001f), 9f) / 9f));
 					Vec2 vec5 = vec + vec4 * 3f * 1.2f * ((float)num / 5f);
 					PathFaceRecord faceIndex = Campaign.Current.MapSceneWrapper.GetFaceIndex(_mobileParty.Position2D);
 					PathFaceRecord faceIndex2 = Campaign.Current.MapSceneWrapper.GetFaceIndex(vec5);
@@ -1148,7 +1148,7 @@ public class MobilePartyAi
 		float num9 = 0f;
 		for (int i = 0; i < 8; i++)
 		{
-			Vec2 vec2 = new Vec2(TaleWorlds.Library.MathF.Sin((float)i / 8f * (float)Math.PI * 2f), TaleWorlds.Library.MathF.Cos((float)i / 8f * (float)Math.PI * 2f));
+			Vec2 vec2 = new Vec2(TaleWorlds.Library.MathF.Sin((float)i / 8f * System.MathF.PI * 2f), TaleWorlds.Library.MathF.Cos((float)i / 8f * System.MathF.PI * 2f));
 			float num10 = 0f;
 			for (int j = 0; j < DangerousPartiesAndTheirVecs.Count; j++)
 			{

@@ -16,8 +16,6 @@ public class ClientApplicationConfiguration
 
 	public string[] Clients { get; set; }
 
-	public string[] SessionlessClients { get; set; }
-
 	public SessionProviderType SessionProviderType { get; set; }
 
 	public ParameterContainer Parameters { get; set; }
@@ -27,7 +25,6 @@ public class ClientApplicationConfiguration
 		Name = "NewlyCreated";
 		InheritFrom = "";
 		Clients = new string[0];
-		SessionlessClients = new string[0];
 		Parameters = new ParameterContainer();
 	}
 
@@ -49,7 +46,7 @@ public class ClientApplicationConfiguration
 		return xmlDocument.ChildNodes[0].Attributes["Value"].InnerText;
 	}
 
-	public static void SetDefualtConfigurationCategory(string category)
+	public static void SetDefaultConfigurationCategory(string category)
 	{
 		_defaultConfigurationCategory = category;
 	}
@@ -102,16 +99,6 @@ public class ClientApplicationConfiguration
 					list.Add(innerText2);
 				}
 				Clients = list.ToArray();
-			}
-			else if (childNode.Name == "SessionlessClients")
-			{
-				List<string> list2 = new List<string>();
-				foreach (XmlNode childNode3 in childNode.ChildNodes)
-				{
-					string innerText3 = childNode3.Attributes["Type"].InnerText;
-					list2.Add(innerText3);
-				}
-				SessionlessClients = list2.ToArray();
 			}
 			else
 			{

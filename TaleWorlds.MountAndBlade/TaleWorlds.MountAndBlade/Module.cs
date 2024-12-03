@@ -372,7 +372,7 @@ public sealed class Module : DotNetObject, IGameStateManagerOwner
 			}
 			else if (text == "/clientConfigurationCategory".ToLower())
 			{
-				ClientApplicationConfiguration.SetDefualtConfigurationCategory(array[i + 1]);
+				ClientApplicationConfiguration.SetDefaultConfigurationCategory(array[i + 1]);
 				i++;
 			}
 			else if (text == "/overridenusername".ToLower())

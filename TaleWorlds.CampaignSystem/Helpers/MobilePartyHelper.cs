@@ -226,7 +226,7 @@ public static class MobilePartyHelper
 			{
 				num++;
 				Vec2 vec3 = Vec2.One.Normalized();
-				vec3.RotateCCW(MBRandom.RandomFloatRanged(0f, (float)Math.PI * 2f));
+				vec3.RotateCCW(MBRandom.RandomFloatRanged(0f, System.MathF.PI * 2f));
 				vec3 *= MBRandom.RandomFloatRanged(minDistance, maxDistance);
 				vec = centerPosition + vec3;
 				PathFaceRecord faceIndex2 = Campaign.Current.MapSceneWrapper.GetFaceIndex(vec);

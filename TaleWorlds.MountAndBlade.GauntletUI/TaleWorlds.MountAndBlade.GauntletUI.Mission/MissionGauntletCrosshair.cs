@@ -69,9 +69,9 @@ public class MissionGauntletCrosshair : MissionGauntletBattleUIBase
 		{
 			_dataSource.CrosshairType = BannerlordConfig.CrosshairType;
 			Agent mainAgent = base.Mission.MainAgent;
-			double num = base.MissionScreen.CameraViewAngle * ((float)Math.PI / 180f);
+			double num = base.MissionScreen.CameraViewAngle * (System.MathF.PI / 180f);
 			double accuracy = 2.0 * Math.Tan((double)(mainAgent.CurrentAimingError + mainAgent.CurrentAimingTurbulance) * (0.5 / Math.Tan(num * 0.5)));
-			_dataSource.SetProperties(accuracy, 1f + (base.MissionScreen.CombatCamera.HorizontalFov - (float)Math.PI / 2f) / ((float)Math.PI / 2f));
+			_dataSource.SetProperties(accuracy, 1f + (base.MissionScreen.CombatCamera.HorizontalFov - System.MathF.PI / 2f) / (System.MathF.PI / 2f));
 			WeaponInfo wieldedWeaponInfo = mainAgent.GetWieldedWeaponInfo(Agent.HandIndex.MainHand);
 			float numberToCheck = MBMath.WrapAngle(mainAgent.LookDirection.AsVec2.RotationInRadians - mainAgent.GetMovementDirection().RotationInRadians);
 			if (wieldedWeaponInfo.IsValid && wieldedWeaponInfo.IsRangedWeapon && BannerlordConfig.DisplayTargetingReticule)

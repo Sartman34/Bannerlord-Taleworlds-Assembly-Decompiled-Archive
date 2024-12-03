@@ -10,11 +10,30 @@ public class MPOptionsVM : OptionsVM
 
 	private TextObject _noChangesMadeTextObject = new TextObject("{=jS5rrX8M}There are no changes to apply.");
 
+	private bool _areHotkeysEnabled;
+
 	private bool _isEnabled;
 
 	private string _applyText;
 
 	private string _revertText;
+
+	[DataSourceProperty]
+	public bool AreHotkeysEnabled
+	{
+		get
+		{
+			return _areHotkeysEnabled;
+		}
+		set
+		{
+			if (value != _areHotkeysEnabled)
+			{
+				_areHotkeysEnabled = value;
+				OnPropertyChangedWithValue(value, "AreHotkeysEnabled");
+			}
+		}
+	}
 
 	[DataSourceProperty]
 	public bool IsEnabled

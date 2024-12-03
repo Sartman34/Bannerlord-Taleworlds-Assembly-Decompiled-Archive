@@ -506,11 +506,11 @@ public class WeaponComponentData
 			identity = MatrixFrame.Identity;
 			if (WeaponClass == WeaponClass.ThrowingAxe)
 			{
-				identity.rotation.RotateAboutUp(-(float)Math.PI / 2f);
+				identity.rotation.RotateAboutUp(-System.MathF.PI / 2f);
 			}
 			else if (WeaponClass == WeaponClass.ThrowingKnife)
 			{
-				identity.rotation.RotateAboutUp(-(float)Math.PI / 2f);
+				identity.rotation.RotateAboutUp(-System.MathF.PI / 2f);
 			}
 			else
 			{

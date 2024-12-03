@@ -509,7 +509,7 @@ public class BannerBuilderEditableAreaWidget : Widget
 
 	private static Vec2 DirFromAngle(float angle)
 	{
-		float x = angle * ((float)Math.PI * 2f);
+		float x = angle * (System.MathF.PI * 2f);
 		return new Vec2(0f - TaleWorlds.Library.MathF.Sin(x), TaleWorlds.Library.MathF.Cos(x));
 	}
 
